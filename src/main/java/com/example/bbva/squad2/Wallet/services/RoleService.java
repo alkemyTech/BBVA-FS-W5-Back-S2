@@ -1,9 +1,10 @@
-package service;
+package com.example.bbva.squad2.Wallet.services;
 
-import modelo.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import repository.RolesRepository;
+
+import com.example.bbva.squad2.Wallet.models.Role;
+import com.example.bbva.squad2.Wallet.repositories.RolesRepository;
 
 import java.util.List;
 

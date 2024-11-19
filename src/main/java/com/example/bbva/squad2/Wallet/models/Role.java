@@ -1,4 +1,4 @@
-package modelo;
+package com.example.bbva.squad2.Wallet.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
+import com.example.bbva.squad2.Wallet.enums.RoleName;
 
 @Data
 @Builder
