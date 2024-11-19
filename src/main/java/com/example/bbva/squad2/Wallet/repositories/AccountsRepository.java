@@ -1,11 +1,15 @@
 package com.example.bbva.squad2.Wallet.repositories;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.bbva.squad2.Wallet.models.Accounts;
+import com.example.bbva.squad2.Wallet.models.Account;
 
 @Repository
-public interface AccountsRepository extends JpaRepository<Accounts, Long> {
+public interface AccountsRepository extends JpaRepository<Account, Long> {
  
+    List<Account> findByUserId(Long userId);
+	
 }
