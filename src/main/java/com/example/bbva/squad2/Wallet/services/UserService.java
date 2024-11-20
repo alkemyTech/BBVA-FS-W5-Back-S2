@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -37,5 +38,9 @@ public class UserService {
                 .map(User::getRole)
                 .map(role -> role.getName() == RoleName.ADMIN)
                 .orElse(false);
+    }
+
+    public List<User> getAllUsers(){
+        return userRepository.findAll();
     }
 }
