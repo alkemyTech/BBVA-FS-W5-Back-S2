@@ -9,9 +9,6 @@ import lombok.Setter;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,14 +18,14 @@ public class UsuarioSeguridad {
 
     private Long id;
     private String username;
-    private List<String> roles;
+    private String role;
     private LocalDateTime createdAt;
     private LocalDateTime expirationDate;
 
-    public UsuarioSeguridad (Claims claims) {
+    public UsuarioSeguridad(Claims claims) {
         this.id = Long.getLong(claims.getId());
         this.username = claims.getSubject();
-        this.roles = Arrays.asList(claims.get("roles", String.class).split(","));
+        this.role = claims.get("roles", String.class);
         this.createdAt = Instant.ofEpochMilli(claims.getIssuedAt().getTime())
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();

@@ -38,20 +38,24 @@ public class UserService {
         return username -> {
             Optional<User> optionalUser = usuarioRepository.findByEmail(username);
 
-            User user = optionalUser.orElseThrow(()
-                    -> new UsernameNotFoundException("User not found with email: " + username));
+            User user = optionalUser.orElseThrow(() ->
+                    new UsernameNotFoundException("User not found with email: " + username));
 
-            List<GrantedAuthority> authorities = user.getRoles().stream()
-                    .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                    .collect(Collectors.toList());
+            // Obtener el único rol del usuario
+            Role role = user.getRole(); // Cambiado de getRoles() a getRole()
 
+            // Crear una autoridad basada en el único rol
+            GrantedAuthority authority = new SimpleGrantedAuthority(role.getName().name());
+
+            // Devolver el usuario con la autoridad
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getEmail())
                     .password(user.getPassword())
-                    .authorities(authorities)
+                    .authorities(List.of(authority)) // Asignar solo una autoridad
                     .build();
         };
     }
+
 
     public UserService(UserRepository userRepository,RolesRepository rolesRepository,
                        AccountsRepository accountsRepository) {
@@ -60,35 +64,17 @@ public class UserService {
         this.accountsRepository = accountsRepository;
     }
 
-    /*@Transactional
     public void deleteUser(Long userId, String currentUsername, boolean isAdmin) {
         User userToDelete = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
 
-        // Validar permisos
-        if (!isAdmin && !userToDelete.getEmail().equals(currentUsername)) {
-            throw new SecurityException("You are not allowed to delete this user.");
-        }
-
-        // Realizar eliminación lógica
-        userToDelete.setSoftDelete(LocalDateTime.now());
-        userRepository.save(userToDelete);
-    }*/
-
-    @Transactional
-    public void deleteUser(Long userId) {
-        User userToDelete = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-        // Realizar eliminación lógica
         userToDelete.setSoftDelete(LocalDateTime.now());
         userRepository.save(userToDelete);
     }
 
     public boolean isAdmin(String currentUsername) {
         return userRepository.findByEmail(currentUsername)
-                .map(user -> user.getRoles().stream()
-                        .anyMatch(role -> role.getName() == RoleName.ADMIN)) // Verificamos si alguno de los roles es ADMIN
+                .map(user -> user.getRole() != null && user.getRole().getName() == RoleName.ADMIN) // Verificamos si el rol del usuario es ADMIN
                 .orElse(false);
     }
 
@@ -121,7 +107,7 @@ public class UserService {
                 .lastName(lastName)
                 .email(email)
                 .password(encryptPassword(password))
-                .roles(Set.of(userRole))
+                .role(userRole)
                 .build();
 
         userRepository.save(newUser);
