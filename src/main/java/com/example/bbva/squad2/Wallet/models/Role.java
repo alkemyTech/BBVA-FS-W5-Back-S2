@@ -49,4 +49,11 @@ public class Role {
         this.updateDate = LocalDateTime.now();
     }
 
+    public Role(RoleName name, String description, LocalDateTime creationDate, LocalDateTime updateDate) {
+        this.name = name;
+        this.description = description;
+        this.creationDate = creationDate;
+        this.updateDate = updateDate;
+    }
+
 }
