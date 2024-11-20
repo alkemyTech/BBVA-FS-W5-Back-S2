@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -43,4 +44,8 @@ public class UserService {
     public List<User> getAllUsers(){
         return userRepository.findAll();
     }
+    
+    public Optional<User> findById(Long id){
+		return userRepository.findById(id);
+	}
 }
