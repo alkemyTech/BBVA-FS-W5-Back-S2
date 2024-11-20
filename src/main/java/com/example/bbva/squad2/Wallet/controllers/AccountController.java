@@ -1,7 +1,6 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,7 @@ import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.services.AccountService;
 
 @RestController
-public class AdminController {
+public class AccountController {
 
 	@Autowired
 	private AccountService as;
