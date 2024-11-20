@@ -2,6 +2,7 @@ package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
 import com.example.bbva.squad2.Wallet.models.User;
+import com.example.bbva.squad2.Wallet.services.AuthService;
 import com.example.bbva.squad2.Wallet.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +13,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
     private final UserService userService;
 
     public AuthController(UserService userService) {
@@ -47,5 +54,13 @@ public class AuthController {
         } catch (RuntimeException e) {
             return new ResponseEntity<>("Error registering user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+        String username = credentials.get("username");
+        String password = credentials.get("password");
+
+        return ResponseEntity.ok(authService.login(username, password));
     }
 }

@@ -8,6 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.beans.factory.annotation.Value;
 
 import io.jsonwebtoken.Claims;
@@ -15,8 +19,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Service;
 
-
+@Service
+@RequiredArgsConstructor
 public class JwtServices {
 	 
 	@Value("${application.security.jwt.login-key}")
@@ -74,7 +80,6 @@ public class JwtServices {
 	        return claimsResolver.apply(claims);
 	    }
 
-
 	    private boolean isTokenExpired(final String token) {
 	        return extractExpiration(token).before(new Date());
 	    }
@@ -94,11 +99,11 @@ public class JwtServices {
 	                .getBody();
 	    }
 
-	    public UserSecurity validateAndGetSecurity(
+	    public UsuarioSeguridad validateAndGetSecurity(
 	            final String token
 	    ) {
 	        Claims claims = extractAllClaims(token);
-	        UserSecurity security = new UserSecurity(claims);
+			UsuarioSeguridad security = new UsuarioSeguridad(claims);
 	        return security;
 	    }
 	}
