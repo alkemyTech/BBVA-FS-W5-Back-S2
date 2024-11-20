@@ -46,12 +46,12 @@ public class Account {
 
     @NotNull
     private Double balance;
-
+    
     //comentar esto que estaba asi
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
+    
     @Column(updatable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;

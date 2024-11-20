@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -102,4 +103,8 @@ public class UserService {
     private String encryptPassword(String password) {
         return new BCryptPasswordEncoder().encode(password);
     }
+
+    public Optional<User> findById(Long id){
+		return userRepository.findById(id);
+	}
 }

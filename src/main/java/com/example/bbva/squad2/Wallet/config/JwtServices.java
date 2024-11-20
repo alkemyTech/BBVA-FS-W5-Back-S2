@@ -16,7 +16,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-/*
+
 public class JwtServices {
 	 
 	@Value("${application.security.jwt.login-key}")
@@ -102,6 +102,6 @@ public class JwtServices {
 	        return security;
 	    }
 	}
-*/
+
 
 
