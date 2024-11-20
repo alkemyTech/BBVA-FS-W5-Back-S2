@@ -21,8 +21,6 @@ public class AccountController {
 	public ResponseEntity<List<AccountDTO>> getAccounts(@PathVariable Long id) throws Exception {
 	    List<AccountDTO> accountsByUser = as.getAccountsByUser(id);
 	  
-	    return accountsByUser.isEmpty() 
-	            ? ResponseEntity.noContent().build() 
-	            : ResponseEntity.ok(accountsByUser); 
+	    return ResponseEntity.ok(accountsByUser);
 	}
 }
