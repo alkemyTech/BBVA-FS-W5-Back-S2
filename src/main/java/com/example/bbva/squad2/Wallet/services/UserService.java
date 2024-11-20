@@ -19,7 +19,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    @Transactional
+    /*@Transactional
     public void deleteUser(Long userId, String currentUsername, boolean isAdmin) {
         User userToDelete = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -28,6 +28,16 @@ public class UserService {
         if (!isAdmin && !userToDelete.getEmail().equals(currentUsername)) {
             throw new SecurityException("You are not allowed to delete this user.");
         }
+
+        // Realizar eliminación lógica
+        userToDelete.setSoftDelete(LocalDateTime.now());
+        userRepository.save(userToDelete);
+    }*/
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User userToDelete = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Realizar eliminación lógica
         userToDelete.setSoftDelete(LocalDateTime.now());

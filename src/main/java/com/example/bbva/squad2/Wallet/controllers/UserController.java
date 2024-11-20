@@ -25,7 +25,6 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-
     //Comento hasta que tengamos el autenticador
     /*@DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id, Authentication authentication) {
@@ -35,4 +34,11 @@ public class UserController {
         userService.deleteUser(id, currentUsername, isAdmin);
         return ResponseEntity.noContent().build();
     }*/
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
 }
