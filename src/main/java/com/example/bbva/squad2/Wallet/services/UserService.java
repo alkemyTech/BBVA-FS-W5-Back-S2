@@ -57,8 +57,7 @@ public class UserService {
     }
 
     //codigo hugo pertenece a ful22
-
-
+    
     @Transactional
     public User registerUser(String firstName, String lastName, String email, String password) {
 
