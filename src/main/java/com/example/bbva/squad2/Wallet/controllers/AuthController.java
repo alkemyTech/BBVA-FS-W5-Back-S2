@@ -33,18 +33,14 @@ public class AuthController {
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterDTO userDTO) {
         try {
             // Registrar usuario
-            User createdUser = userService.registerUser(
-                    userDTO.getFirstName(),
-                    userDTO.getLastName(),
-                    userDTO.getEmail(),
-                    userDTO.getPassword()
-            );
+            User createdUser = userService.registerUser(userDTO);
 
             // Construir respuesta con datos visibles
             RegisterDTO responseDTO = RegisterDTO.builder()
                     .firstName(createdUser.getFirstName())
                     .lastName(createdUser.getLastName())
                     .email(createdUser.getEmail())
+                    .role(createdUser.getRole() != null ? createdUser.getRole().getName().name() : null)
                     .build();
 
             return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);

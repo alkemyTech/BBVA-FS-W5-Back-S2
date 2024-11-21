@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.services;
 
+import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Role;
@@ -81,34 +82,42 @@ public class UserService {
     }
 
     //codigo hugo pertenece a ful22
-    
+
     @Transactional
-    public User registerUser(String firstName, String lastName, String email, String password) {
+    public User registerUser(RegisterDTO registerDTO) {
 
         // Validar si el email ya está registrado
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw new IllegalArgumentException("Email is already registered.");
+        if (userRepository.findByEmail(registerDTO.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("El email ya está registrado.");
         }
 
-        // Buscar el rol USER
-        Role userRole = rolesRepository.findByName(RoleName.USER)
-                .orElseThrow(() -> new RuntimeException("Role USER not found"));
+        // Buscar el rol por el nombre especificado en el DTO
+        Role role = rolesRepository.findByName(RoleName.valueOf(registerDTO.getRole()))
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + registerDTO.getRole()));
+
+        // Crear las cuentas desde los AccountDTO
+        List<Account> accounts = registerDTO.getAccounts().stream()
+                .map(accountDTO -> Account.builder()
+                        .currency(accountDTO.getCurrency()) // Adaptar según cómo esté definido
+                        .transactionLimit(accountDTO.getTransactionLimit())
+                        .balance(accountDTO.getBalance())
+                        .build())
+                .collect(Collectors.toList());
 
         // Crear y guardar el usuario
         User newUser = User.builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .email(email)
-                .password(encryptPassword(password))
-                .role(userRole)
+                .firstName(registerDTO.getFirstName())
+                .lastName(registerDTO.getLastName())
+                .email(registerDTO.getEmail())
+                .password(encryptPassword(registerDTO.getPassword()))
+                .role(role)
+                .accounts(accounts)
                 .build();
 
+        // Guardar el usuario y sus cuentas
         userRepository.save(newUser);
-
-        // Crear las cuentas asociadas -- llamar al account services al metodo que haga martin
-        // pasandole el id
-        createAccount(newUser, CurrencyTypeEnum.ARS, 300000.0);
-        createAccount(newUser, CurrencyTypeEnum.USD, 1000.0);
+        accounts.forEach(account -> account.setUser(newUser));
+        accountsRepository.saveAll(accounts);
 
         return newUser;
     }

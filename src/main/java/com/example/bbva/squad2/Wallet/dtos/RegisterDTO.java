@@ -47,7 +47,7 @@ public class RegisterDTO {
         this.lastName = user.getLastName();
         this.email = user.getEmail();
         this.password = user.getPassword();
-        //transformo el dto a string
+        //transformo el role del dto a string
         this.role = user.getRole() != null ? user.getRole().getName().name(): null;
 
         // Convertir las cuentas del usuario a AccountDTO
