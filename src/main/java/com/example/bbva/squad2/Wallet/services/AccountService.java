@@ -59,16 +59,16 @@ public class AccountService {
 	public String generaCBU() {
 		Random random = new Random();
 
-		// Construir un número aleatorio de 22 dígitos
+
 		StringBuilder cbu = new StringBuilder();
 		for (int i = 0; i < 22; i++) {
-			cbu.append(random.nextInt(10)); // Generar un dígito aleatorio (0-9)
+			cbu.append(random.nextInt(10));
 		}
-		System.out.println("CBU generado: " + cbu); // Verifica que no sea null
-
+		System.out.println("CBU generado: " + cbu);
 
 		return cbu.toString();
 	}
+
 
 
 
