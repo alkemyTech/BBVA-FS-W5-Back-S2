@@ -29,19 +29,16 @@ public class AuthService {
     public Map<String, Object> login(final String username, final String password) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // Autenticación
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-            // Obtención del usuario
             Optional<User> usuarioOpt = usuarioService.getByUsername(username);
             if (usuarioOpt.isEmpty()) {
                 throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Usuario no encontrado");
             }
 
             User usuario = usuarioOpt.get();
-
             response.put("id", usuario.getId());
-            response.put("token", jwtService.generateToken(usuario.getId(), username, usuario.getRoles().toString()));
+            response.put("token", jwtService.generateToken(usuario.getId(), username, usuario.getRole().getName().name()));
             response.put("nombre", usuario.getFirstName());
             response.put("apellido", usuario.getLastName());
         } catch (Exception e) {
