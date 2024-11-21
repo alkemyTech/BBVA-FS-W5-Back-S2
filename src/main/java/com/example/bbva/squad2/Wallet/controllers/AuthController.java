@@ -48,7 +48,6 @@ public class AuthController {
                     .firstName(createdUser.getFirstName())
                     .lastName(createdUser.getLastName())
                     .email(createdUser.getEmail())
-                    .role(createdUser.getRole() != null ? createdUser.getRole().getName().name() : null)
                     .build();
 
             return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);

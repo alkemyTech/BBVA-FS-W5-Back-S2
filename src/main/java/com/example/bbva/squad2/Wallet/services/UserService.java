@@ -97,8 +97,8 @@ public class UserService {
         }
 
         // Buscar el rol por el nombre especificado en el DTO
-        Role role = rolesRepository.findByName(RoleName.valueOf(registerDTO.getRole()))
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + registerDTO.getRole()));
+        Role role = rolesRepository.findByName(RoleName.USER)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + RoleName.USER.name()));
 
 
         // Crear y guardar el usuario
