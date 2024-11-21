@@ -1,6 +1,7 @@
 package com.example.bbva.squad2.Wallet.models;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -51,7 +52,11 @@ public class Account {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-    
+
+    @Getter
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    private List<Transaction> transactions;
+
     @Column(updatable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
