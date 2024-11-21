@@ -57,10 +57,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
-        String username = credentials.get("username");
-        String password = credentials.get("password");
-
-        return ResponseEntity.ok(authService.login(username, password));
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
+        try {
+            // Llama al servicio de autenticación con los datos del DTO
+            Map<String, Object> response = authService.login(loginDTO.getEmail(), loginDTO.getPassword());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
     }
 }
