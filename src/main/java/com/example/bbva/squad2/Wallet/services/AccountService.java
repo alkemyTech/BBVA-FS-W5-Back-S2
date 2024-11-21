@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.models.Account;
+import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +23,10 @@ public class AccountService {
 	private AccountsRepository ar;
 	
 	@Autowired
-	private UserService us;
+	private UserRepository ur;
 
 	public List<AccountDTO> getAccountsByUser(Long userId) {
-		Optional<User> user = us.findById(userId);
+		Optional<User> user = ur.findById(userId);
 
 		if (user.isPresent()) {
 			List<Account> accounts = user.get().getAccounts();
@@ -40,7 +41,7 @@ public class AccountService {
 	}
 
 	public AccountDTO createAccount(Long userId) {
-		Optional<User> userOptional = us.findById(userId);
+		Optional<User> userOptional = ur.findById(userId);
 		if (userOptional.isPresent()) {
 			User user = userOptional.get();
 			Account newAccount = new Account();
@@ -59,7 +60,7 @@ public class AccountService {
 	public String generaCBU() {
 		Random random = new Random();
 
-
+		// Construir un número aleatorio de 22 dígitos
 		StringBuilder cbu = new StringBuilder();
 		for (int i = 0; i < 22; i++) {
 			cbu.append(random.nextInt(10));
