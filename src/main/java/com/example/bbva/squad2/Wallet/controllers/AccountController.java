@@ -34,17 +34,15 @@ public class AccountController {
 	}
 
 
-	@PostMapping("/accounts")
+	@PostMapping("/")
 	public ResponseEntity<AccountDTO> createAccount(HttpServletRequest request) {
 		final String authHeader = request.getHeader("Authorization");
+		final String token;
 		if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
 			throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Invalid or missing Authorization header");
 		}
-
-		final String token = authHeader.substring(7);
-
+		token = authHeader.substring(7);
 		UsuarioSeguridad security = js.validateAndGetSecurity(token);
-
 		Long userId = security.getId();
 
 		AccountDTO accountDTO = as.createAccount(userId);

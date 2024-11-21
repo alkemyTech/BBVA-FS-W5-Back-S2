@@ -1,6 +1,7 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
+import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.models.User;
@@ -39,21 +40,18 @@ public class UserController {
             token = token.substring(7);
 
             // Extraer el rol del token JWT
-            String role = jwtServices.extractRole(token);
+            UsuarioSeguridad usuarioSeguridad = jwtServices.validateAndGetSecurity(token);
 
             // Verificar si el usuario tiene rol ADMIN
-            boolean isAdmin = role.equals(RoleName.ADMIN.name());
+            boolean isAdmin = usuarioSeguridad.getRole().equals(RoleName.ADMIN.name());
 
             // Si no tiene rol ADMIN, lanzar una excepción de seguridad
             if (!isAdmin) {
                 throw new SecurityException("Usted no esta autorizado para eliminar usuarios.");
             }
 
-            // Obtener el nombre de usuario desde el token
-            String currentUsername = jwtServices.extractUsername(token);
-
             // Llamar al servicio para eliminar el usuario
-            userService.deleteUser(id, currentUsername, isAdmin);
+            userService.deleteUser(id);
 
             return ResponseEntity.noContent().build();
         } catch (SecurityException e) {
