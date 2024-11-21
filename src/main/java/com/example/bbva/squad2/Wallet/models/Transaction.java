@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.models;
 
+import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

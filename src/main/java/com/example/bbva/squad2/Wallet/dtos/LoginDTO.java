@@ -17,6 +17,6 @@ public class LoginDTO {
     @Email(message = "Formato inválido")
     private String email;
 
-    @NotEmpty(message = "Es necesarioa la contraseña")
+    @NotEmpty(message = "Es necesaria la contraseña")
     private String password;
 }

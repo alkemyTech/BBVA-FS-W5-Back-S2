@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
+import com.example.bbva.squad2.Wallet.dtos.LoginDTO;
 import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.services.AuthService;
