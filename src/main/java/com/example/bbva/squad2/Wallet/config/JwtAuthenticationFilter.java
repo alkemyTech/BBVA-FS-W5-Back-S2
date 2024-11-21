@@ -2,7 +2,6 @@ package com.example.bbva.squad2.Wallet.config;
 
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.services.UserService;
-import com.example.bbva.squad2.Wallet.config.JwtServices;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

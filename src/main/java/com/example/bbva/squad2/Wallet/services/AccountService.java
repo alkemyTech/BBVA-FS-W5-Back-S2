@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.models.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,23 @@ public class AccountService {
 			return new ArrayList<>();
 		}
 	}
+
+	public AccountDTO createAccount(Long userId) {
+		Optional<User> userOptional = us.findById(userId);
+		if (userOptional.isPresent()) {
+			User user = userOptional.get();
+			Account newAccount = new Account();
+			newAccount.setBalance(0.0);
+			newAccount.setCurrency(CurrencyTypeEnum.ARS);
+			newAccount.setTransactionLimit(300000.0);
+			newAccount.setUser(user);
+			Account savedAccount = ar.save(newAccount);
+			return new AccountDTO().mapFromAccount(savedAccount);
+		} else {
+			throw new RuntimeException("User not found");
+		}
+	}
+
 
 
 }
