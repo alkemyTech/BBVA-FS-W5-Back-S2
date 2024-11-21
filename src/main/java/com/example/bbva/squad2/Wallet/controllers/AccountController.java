@@ -49,6 +49,20 @@ public class AccountController {
 		return ResponseEntity.ok(accountDTO);
 	}
 
+	@PostMapping("/USD")
+	public ResponseEntity<AccountDTO> createAccountUSD(HttpServletRequest request) {
+		final String authHeader = request.getHeader("Authorization");
+		final String token;
+		if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
+			throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Invalid or missing Authorization header");
+		}
+		token = authHeader.substring(7);
+		UsuarioSeguridad security = js.validateAndGetSecurity(token);
+		Long userId = security.getId();
+
+		AccountDTO accountDTO = as.createAccountUSD(userId);
+		return ResponseEntity.ok(accountDTO);
+	}
 
 
 }
