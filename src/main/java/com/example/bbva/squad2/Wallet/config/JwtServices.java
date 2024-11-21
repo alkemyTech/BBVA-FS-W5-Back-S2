@@ -64,12 +64,6 @@ public class JwtServices {
 		return extractClaim(token, Claims::getSubject);
 	}
 
-	public String extractRole(final String token) {
-		Claims claims = extractAllClaims(token);
-		String roleString = claims.get("roles", String.class);
-		return roleString.trim();  // Devuelve el rol como una cadena
-	}
-
 	public boolean isTokenValid(final String token, UserDetails userDetails) {
 		final String userEmail = extractUsername(token);
 		return (userEmail.equals(userDetails.getUsername())) && !isTokenExpired(token);
