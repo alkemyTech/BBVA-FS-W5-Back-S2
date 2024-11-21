@@ -3,6 +3,7 @@ package com.example.bbva.squad2.Wallet.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
@@ -44,6 +45,7 @@ public class AccountService {
 			User user = userOptional.get();
 			Account newAccount = new Account();
 			newAccount.setBalance(0.0);
+			newAccount.setCbu(generaCBU());
 			newAccount.setCurrency(CurrencyTypeEnum.ARS);
 			newAccount.setTransactionLimit(300000.0);
 			newAccount.setUser(user);
@@ -52,6 +54,20 @@ public class AccountService {
 		} else {
 			throw new RuntimeException("User not found");
 		}
+	}
+
+	public String generaCBU() {
+		Random random = new Random();
+
+		// Construir un número aleatorio de 22 dígitos
+		StringBuilder cbu = new StringBuilder();
+		for (int i = 0; i < 22; i++) {
+			cbu.append(random.nextInt(10)); // Generar un dígito aleatorio (0-9)
+		}
+		System.out.println("CBU generado: " + cbu); // Verifica que no sea null
+
+
+		return cbu.toString();
 	}
 
 

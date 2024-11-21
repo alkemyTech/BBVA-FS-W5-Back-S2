@@ -24,6 +24,10 @@ public class Account {
     private Long id;
 
     @NotNull
+    @Column(unique = true)
+    private String cbu;
+
+    @NotNull
     @Enumerated(EnumType.STRING)
     private CurrencyTypeEnum currency;
 
