@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.dtos;
 
+import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Role;
 import com.example.bbva.squad2.Wallet.models.User;
@@ -37,7 +38,7 @@ public class RegisterDTO {
 
     //cambiar a un solo rol
     @NotNull(message = "El rol es obligatorio")
-    private Set <Role> roles;
+    private String role;
 
 
 
@@ -46,6 +47,8 @@ public class RegisterDTO {
         this.lastName = user.getLastName();
         this.email = user.getEmail();
         this.password = user.getPassword();
+        //transformo el dto a string
+        this.role = user.getRole() != null ? user.getRole().getName().name(): null;
 
         // Convertir las cuentas del usuario a AccountDTO
         this.accounts = user.getAccounts().stream()
@@ -56,9 +59,6 @@ public class RegisterDTO {
                         .balance(account.getBalance())
                         .build())
                 .collect(Collectors.toList());
-
-        this.roles = user.getRoles();
-
         return this;
     }
 }
