@@ -64,20 +64,13 @@ public class UserService {
         this.accountsRepository = accountsRepository;
     }
 
-    public void deleteUser(Long userId, String currentUsername, boolean isAdmin) {
+    public void deleteUser(Long userId) {
         User userToDelete = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
 
         userToDelete.setSoftDelete(LocalDateTime.now());
         userRepository.save(userToDelete);
     }
-
-    public boolean isAdmin(String currentUsername) {
-        return userRepository.findByEmail(currentUsername)
-                .map(user -> user.getRole() != null && user.getRole().getName() == RoleName.ADMIN) // Verificamos si el rol del usuario es ADMIN
-                .orElse(false);
-    }
-
 
     public List<User> getAllUsers(){
         return userRepository.findAll();

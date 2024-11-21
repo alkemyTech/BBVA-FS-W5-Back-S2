@@ -50,11 +50,8 @@ public class UserController {
                 throw new SecurityException("Usted no esta autorizado para eliminar usuarios.");
             }
 
-            // Obtener el nombre de usuario desde el token
-            String currentUsername = usuarioSeguridad.getUsername();
-
             // Llamar al servicio para eliminar el usuario
-            userService.deleteUser(id, currentUsername, isAdmin);
+            userService.deleteUser(id);
 
             return ResponseEntity.noContent().build();
         } catch (SecurityException e) {
