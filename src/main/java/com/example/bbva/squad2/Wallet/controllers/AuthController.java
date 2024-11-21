@@ -1,8 +1,10 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
+import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.dtos.LoginDTO;
 import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
 import com.example.bbva.squad2.Wallet.models.User;
+import com.example.bbva.squad2.Wallet.services.AccountService;
 import com.example.bbva.squad2.Wallet.services.AuthService;
 import com.example.bbva.squad2.Wallet.services.UserService;
 import jakarta.validation.Valid;
@@ -24,6 +26,9 @@ public class AuthController {
     private AuthService authService;
 
     @Autowired
+    private AccountService as;
+
+    @Autowired
     private final UserService userService;
 
     public AuthController(UserService userService) {
@@ -35,13 +40,14 @@ public class AuthController {
         try {
             // Registrar usuario
             User createdUser = userService.registerUser(userDTO);
+            AccountDTO accountDTO = as.createAccount(createdUser.getId());
+
 
             // Construir respuesta con datos visibles
             RegisterDTO responseDTO = RegisterDTO.builder()
                     .firstName(createdUser.getFirstName())
                     .lastName(createdUser.getLastName())
                     .email(createdUser.getEmail())
-                    .role(createdUser.getRole() != null ? createdUser.getRole().getName().name() : null)
                     .build();
 
             return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);

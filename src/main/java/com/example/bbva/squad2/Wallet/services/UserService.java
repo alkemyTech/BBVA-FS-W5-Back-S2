@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.services;
 
+import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.models.Account;
@@ -28,6 +29,9 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
+
+
+    private final AccountService accountService;
     private final UserRepository userRepository;
     private final AccountsRepository accountsRepository;
     private final RolesRepository rolesRepository;
@@ -58,8 +62,9 @@ public class UserService {
     }
 
 
-    public UserService(UserRepository userRepository,RolesRepository rolesRepository,
+    public UserService(AccountService accountService, UserRepository userRepository, RolesRepository rolesRepository,
                        AccountsRepository accountsRepository) {
+        this.accountService = accountService;
         this.userRepository = userRepository;
         this.rolesRepository = rolesRepository;
         this.accountsRepository = accountsRepository;
@@ -92,17 +97,9 @@ public class UserService {
         }
 
         // Buscar el rol por el nombre especificado en el DTO
-        Role role = rolesRepository.findByName(RoleName.valueOf(registerDTO.getRole()))
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + registerDTO.getRole()));
+        Role role = rolesRepository.findByName(RoleName.USER)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + RoleName.USER.name()));
 
-        // Crear las cuentas desde los AccountDTO
-        List<Account> accounts = registerDTO.getAccounts().stream()
-                .map(accountDTO -> Account.builder()
-                        .currency(accountDTO.getCurrency()) // Adaptar según cómo esté definido
-                        .transactionLimit(accountDTO.getTransactionLimit())
-                        .balance(accountDTO.getBalance())
-                        .build())
-                .collect(Collectors.toList());
 
         // Crear y guardar el usuario
         User newUser = User.builder()
@@ -111,26 +108,12 @@ public class UserService {
                 .email(registerDTO.getEmail())
                 .password(encryptPassword(registerDTO.getPassword()))
                 .role(role)
-                .accounts(accounts)
                 .build();
 
-        // Guardar el usuario y sus cuentas
+
         userRepository.save(newUser);
-        accounts.forEach(account -> account.setUser(newUser));
-        accountsRepository.saveAll(accounts);
 
         return newUser;
-    }
-
-    private void createAccount(User user, CurrencyTypeEnum currency, Double transactionLimit) {
-        Account account = Account.builder()
-                .currency(currency)
-                .transactionLimit(transactionLimit)
-                .balance(0.0)
-                .user(user)
-                .build();
-
-        accountsRepository.save(account);
     }
 
     private String encryptPassword(String password) {

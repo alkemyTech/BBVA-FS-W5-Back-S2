@@ -25,6 +25,10 @@ public class DataInitializer {
                         .orElseGet(() -> roleRepository.save(
                                 new Role(RoleName.ADMIN, "Administrator role", LocalDateTime.now(), LocalDateTime.now())));
 
+                Role userRole = roleRepository.findByName(RoleName.USER)
+                        .orElseGet(() -> roleRepository.save(
+                                new Role(RoleName.USER, "User role", LocalDateTime.now(), LocalDateTime.now())));
+
                 // Crear el usuario con un solo rol
                 usuarioRepository.save(
                         User.builder()
