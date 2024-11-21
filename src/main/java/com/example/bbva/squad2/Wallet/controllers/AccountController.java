@@ -60,7 +60,7 @@ public class AccountController {
 		UsuarioSeguridad security = js.validateAndGetSecurity(token);
 		Long userId = security.getId();
 
-		AccountDTO accountDTO = as.createAccount(userId);
+		AccountDTO accountDTO = as.createAccountUSD(userId);
 		return ResponseEntity.ok(accountDTO);
 	}
 
