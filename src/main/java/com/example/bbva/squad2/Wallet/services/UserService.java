@@ -126,7 +126,8 @@ public class UserService {
 
         userRepository.save(newUser);
 
-        // Crear las cuentas asociadas
+        // Crear las cuentas asociadas -- llamar al account services al metodo que haga martin
+        // pasandole el id
         createAccount(newUser, CurrencyTypeEnum.ARS, 300000.0);
         createAccount(newUser, CurrencyTypeEnum.USD, 1000.0);
 
