@@ -11,7 +11,7 @@ import java.util.List;
 public class AccountBalanceDTO {
     private AccountBalance accountArs;
     private AccountBalance accountUsd;
-    private List<SendTransactionDTO> history;
+    private List<TransactionBalanceDTO> history;
     private List<FixedTermDTO> fixedTerms;
 
     public void setAccountArs(AccountBalance accountArs) {
@@ -22,7 +22,7 @@ public class AccountBalanceDTO {
         this.accountUsd = accountUsd;
     }
 
-    public void setHistory(List<SendTransactionDTO> history) {
+    public void setHistory(List<TransactionBalanceDTO> history) {
         this.history = history;
     }
 
