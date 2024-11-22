@@ -43,13 +43,13 @@ public class AuthController {
             User createdUser = userService.registerUser(userDTO);
             AccountDTO accountDTO = as.createAccount(createdUser.getId(), CurrencyTypeEnum.ARS);
 
-
+            //lo comente por que ya mapeo sino seria dos veces
             // Construir respuesta con datos visibles
-            RegisterDTO responseDTO = RegisterDTO.builder()
-                    .firstName(createdUser.getFirstName())
-                    .lastName(createdUser.getLastName())
-                    .email(createdUser.getEmail())
-                    .build();
+//            RegisterDTO responseDTO = RegisterDTO.builder()
+//                    .firstName(createdUser.getFirstName())
+//                    .lastName(createdUser.getLastName())
+//                    .email(createdUser.getEmail())
+//                    .build();
 
             // Generar token de autenticación
             String token = authService.generateToken(createdUser);
@@ -64,7 +64,7 @@ public class AuthController {
                     "token", token
             );
 
-            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
 
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
