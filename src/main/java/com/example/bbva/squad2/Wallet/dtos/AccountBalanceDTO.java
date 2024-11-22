@@ -1,9 +1,6 @@
 package com.example.bbva.squad2.Wallet.dtos;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -14,7 +11,7 @@ import java.util.List;
 public class AccountBalanceDTO {
     private AccountBalance accountArs;
     private AccountBalance accountUsd;
-    private List<TransactionDTO> history;
+    private List<SendTransactionDTO> history;
     private List<FixedTermDTO> fixedTerms;
 
     public void setAccountArs(AccountBalance accountArs) {
@@ -25,7 +22,7 @@ public class AccountBalanceDTO {
         this.accountUsd = accountUsd;
     }
 
-    public void setHistory(List<TransactionDTO> history) {
+    public void setHistory(List<SendTransactionDTO> history) {
         this.history = history;
     }
 
@@ -33,6 +30,8 @@ public class AccountBalanceDTO {
         this.fixedTerms = fixedTerms;
     }
 
+    @Getter
+    @Setter
     public static class AccountBalance {
         private Double balance;
         private String currency;

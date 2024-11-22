@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.example.bbva.squad2.Wallet.config.JwtServices;
 import com.example.bbva.squad2.Wallet.dtos.AccountBalanceDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
+import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -35,8 +36,10 @@ public class AccountController {
 	}
 
 
-	@PostMapping("/")
-	public ResponseEntity<AccountDTO> createAccount(HttpServletRequest request) {
+	@PostMapping("/{currency}")
+	public ResponseEntity<AccountDTO> createAccount(HttpServletRequest request,
+													@PathVariable CurrencyTypeEnum currency
+													) {
 		final String authHeader = request.getHeader("Authorization");
 		final String token;
 		if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
@@ -46,7 +49,7 @@ public class AccountController {
 		UsuarioSeguridad security = js.validateAndGetSecurity(token);
 		Long userId = security.getId();
 
-		AccountDTO accountDTO = as.createAccount(userId);
+		AccountDTO accountDTO = as.createAccount(userId, currency);
 		return ResponseEntity.ok(accountDTO);
 	}
 
@@ -69,5 +72,6 @@ public class AccountController {
 
 		return ResponseEntity.ok(balanceDTO);
 	}
+
 
 }

@@ -47,16 +47,16 @@ public class UserController {
 
             // Si no tiene rol ADMIN, lanzar una excepción de seguridad
             if (!isAdmin) {
-                throw new SecurityException("Usted no esta autorizado para eliminar usuarios.");
+                throw new AlkemyException(
+                        HttpStatus.BAD_REQUEST,
+                        "Usted no esta autorizado para eliminar usuarios."
+                );
             }
 
             // Llamar al servicio para eliminar el usuario
             userService.deleteUser(id);
 
             return ResponseEntity.noContent().build();
-        } catch (SecurityException e) {
-            // Manejar el caso cuando el usuario no tiene permisos
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (RuntimeException e) {
             // Manejar el caso cuando el usuario no se encuentra
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
