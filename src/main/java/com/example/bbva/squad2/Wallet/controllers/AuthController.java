@@ -3,6 +3,7 @@ package com.example.bbva.squad2.Wallet.controllers;
 import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.dtos.LoginDTO;
 import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
+import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.services.AccountService;
 import com.example.bbva.squad2.Wallet.services.AuthService;
@@ -40,7 +41,7 @@ public class AuthController {
         try {
             // Registrar usuario
             User createdUser = userService.registerUser(userDTO);
-            AccountDTO accountDTO = as.createAccount(createdUser.getId());
+            AccountDTO accountDTO = as.createAccount(createdUser.getId(), CurrencyTypeEnum.ARS);
 
 
             // Construir respuesta con datos visibles
