@@ -1,6 +1,7 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
+import com.example.bbva.squad2.Wallet.dtos.UserDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
@@ -28,7 +29,8 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserDTO> getAllUsers() {
+
         return userService.getAllUsers();
     }
 
