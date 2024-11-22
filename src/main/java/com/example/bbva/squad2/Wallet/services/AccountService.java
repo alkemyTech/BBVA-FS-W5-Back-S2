@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Service
 public class AccountService {
@@ -42,31 +43,15 @@ public class AccountService {
 		}
 	}
 
-	public AccountDTO createAccount(Long userId) {
-		Optional<User> userOptional = ur.findById(userId);
-		if (userOptional.isPresent()) {
-			User user = userOptional.get();
-			Account newAccount = new Account();
-			newAccount.setBalance(0.0);
-			newAccount.setCbu(generaCBU());
-			newAccount.setCurrency(CurrencyTypeEnum.ARS);
-			newAccount.setTransactionLimit(300000.0);
-			newAccount.setUser(user);
-			Account savedAccount = ar.save(newAccount);
-			return new AccountDTO().mapFromAccount(savedAccount);
-		} else {
-			throw new AlkemyException(HttpStatus.NOT_FOUND, "User not found");
-		}
-	}
 
-	public AccountDTO createAccountUSD(Long userId) {
+	public AccountDTO createAccount(Long userId, @RequestParam CurrencyTypeEnum currency) {
 		Optional<User> userOptional = ur.findById(userId);
 		if (userOptional.isPresent()) {
 			User user = userOptional.get();
 			Account newAccount = new Account();
 			newAccount.setBalance(0.0);
 			newAccount.setCbu(generaCBU());
-			newAccount.setCurrency(CurrencyTypeEnum.USD);
+			newAccount.setCurrency(currency);
 			newAccount.setTransactionLimit(300000.0);
 			newAccount.setUser(user);
 			Account savedAccount = ar.save(newAccount);
