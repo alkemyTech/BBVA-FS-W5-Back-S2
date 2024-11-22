@@ -52,7 +52,7 @@ public class AccountService {
 			newAccount.setBalance(0.0);
 			newAccount.setCbu(generaCBU());
 			newAccount.setCurrency(currency);
-			newAccount.setTransactionLimit(300000.0);
+			newAccount.setTransactionLimit(currency == CurrencyTypeEnum.USD ? 1000.0 : 300000.0);
 			newAccount.setUser(user);
 			Account savedAccount = ar.save(newAccount);
 			return new AccountDTO().mapFromAccount(savedAccount);
