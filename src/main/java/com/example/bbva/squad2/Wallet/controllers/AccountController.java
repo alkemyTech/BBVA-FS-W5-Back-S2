@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
+import com.example.bbva.squad2.Wallet.dtos.AccountBalanceDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,6 +50,24 @@ public class AccountController {
 		return ResponseEntity.ok(accountDTO);
 	}
 
+	// agregue para ful 30
 
+	@GetMapping("/balance")
+	public ResponseEntity<AccountBalanceDTO> getBalance(HttpServletRequest request) {
+		final String authHeader = request.getHeader("Authorization");
+		final String token;
+
+		if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
+			throw new RuntimeException("Invalid or missing Authorization header");
+		}
+
+		token = authHeader.substring(7);
+		UsuarioSeguridad security = js.validateAndGetSecurity(token);
+		Long userId = security.getId();
+
+		AccountBalanceDTO balanceDTO = as.getBalanceByUserId(userId);
+
+		return ResponseEntity.ok(balanceDTO);
+	}
 
 }

@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-
-
     private final AccountService accountService;
     private final UserRepository userRepository;
     private final AccountsRepository accountsRepository;
@@ -60,7 +58,6 @@ public class UserService {
                     .build();
         };
     }
-
 
     public UserService(AccountService accountService, UserRepository userRepository, RolesRepository rolesRepository,
                        AccountsRepository accountsRepository) {
