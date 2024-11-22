@@ -19,6 +19,12 @@ public class Transaction {
     private Long id;
 
     @NotNull
+    private String CbuDestino;
+
+    @NotNull
+    private String CbuOrigen;
+
+    @NotNull
     private Double amount;
 
     @NotNull

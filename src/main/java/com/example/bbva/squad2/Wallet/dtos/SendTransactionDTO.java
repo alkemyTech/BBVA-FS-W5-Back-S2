@@ -24,12 +24,4 @@ public class SendTransactionDTO {
     private CurrencyTypeEnum currency;
 
     private String description;
-
-    public SendTransactionDTO mapFromTransaction(Transaction transaction) {
-        this.description = transaction.getDescription();
-        this.amount = transaction.getAmount();
-        this.destinationCbu = transaction.getAccount().getCbu();
-        this.currency = transaction.getAccount().getCurrency();
-        return this;
-    }
 }
