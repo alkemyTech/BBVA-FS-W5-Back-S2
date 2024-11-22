@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Builder
 @Data
 @AllArgsConstructor
@@ -21,11 +24,17 @@ public class AccountDTO {
     private Double transactionLimit;
     private Double balance;
     
-    public AccountDTO mapFromAccount(final Account account) {
-    	id = account.getId();
-    	currency = account.getCurrency();
-    	transactionLimit  = account.getTransactionLimit();
-    	balance = account.getBalance();
+    public AccountDTO mapFromAccount(Account account) {
+    	this.id = account.getId();
+    	this.currency = account.getCurrency();
+    	this.transactionLimit  = account.getTransactionLimit();
+    	this.balance = account.getBalance();
+		this.cbu = account.getCbu();
     	return this;
     }
+
+
+
+
+
 }

@@ -2,6 +2,7 @@ package com.example.bbva.squad2.Wallet.services;
 
 import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
+import com.example.bbva.squad2.Wallet.dtos.UserDTO;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.models.Account;
@@ -80,8 +81,11 @@ public class UserService {
         userRepository.save(userToDelete);
     }
 
-    public List<User> getAllUsers(){
-        return userRepository.findAll();
+    public List<UserDTO> getAllUsers(){
+        return userRepository.findAll().stream()
+                .filter(u -> u.getSoftDelete() == null)
+                .map(UserDTO::mapFromUser)
+                .collect(Collectors.toList());
     }
 
     public Optional<User> getByUsername(final String username) {
