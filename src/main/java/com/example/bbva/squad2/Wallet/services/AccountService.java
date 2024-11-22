@@ -111,9 +111,9 @@ public class AccountService {
 			}
 		}
 
-		List<SendTransactionDTO> history = transactionService.getTransactionsByUserId(userId)
+		List<TransactionBalanceDTO> history = transactionService.getTransactionsByUserId(userId)
 				.stream()
-				.map(transaction -> new SendTransactionDTO().mapFromTransaction(transaction))
+				.map(transaction -> new TransactionBalanceDTO().mapFromTransaction(transaction))
 				.collect(Collectors.toList());
 
 		List<FixedTermDTO> fixedTerms = fixedTermDepositService.getFixedTermDepositsByUserId(userId)

@@ -91,10 +91,10 @@ public class TransactionService {
         }
 
         // Crear y registrar la transacción para el usuario emisor (PAYMENT)
-        createTransaction(senderAccount, dto.getAmount(), TransactionTypeEnum.PAGO, dto.getDescription());
+        createTransaction(senderAccount, senderAccount.getCbu(), destinationAccount.getCbu(), dto.getAmount(), TransactionTypeEnum.PAGO, dto.getDescription());
 
         // Crear y registrar la transacción para el usuario receptor (INCOME)
-        createTransaction(destinationAccount, dto.getAmount(), TransactionTypeEnum.INGRESO, dto.getDescription());
+        createTransaction(destinationAccount, senderAccount.getCbu(), destinationAccount.getCbu(), dto.getAmount(), TransactionTypeEnum.INGRESO, dto.getDescription());
 
         // Actualizar balances en ambas cuentas
         senderAccount.setBalance(senderAccount.getBalance() - dto.getAmount());
@@ -105,10 +105,12 @@ public class TransactionService {
         accountsRepository.save(destinationAccount);
     }
 
-    private void createTransaction(Account account, Double amount, TransactionTypeEnum type, String description) {
+    private void createTransaction(Account account, String cbuOrigen, String cbuDestino, Double amount, TransactionTypeEnum type, String description) {
         Transaction transaction = Transaction.builder()
                 .account(account)
                 .amount(amount)
+                .CbuDestino(cbuDestino)
+                .CbuOrigen(cbuOrigen)
                 .type(type)
                 .description(description)
                 .build();
