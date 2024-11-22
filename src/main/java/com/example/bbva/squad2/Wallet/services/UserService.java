@@ -3,6 +3,7 @@ package com.example.bbva.squad2.Wallet.services;
 import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
+import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Role;
 import com.example.bbva.squad2.Wallet.models.User;
@@ -11,6 +12,7 @@ import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.repositories.RolesRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -72,7 +74,10 @@ public class UserService {
 
     public void deleteUser(Long userId) {
         User userToDelete = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+                .orElseThrow(() -> new AlkemyException(
+                        HttpStatus.NOT_FOUND,
+                        "Usuario no encontrado."
+                ));
 
         userToDelete.setSoftDelete(LocalDateTime.now());
         userRepository.save(userToDelete);
