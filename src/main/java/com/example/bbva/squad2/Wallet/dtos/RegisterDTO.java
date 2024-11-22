@@ -33,32 +33,12 @@ public class RegisterDTO {
     @Size(min= 8, message = "La contraseña debe tener al menos 8 caracteres")
     private String password;
 
-    @NotNull(message = "La cuenta es obligatorio")
-    private List<AccountDTO> accounts;
-
-    //cambiar a un solo rol
-    @NotNull(message = "El rol es obligatorio")
-    private String role;
-
-
 
     public RegisterDTO mapFromAccount(final User user) {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.email = user.getEmail();
         this.password = user.getPassword();
-        //transformo el role del dto a string
-        this.role = user.getRole() != null ? user.getRole().getName().name(): null;
-
-        // Convertir las cuentas del usuario a AccountDTO
-        this.accounts = user.getAccounts().stream()
-                .map(account -> AccountDTO.builder()
-                        .id(account.getId())
-                        .currency(account.getCurrency())
-                        .transactionLimit(account.getTransactionLimit())
-                        .balance(account.getBalance())
-                        .build())
-                .collect(Collectors.toList());
         return this;
     }
 }

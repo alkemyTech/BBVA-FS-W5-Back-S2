@@ -15,7 +15,12 @@ public class FixedTermDepositService {
         this.fixedTermDepositRepository = fixedTermDepositRepository;
     }
 
+    public List<FixedTermDeposit> getFixedTermDepositsByUserId(Long userId) {
+        // Obtener directamente los plazos fijos del usuario logueado
+        return fixedTermDepositRepository.findByAccountUserId(userId);
+    }
+
     public List<FixedTermDeposit> getAllFixedTermDeposits() {
-        return fixedTermDepositRepository.findAll();
+        return fixedTermDepositRepository.findAll(); // Devuelve todos los registros
     }
 }

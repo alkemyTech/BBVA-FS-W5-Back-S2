@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -24,6 +25,10 @@ public class Account {
     private Long id;
 
     @NotNull
+    @Column(unique = true)
+    private String cbu;
+
+    @NotNull
     @Enumerated(EnumType.STRING)
     private CurrencyTypeEnum currency;
 
@@ -31,6 +36,7 @@ public class Account {
     private Double transactionLimit;
 
     @NotNull
+    @Min(value = 0, message = "El balance no puede ser negativo")
     private Double balance;
     
     //comentar esto que estaba asi

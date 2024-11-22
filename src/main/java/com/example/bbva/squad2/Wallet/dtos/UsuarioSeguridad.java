@@ -23,7 +23,7 @@ public class UsuarioSeguridad {
     private LocalDateTime expirationDate;
 
     public UsuarioSeguridad(Claims claims) {
-        this.id = Long.getLong(claims.getId());
+        this.id = Long.parseLong(claims.getId());
         this.username = claims.getSubject();
         this.role = claims.get("roles", String.class);
         this.createdAt = Instant.ofEpochMilli(claims.getIssuedAt().getTime())

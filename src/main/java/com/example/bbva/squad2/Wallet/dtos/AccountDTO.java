@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class AccountDTO {
 	
 	private Long id;
+	private String cbu;
     private CurrencyTypeEnum currency;
     private Double transactionLimit;
     private Double balance;
