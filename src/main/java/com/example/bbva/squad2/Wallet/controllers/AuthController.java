@@ -46,6 +46,19 @@ public class AuthController {
 
             return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 
+            // Generar token de autenticación
+            //String token = authService.generateToken(createdUser);
+
+            // Construir respuesta con token y datos del usuario
+//            Map<String, Object> response = Map.of(
+//                    "user", RegisterDTO.builder()
+//                            .firstName(createdUser.getFirstName())
+//                            .lastName(createdUser.getLastName())
+//                            .email(createdUser.getEmail())
+//                            .build(),
+//                    "token", token
+//            );
+
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
