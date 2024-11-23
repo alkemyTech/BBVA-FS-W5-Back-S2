@@ -7,6 +7,6 @@ spring-boot:run "-Dspring-boot.run.jvmArguments=-Xdebug -Xrunjdwp:transport=dt_s
 para autenticar en swagger:
 
 {
-  "username": "juancruz.caggiano@bbva.com",
+  "email": "juancruz.caggiano@bbva.com",
   "password": "1234"
 }
