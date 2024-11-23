@@ -1,6 +1,7 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
+import com.example.bbva.squad2.Wallet.dtos.UserDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
@@ -28,7 +29,8 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserDTO> getAllUsers() {
+
         return userService.getAllUsers();
     }
 
@@ -47,16 +49,19 @@ public class UserController {
 
             // Si no tiene rol ADMIN, lanzar una excepción de seguridad
             if (!isAdmin) {
-                throw new SecurityException("Usted no esta autorizado para eliminar usuarios.");
+                throw new AlkemyException(
+                        HttpStatus.FORBIDDEN,
+                        "Usted no esta autorizado para eliminar usuarios."
+                );
             }
 
             // Llamar al servicio para eliminar el usuario
             userService.deleteUser(id);
 
             return ResponseEntity.noContent().build();
-        } catch (SecurityException e) {
-            // Manejar el caso cuando el usuario no tiene permisos
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (AlkemyException e) {
+            // Manejar la excepción específica de falta de permisos
+            return ResponseEntity.status(e.getStatus()).body(null);
         } catch (RuntimeException e) {
             // Manejar el caso cuando el usuario no se encuentra
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

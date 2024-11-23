@@ -42,4 +42,24 @@ public class FixedTermDeposit {
     protected void onUpdate() {
         this.closingDate = LocalDateTime.now();
     }
+
+
+    // agregue ful 34
+    // Métodos getter adicionales
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public LocalDateTime getStartDate() {
+        return creationDate;
+    }
+
+    public LocalDateTime getEndDate() {
+        return closingDate;
+    }
+
+    public Double getInterestRate() {
+        return interest;
+    }
 }

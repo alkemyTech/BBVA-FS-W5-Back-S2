@@ -47,5 +47,8 @@ public class AuthService {
         return response;
     }
 
+    public String generateToken(User user) {
+        return jwtService.generateToken(user.getId(), user.getEmail(), user.getRole().getName().name());
+    }
 
 }
