@@ -20,7 +20,7 @@ public class FixedTermDeposit {
     @Column(nullable = false)
     private Double amount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
@@ -32,6 +32,8 @@ public class FixedTermDeposit {
 
     @Column(name = "closing_date", nullable = true)
     private LocalDateTime closingDate;
+
+    private Boolean processed = false;
 
     @PrePersist
     protected void onCreate() {
