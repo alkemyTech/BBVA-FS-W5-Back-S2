@@ -7,20 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
-import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.models.Account;
-import com.example.bbva.squad2.Wallet.models.Transaction;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
-import com.example.bbva.squad2.Wallet.repositories.TransactionsRepository;
 import com.example.bbva.squad2.Wallet.config.JwtServices;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 
 @Service
@@ -90,10 +83,22 @@ public class TransactionService {
         }
 
         // Crear y registrar la transacción para el usuario emisor (PAYMENT)
-        createTransaction(senderAccount, senderAccount.getCbu(), destinationAccount.getCbu(), dto.getAmount(), TransactionTypeEnum.PAGO, dto.getDescription());
+        createTransaction(senderAccount,
+                senderAccount.getCbu(),
+                destinationAccount.getCbu(),
+                dto.getAmount(),
+                TransactionTypeEnum.PAGO,
+                dto.getDescription()
+        );
 
         // Crear y registrar la transacción para el usuario receptor (INCOME)
-        createTransaction(destinationAccount, senderAccount.getCbu(), destinationAccount.getCbu(), dto.getAmount(), TransactionTypeEnum.INGRESO, dto.getDescription());
+        createTransaction(destinationAccount,
+                senderAccount.getCbu(),
+                destinationAccount.getCbu(),
+                dto.getAmount(),
+                TransactionTypeEnum.INGRESO,
+                dto.getDescription()
+        );
 
         // Actualizar balances en ambas cuentas
         senderAccount.setBalance(senderAccount.getBalance() - dto.getAmount());
@@ -104,25 +109,12 @@ public class TransactionService {
         accountsRepository.save(destinationAccount);
     }
 
-    private void createTransaction(Account account, String cbuOrigen, String cbuDestino, Double amount, TransactionTypeEnum type, String description) {
-        Transaction transaction = Transaction.builder()
-                .account(account)
-                .amount(amount)
-                .CbuDestino(cbuDestino)
-                .CbuOrigen(cbuOrigen)
-                .type(type)
-                .description(description)
-                .build();
-
-        transactionRepository.save(transaction);
-    }
-
     public DepositDTO deposit(SendDepositDTO dto, HttpServletRequest request, String accountCBU) throws AlkemyException {
         // Extraer y validar el token del usuario
         String token = request.getHeader("Authorization").substring(7);
         UsuarioSeguridad usuarioSeguridad = jwtServices.validateAndGetSecurity(token);
 
-        Account account = accountsRepository.findByCBU(accountCBU)
+        Account account = accountsRepository.findBycbu(accountCBU)
                 .orElseThrow(() -> new AlkemyException(
                         HttpStatus.NOT_FOUND,
                         "Cuenta no encontrada."
@@ -144,16 +136,13 @@ public class TransactionService {
         }
 
         // Crear la transacción de depósito
-        Transaction transaction = Transaction.builder()
-                .CbuOrigen("External") // Depósito no tiene origen
-                .CbuDestino(account.getCbu())
-                .amount(dto.getAmount())
-                .type(TransactionTypeEnum.DEPOSITO)
-                .description(dto.getDescription())
-                .account(account)
-                .build();
-
-        transactionRepository.save(transaction);
+        Transaction transaction  = createTransaction(account,
+                "External",
+                account.getCbu(),
+                dto.getAmount(),
+                TransactionTypeEnum.DEPOSITO,
+                dto.getDescription()
+        );
 
         // Actualizar el balance de la cuenta
         account.setBalance(account.getBalance() + dto.getAmount());
@@ -170,6 +159,20 @@ public class TransactionService {
                 .build();
     }
 
+    private Transaction createTransaction(Account account, String cbuOrigen, String cbuDestino, Double amount, TransactionTypeEnum type, String description) {
+        Transaction transaction = Transaction.builder()
+                .account(account)
+                .amount(amount)
+                .CbuDestino(cbuDestino)
+                .CbuOrigen(cbuOrigen)
+                .type(type)
+                .description(description)
+                .build();
+
+        transactionRepository.save(transaction);
+
+        return transaction;
+    }
 
 }
 
