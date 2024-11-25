@@ -1,12 +1,12 @@
 package com.example.bbva.squad2.Wallet.services;
 
+import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.models.Transaction;
 import com.example.bbva.squad2.Wallet.repositories.TransactionsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import com.example.bbva.squad2.Wallet.dtos.SendTransactionDTO;
-import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
+
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
@@ -116,5 +116,60 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
     }
+
+    public DepositDTO deposit(SendDepositDTO dto, HttpServletRequest request, String accountCBU) throws AlkemyException {
+        // Extraer y validar el token del usuario
+        String token = request.getHeader("Authorization").substring(7);
+        UsuarioSeguridad usuarioSeguridad = jwtServices.validateAndGetSecurity(token);
+
+        Account account = accountsRepository.findByCBU(accountCBU)
+                .orElseThrow(() -> new AlkemyException(
+                        HttpStatus.NOT_FOUND,
+                        "Cuenta no encontrada."
+                ));
+
+        if (!account.getUser().getEmail().equals(usuarioSeguridad.getUsername())) {
+            throw new AlkemyException(
+                    HttpStatus.UNAUTHORIZED,
+                    "No tienes permiso para realizar esta operación en una cuenta que no te pertenece."
+            );
+        }
+
+        // Validar el monto del depósito
+        if (dto.getAmount() <= 0) {
+            throw new AlkemyException(
+                    HttpStatus.BAD_REQUEST,
+                    "El monto a depositar debe ser mayor a cero."
+            );
+        }
+
+        // Crear la transacción de depósito
+        Transaction transaction = Transaction.builder()
+                .CbuOrigen("External") // Depósito no tiene origen
+                .CbuDestino(account.getCbu())
+                .amount(dto.getAmount())
+                .type(TransactionTypeEnum.DEPOSITO)
+                .description(dto.getDescription())
+                .account(account)
+                .build();
+
+        transactionRepository.save(transaction);
+
+        // Actualizar el balance de la cuenta
+        account.setBalance(account.getBalance() + dto.getAmount());
+        accountsRepository.save(account);
+
+        // Mapear los datos para la respuesta
+        TransactionBalanceDTO transactionDTO = new TransactionBalanceDTO().mapFromTransaction(transaction);
+        AccountDTO accountDTO = new AccountDTO().mapFromAccount(account);
+
+        // Crear y devolver el DTO de respuesta
+        return DepositDTO.builder()
+                .transaction(transactionDTO)
+                .account(accountDTO)
+                .build();
+    }
+
+
 }
 
