@@ -12,6 +12,6 @@ public interface AccountsRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByCurrencyAndUser_Email(CurrencyTypeEnum currency, String email);
     Optional<Account> findByCbuAndCurrency(String cbu, CurrencyTypeEnum currency);
     Optional<Account> findByUserIdAndCurrency(Long userId, CurrencyTypeEnum currency);
-    Optional<Account> findByCBU(String cbu);
+    Optional<Account> findBycbu(String cbu);
 
 }
