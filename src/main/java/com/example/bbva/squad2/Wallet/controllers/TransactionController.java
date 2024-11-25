@@ -1,5 +1,7 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
+import com.example.bbva.squad2.Wallet.dtos.DepositDTO;
+import com.example.bbva.squad2.Wallet.dtos.SendDepositDTO;
 import com.example.bbva.squad2.Wallet.dtos.SendTransactionDTO;
 import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import com.example.bbva.squad2.Wallet.models.Transaction;
@@ -27,5 +29,15 @@ public class TransactionController {
     ) {
         transactionService.sendTransaction(request, httpRequest);
         return ResponseEntity.ok("Transacción finalizada exitosamente.");
+    }
+
+
+    @PostMapping("/deposit/{cbu}")
+    public ResponseEntity<DepositDTO> deposit(
+            @PathVariable String cbu,
+            @RequestBody SendDepositDTO request,
+            HttpServletRequest httpRequest){
+        DepositDTO deposit = transactionService.deposit(request, httpRequest, cbu);
+        return ResponseEntity.ok(deposit);
     }
 }
