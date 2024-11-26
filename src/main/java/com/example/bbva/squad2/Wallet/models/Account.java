@@ -83,10 +83,6 @@ public class Account {
     public boolean isActive() {
         return this.deletedAt == null;
     }
-
-	
-    
-    
 }
 
 
