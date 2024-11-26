@@ -1,10 +1,7 @@
 package com.example.bbva.squad2.Wallet.services;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
-import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
-import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
-import com.example.bbva.squad2.Wallet.dtos.UserDTO;
-import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
+import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.models.Account;
@@ -16,6 +13,8 @@ import com.example.bbva.squad2.Wallet.repositories.RolesRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,10 +23,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 public class UserService {
@@ -156,6 +157,31 @@ public class UserService {
                 .orElseThrow(() -> new AlkemyException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
         return UserDTO.mapFromUser(user);
+    }
+
+    //codeo la ful 46, paginar usuarios
+
+    public PageableResponseDTO<UserDTO> getAllUsersPaginated(int page, int size) {
+        // Crea el objeto Pageable con la página y tamaño proporcionados
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Obtén los usuarios paginados desde el repositorio
+        Page<User> userPage = userRepository.findAll(pageable);
+
+        // Filtra los usuarios que no están eliminados (soft delete)
+        List<UserDTO> userDTOs = userPage.getContent().stream()
+                .filter(user -> user.getSoftDelete() == null)
+                .map(UserDTO::mapFromUser)
+                .collect(Collectors.toList());
+
+        // Devuelve la respuesta paginada con datos relevantes
+        return new PageableResponseDTO<>(
+                userDTOs,
+                userPage.getNumber(),
+                userPage.getTotalPages(),
+                userPage.hasPrevious() ? "/users?page=" + (page - 1) : null,
+                userPage.hasNext() ? "/users?page=" + (page + 1) : null
+        );
     }
 }
 

@@ -8,6 +8,7 @@ import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.services.AccountService;
 import com.example.bbva.squad2.Wallet.services.AuthService;
 import com.example.bbva.squad2.Wallet.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @Operation(summary = "Registrar nuevos usuarios")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterDTO userDTO) {
         try {
             // Registrar usuario
@@ -74,6 +76,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Login de usuarios ya creados")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
         try {
             // Llama al servicio de autenticación con los datos del DTO

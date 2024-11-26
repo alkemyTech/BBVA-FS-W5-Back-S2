@@ -9,6 +9,7 @@ import com.example.bbva.squad2.Wallet.models.Transaction;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.services.TransactionService;
 import com.example.bbva.squad2.Wallet.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -73,6 +74,7 @@ public class TransactionController {
     // empece a realizar la ful 38 (hugo)
 
     @GetMapping("/user/{userId}")
+    @Operation(summary = "Obtener la transaccion de usuarios por Id")
     public ResponseEntity<List<TransactionListDTO>> listUserTransactions(
             @PathVariable Long userId,
             HttpServletRequest request

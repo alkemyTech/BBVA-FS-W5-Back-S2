@@ -1,12 +1,14 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
+import com.example.bbva.squad2.Wallet.dtos.PageableResponseDTO;
 import com.example.bbva.squad2.Wallet.dtos.UserDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,12 +31,40 @@ public class UserController {
     }
 
     @GetMapping
+    @Operation(summary = "Buscar todos los usuarios")
     public List<UserDTO> getAllUsers() {
 
         return userService.getAllUsers();
     }
 
+    //codeo la ful 46, es para paginar los usuarios
+    @GetMapping("/paginated")
+    @Operation(summary = "Obtener usuarios paginados", description = "Devuelve una lista paginada " +
+            "de usuarios no eliminados.")
+
+    public ResponseEntity<?> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            // Validar valores de entrada
+            if (page < 0 || size <= 0) {
+                return ResponseEntity.badRequest().body("Los valores de página y tamaño deben " +
+                        "ser positivos.");
+            }
+
+            // Llama al servicio para obtener los usuarios paginados
+            PageableResponseDTO<UserDTO> paginatedUsers = userService.getAllUsersPaginated(page, size);
+            return ResponseEntity.ok(paginatedUsers);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al obtener usuarios paginados.");
+        }
+    }
+
+
     @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar usuarios por Id")
+
     public ResponseEntity<Void> deleteUser(@PathVariable Long id, HttpServletRequest request) {
         try {
             UsuarioSeguridad usuarioSeguridad = userService.getInfoUserSecurity(request);
@@ -69,6 +99,7 @@ public class UserController {
     // comence a codear la ful 42 (hugo)
 
     @GetMapping("/{id}/")
+    @Operation(summary = "Buscar los usuarios por Id")
     public ResponseEntity<UserDTO> getUserDetail(@PathVariable Long id, HttpServletRequest request) {
         try {
             // Extraer el token JWT del header Authorization
@@ -99,5 +130,4 @@ public class UserController {
             throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
         }
     }
-
 }

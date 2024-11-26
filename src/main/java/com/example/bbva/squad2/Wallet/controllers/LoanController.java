@@ -2,6 +2,7 @@ package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.dtos.LoanSimulationDTO;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ public class LoanController {
     private double tasaDeInteres;
 
     @PostMapping("/simulate")
+    @Operation(summary = "Simulador de plazos fijos")
     public ResponseEntity<LoanSimulationDTO> simulateLoan(
             @RequestParam double monto,
             @RequestParam int meses) {

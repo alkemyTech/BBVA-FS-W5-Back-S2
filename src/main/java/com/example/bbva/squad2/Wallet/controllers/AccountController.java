@@ -9,6 +9,7 @@ import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,7 @@ public class AccountController {
 	}
 
 	@GetMapping("/balance")
+	@Operation(summary = "Obtener balance de cuentas")
 	public ResponseEntity<AccountBalanceDTO> getBalance(HttpServletRequest request) {
 		UsuarioSeguridad security = userService.getInfoUserSecurity(request);
 		Long userId = security.getId();
