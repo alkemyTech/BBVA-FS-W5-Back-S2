@@ -1,0 +1,12 @@
+Para debug:
+
+spring-boot:run "-Dspring-boot.run.jvmArguments=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"
+
+-------------------------------
+
+para autenticar en swagger:
+
+{
+  "email": "juancruz.caggiano@bbva.com",
+  "password": "1234"
+}
