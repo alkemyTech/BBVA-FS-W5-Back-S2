@@ -68,5 +68,30 @@ public class TransactionController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
+
+
+    // empece a realizar la ful 38 (hugo)
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<TransactionListDTO>> listUserTransactions(
+            @PathVariable Long userId,
+            HttpServletRequest request
+    ) {
+        // Obtener el usuario desde el token JWT
+        UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
+
+        // Validar si el usuario tiene el rol ADMIN o es el dueño de las transacciones
+        boolean isAdmin = "ADMIN".equals(userSecurity.getRole());
+        boolean isOwner = Objects.equals(userSecurity.getId(), userId);
+
+        if (!isAdmin && !isOwner) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        // Obtener las transacciones desde el servicio
+        List<TransactionListDTO> transactions = ts.getTransactionDtosByUserId(userId);
+
+        return ResponseEntity.ok(transactions);
+    }
 }
 

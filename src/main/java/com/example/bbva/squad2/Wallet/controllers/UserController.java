@@ -71,5 +71,38 @@ public class UserController {
         }
     }
 
+    // comence a codear la ful 42 (hugo)
+
+    @GetMapping("/{id}/")
+    public ResponseEntity<UserDTO> getUserDetail(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            // Extraer el token JWT del header Authorization
+            String token = request.getHeader("Authorization");
+            if (token == null || !token.startsWith("Bearer ")) {
+                throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o ausente.");
+            }
+            token = token.substring(7);
+
+            // Extraer el rol del token JWT
+            UsuarioSeguridad usuarioSeguridad = jwtServices.validateAndGetSecurity(token);
+
+            // Verificar si el ID en la URL coincide con el ID del usuario logueado
+            if (!usuarioSeguridad.getId().equals(id)) {
+                throw new AlkemyException(HttpStatus.FORBIDDEN, "No tienes permisos para ver este usuario.");
+            }
+
+            // Llamar al servicio para obtener los detalles del usuario y devolver el UserDTO
+            UserDTO userDTO = userService.getUserDetail(id);
+
+            return ResponseEntity.ok(userDTO);
+
+        } catch (AlkemyException e) {
+            return ResponseEntity.status(e.getStatus()).body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
+        }
+    }
 
 }

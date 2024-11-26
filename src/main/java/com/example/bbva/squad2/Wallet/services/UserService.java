@@ -151,4 +151,17 @@ public class UserService {
     public Optional<User> findById(Long id){
 		return userRepository.findById(id);
 	}
+
+    // codeo ful 42 metodo para obtener detalle de usuario
+    public UserDTO getUserDetail(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AlkemyException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        return UserDTO.mapFromUser(user);
+    }
 }
+
+
+
+
+

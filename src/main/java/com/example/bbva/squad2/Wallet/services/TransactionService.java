@@ -199,4 +199,18 @@ public class TransactionService {
         }
         return false;
     }
+
+    // empece a codear la ful 38 (hugo)
+
+    public List<TransactionListDTO> getTransactionDtosByUserId(Long userId) {
+        List<Transaction> transactions = transactionRepository.findByAccount_User_Id(userId);
+
+        // Mapear las entidades a DTOs
+        return transactions.stream()
+                .map(transaction -> TransactionListDTO.fromEntity(transaction))
+                .toList();
+    }
+
+
+
 }
