@@ -1,6 +1,7 @@
 package com.example.bbva.squad2.Wallet.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$", message = "La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un signo especial.")
     private String password;
 
     @ManyToOne(fetch = FetchType.EAGER)
