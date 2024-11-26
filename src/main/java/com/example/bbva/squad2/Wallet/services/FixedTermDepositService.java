@@ -42,7 +42,7 @@ public class FixedTermDepositService {
         return fixedTermDepositRepository.findAll(); // Devuelve todos los registros
     }
 
-    public ResponseEntity<FixedTermDTO> createFixedTermDeposit(Long userId, Double amount, Integer days) {
+    public ResponseEntity<Object> createFixedTermDeposit(Long userId, Double amount, Integer days, boolean simulation) {
         if (days < 30) {
             throw new AlkemyException(HttpStatus.BAD_REQUEST, "El plazo fijo debe ser de al menos 30 días.");
         }
@@ -60,25 +60,31 @@ public class FixedTermDepositService {
         double totalInterest = amount * dailyInterestRate * days;
 
         // Restar el monto del balance de la cuenta
-        account.setBalance(account.getBalance() - amount);
-        accountRepository.save(account);
+        if(!simulation) {
+            account.setBalance(account.getBalance() - amount);
+            accountRepository.save(account);
 
-        // Crear el plazo fijo
-        FixedTermDeposit fixedTermDeposit = FixedTermDeposit.builder()
-                .amount(amount)
-                .account(account)
-                .interest(totalInterest)
-                .creationDate(LocalDateTime.now())
-                //.closingDate(LocalDateTime.now().plusDays(days)) descomentar luego
-                .closingDate(LocalDateTime.now().plusMinutes(1))
-                .processed(false)
-                .build();
+            // Crear el plazo fijo
+            FixedTermDeposit fixedTermDeposit = FixedTermDeposit.builder()
+                    .amount(amount)
+                    .account(account)
+                    .interest(totalInterest)
+                    .creationDate(LocalDateTime.now())
+                    //.closingDate(LocalDateTime.now().plusDays(days)) descomentar luego
+                    .closingDate(LocalDateTime.now().plusMinutes(1))
+                    .processed(false)
+                    .build();
 
-        FixedTermDeposit savedDeposit = fixedTermDepositRepository.save(fixedTermDeposit);
+            FixedTermDeposit savedDeposit = fixedTermDepositRepository.save(fixedTermDeposit);
 
-        FixedTermDTO fixedTermDepositDTO = new FixedTermDTO().mapFromFixedTerm(savedDeposit);
+            FixedTermDTO fixedTermDepositDTO = new FixedTermDTO().mapFromFixedTerm(savedDeposit);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDepositDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDepositDTO);
+        } else {
+            //el DTO de mati para que se muestre por pantalla,
+            // aca devuelvo el account para q no rompa, pero seria tu DTO
+            return ResponseEntity.status(HttpStatus.CREATED).body(account);
+        }
     }
 
     @Scheduled(fixedRate = 60000) // Se ejecuta cada minuto, a modo de prueba

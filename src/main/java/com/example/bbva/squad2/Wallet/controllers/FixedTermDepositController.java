@@ -5,6 +5,7 @@ import com.example.bbva.squad2.Wallet.dtos.FixedTermDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.models.FixedTermDeposit;
 import com.example.bbva.squad2.Wallet.services.FixedTermDepositService;
+import com.example.bbva.squad2.Wallet.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,9 @@ public class FixedTermDepositController {
 
     @Autowired
     private JwtServices jwtServices;
+
+    @Autowired
+    private UserService userService;
 
     public FixedTermDepositController(FixedTermDepositService fixedTermDepositService) {
         this.fixedTermDepositService = fixedTermDepositService;
@@ -45,13 +49,10 @@ public class FixedTermDepositController {
             HttpServletRequest request) {
 
         // Obtener usuario autenticado desde el token
-        final String authHeader = request.getHeader("Authorization");
-
-        String token = authHeader.substring(7);
-        UsuarioSeguridad userDetails = jwtServices.validateAndGetSecurity(token);
+        UsuarioSeguridad userDetails = userService.getInfoUserSecurity(request);
 
         try {
-            ResponseEntity<FixedTermDTO> fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days);
+            ResponseEntity<Object> fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days, false);
             return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDeposit);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

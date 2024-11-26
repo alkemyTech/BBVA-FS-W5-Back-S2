@@ -37,12 +37,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id, HttpServletRequest request) {
         try {
-            // Extraer el token JWT del header Authorization
-            String token = request.getHeader("Authorization");
-            token = token.substring(7);
-
-            // Extraer el rol del token JWT
-            UsuarioSeguridad usuarioSeguridad = jwtServices.validateAndGetSecurity(token);
+            UsuarioSeguridad usuarioSeguridad = userService.getInfoUserSecurity(request);
 
             // Verificar si el usuario tiene rol ADMIN
             boolean isAdmin = usuarioSeguridad.getRole().equals(RoleName.ADMIN.name());

@@ -30,13 +30,11 @@ public class AccountService {
 	@Autowired
 	private UserRepository ur;
 
-	//agregue por ful 30
 	@Autowired
 	private FixedTermDepositService fixedTermDepositService;
 
 	@Autowired
 	private TransactionService transactionService;
-
 
 	public List<AccountDTO> getAccountsByUser(Long userId) {
 		Optional<User> user = ur.findById(userId);
@@ -52,7 +50,6 @@ public class AccountService {
 			return new ArrayList<>();
 		}
 	}
-
 
 	public AccountDTO createAccount(Long userId, @RequestParam CurrencyTypeEnum currency) {
 		Optional<User> userOptional = ur.findById(userId);
@@ -83,9 +80,6 @@ public class AccountService {
 
 		return cbu.toString();
 	}
-
-
-	//agregue para la ful 34
 
 	public AccountBalanceDTO getBalanceByUserId(Long userId) {
 		Optional<User> userOptional = ur.findById(userId);
@@ -129,5 +123,29 @@ public class AccountService {
 
 		return balanceDTO;
 	}
+
+	public AccountDTO updateTransactionLimit(Long accountId, Long userId, Double newTransactionLimit) {
+		// Validar que el límite no sea nulo ni negativo
+		if (newTransactionLimit == null || newTransactionLimit < 0) {
+			throw new AlkemyException(HttpStatus.BAD_REQUEST, "El limite de transacción no puede ser nulo.");
+		}
+
+		// Buscar la cuenta por ID
+		Account account = ar.findById(accountId)
+				.orElseThrow(() -> new AlkemyException(HttpStatus.NOT_FOUND, "Cuenta no encontrada."));
+
+		// Verificar que la cuenta pertenezca al usuario loggeado
+		if (!account.getUser().getId().equals(userId)) {
+			throw new AlkemyException(HttpStatus.FORBIDDEN, "No esta autorizado para modificar esta cuenta.");
+		}
+
+		// Actualizar el límite de transferencia
+		account.setTransactionLimit(newTransactionLimit);
+		ar.save(account);
+
+		// Devolver el DTO actualizado
+		return new AccountDTO().mapFromAccount(account);
+	}
+
 
 }
