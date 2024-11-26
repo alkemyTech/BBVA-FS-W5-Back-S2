@@ -54,21 +54,17 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TransactionBalanceDTO> obtenerTransactionBalanceDTO(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<TransactionListDTO> getTransactionById(
+            @PathVariable Long id, HttpServletRequest request) {
         UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
-        Optional<User> user = us.findById(userSecurity.getId());
-        if (user.isPresent()) {
-            boolean isOwner = ts.isTransactionOwnedByUser(id, user.get().getId());
-            if (isOwner) {
-                Optional<TransactionBalanceDTO> transaction = ts.getTransactionById(id);
-                return transaction.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-            } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
+
+        Optional<TransactionListDTO> transaction = ts.getTransactionById(id, userSecurity.getId());
+
+        return transaction
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
     }
+
 
 
     // empece a realizar la ful 38 (hugo)
