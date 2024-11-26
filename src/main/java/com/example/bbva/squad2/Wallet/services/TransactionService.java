@@ -18,7 +18,6 @@ import com.example.bbva.squad2.Wallet.config.JwtServices;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 
-
 @Service
 public class TransactionService {
 
@@ -53,8 +52,8 @@ public class TransactionService {
         // Buscar la cuenta emisora a través del email del usuario autenticado (extraído del token)
         Account senderAccount = accountsRepository.findByCurrencyAndUser_Email(dto.getCurrency(), usuarioSeguridad.getUsername())
                 .orElseThrow(() -> new AlkemyException(
-                    HttpStatus.NOT_FOUND,
-                    "Cuenta emisora no encontrada para el usuario autenticado con la moneda especificada."
+                        HttpStatus.NOT_FOUND,
+                        "Cuenta emisora no encontrada para el usuario autenticado con la moneda especificada."
                 ));
 
         // Buscar la cuenta destinataria usando el CBU del DTO
@@ -184,7 +183,7 @@ public class TransactionService {
         return transactionRepository.findById(id)
                 .map(transaction ->
                         new TransactionBalanceDTO().
-                        mapFromTransaction(transaction));
+                                mapFromTransaction(transaction));
     }
 
     public boolean isTransactionOwnedByUser(Long transactionId, Long userId) {
@@ -200,8 +199,4 @@ public class TransactionService {
         }
         return false;
     }
-
-
-
 }
-
