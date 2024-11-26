@@ -20,6 +20,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -37,6 +38,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final AccountsRepository accountsRepository;
     private final RolesRepository rolesRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     @Autowired
     private UserRepository usuarioRepository;
@@ -151,6 +156,8 @@ public class UserService {
 		return userRepository.findById(id);
 	}
 
+
+
     // codeo ful 42 metodo para obtener detalle de usuario
     public UserDTO getUserDetail(Long id) {
         User user = userRepository.findById(id)
@@ -183,6 +190,25 @@ public class UserService {
                 userPage.hasNext() ? "/users?page=" + (page + 1) : null
         );
     }
+
+    public Optional<UserUpdatedDTO> updateUser(Long id, UserUpdatedDTO userUpdatedDTO) {
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setFirstName(userUpdatedDTO.getFirstName());
+            user.setLastName(userUpdatedDTO.getLastName());
+            String hashedPassword = passwordEncoder.encode(userUpdatedDTO.getPassword());
+            user.setPassword(hashedPassword);
+
+            User updatedUser = userRepository.save(user);
+            return Optional.of(new UserUpdatedDTO().mapFromUser(updatedUser));
+        }
+        throw new AlkemyException(HttpStatus.NOT_FOUND, "User no encontrado");
+    }
+
+
+
 }
 
 
