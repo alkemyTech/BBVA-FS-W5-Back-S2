@@ -1,8 +1,10 @@
 package com.example.bbva.squad2.Wallet.services;
 
+import com.example.bbva.squad2.Wallet.config.JwtServices;
 import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
 import com.example.bbva.squad2.Wallet.dtos.UserDTO;
+import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.models.Account;
@@ -12,6 +14,7 @@ import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.repositories.RolesRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,10 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +39,9 @@ public class UserService {
 
     @Autowired
     private UserRepository usuarioRepository;
+
+    @Autowired
+    private JwtServices js;
 
     public UserDetailsService userDetailsService() {
         return username -> {
@@ -125,6 +128,25 @@ public class UserService {
     private String encryptPassword(String password) {
         return new BCryptPasswordEncoder().encode(password);
     }
+
+    public UsuarioSeguridad getInfoUserSecurity(HttpServletRequest request) {
+        final String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Authorization header is missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        UsuarioSeguridad userSecurity = js.validateAndGetSecurity(token);
+
+        if (userSecurity == null) {
+            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+
+        return userSecurity;
+    }
+
+
 
     public Optional<User> findById(Long id){
 		return userRepository.findById(id);

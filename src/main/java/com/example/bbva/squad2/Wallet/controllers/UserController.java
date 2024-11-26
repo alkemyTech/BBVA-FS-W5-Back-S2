@@ -70,4 +70,6 @@ public class UserController {
             throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
         }
     }
+
+
 }

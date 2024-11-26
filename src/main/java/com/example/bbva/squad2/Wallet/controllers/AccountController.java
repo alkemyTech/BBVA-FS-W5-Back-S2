@@ -25,6 +25,7 @@ public class AccountController {
 	@Autowired
 	private AccountService as;
 
+
 	@Autowired
 	private JwtServices js;
 	
