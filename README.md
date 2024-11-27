@@ -44,6 +44,6 @@ Repositorio Back Squad 2 | BBVA Fullstack Wave 5.
     - Caggiano, Juan Cruz
     - Cozzani, Hugo
     - Ottoboni, Matias
-    - Pereyra, Martin
+    - Pereira, Martin
 
 
