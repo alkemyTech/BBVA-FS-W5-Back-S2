@@ -257,6 +257,7 @@ public class TransactionService {
     }
 
 
+
     // empece a codear la ful 38 (hugo)
 
     public List<TransactionListDTO> getTransactionDtosByUserId(Long userId) {
