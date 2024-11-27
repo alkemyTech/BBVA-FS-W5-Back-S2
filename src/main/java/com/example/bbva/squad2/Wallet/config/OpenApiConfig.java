@@ -19,8 +19,7 @@ public class OpenApiConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(final ViewControllerRegistry registry) {
         registry.addRedirectViewController("/", SWAGGER_URL);
-        registry.addRedirectViewController("/swagger-ui", SWAGGER_URL);
-        registry.addRedirectViewController("/swagger", SWAGGER_URL);
+        registry.addRedirectViewController("/api/docs", SWAGGER_URL);
         // any other alias
     }
 
@@ -36,6 +35,11 @@ public class OpenApiConfig implements WebMvcConfigurer {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
-                .components(new Components().addSecuritySchemes("Bearer Authentication", securityScheme()));
+                .components(new Components().addSecuritySchemes("Bearer Authentication", securityScheme()))
+                .info(new io.swagger.v3.oas.models.info.Info()
+                        .title("Documentación de la API")
+                        .description("Documentación de endpoints para la API de Wallet")
+                        .version("1.0"));
+
     }
 }

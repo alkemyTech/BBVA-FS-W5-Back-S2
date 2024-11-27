@@ -14,6 +14,9 @@ import com.example.bbva.squad2.Wallet.models.FixedTermDeposit;
 import com.example.bbva.squad2.Wallet.models.Transaction;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -30,29 +33,24 @@ public class AccountService {
 	@Autowired
 	private UserRepository ur;
 
-	//agregue por ful 30
 	@Autowired
 	private FixedTermDepositService fixedTermDepositService;
 
 	@Autowired
 	private TransactionService transactionService;
 
-
 	public List<AccountDTO> getAccountsByUser(Long userId) {
 		Optional<User> user = ur.findById(userId);
 
 		if (user.isPresent()) {
 			List<Account> accounts = user.get().getAccounts();
-			List<AccountDTO> accountDTOs = accounts.stream()
+			return accounts.stream()
 					.map(account -> new AccountDTO().mapFromAccount(account))
 					.collect(Collectors.toList());
-
-			return accountDTOs;
 		} else {
 			return new ArrayList<>();
 		}
 	}
-
 
 	public AccountDTO createAccount(Long userId, @RequestParam CurrencyTypeEnum currency) {
 		Optional<User> userOptional = ur.findById(userId);
@@ -83,9 +81,6 @@ public class AccountService {
 
 		return cbu.toString();
 	}
-
-
-	//agregue para la ful 34
 
 	public AccountBalanceDTO getBalanceByUserId(Long userId) {
 		Optional<User> userOptional = ur.findById(userId);
@@ -130,4 +125,53 @@ public class AccountService {
 		return balanceDTO;
 	}
 
+	public AccountDTO updateTransactionLimit(Long accountId, Long userId, Double newTransactionLimit) {
+		// Validar que el límite no sea nulo ni negativo
+		if (newTransactionLimit == null || newTransactionLimit < 0) {
+			throw new AlkemyException(HttpStatus.BAD_REQUEST, "El limite de transacción no puede ser nulo.");
+		}
+
+		// Buscar la cuenta por ID
+		Account account = ar.findById(accountId)
+				.orElseThrow(() -> new AlkemyException(HttpStatus.NOT_FOUND, "Cuenta no encontrada."));
+
+		// Verificar que la cuenta pertenezca al usuario loggeado
+		if (!account.getUser().getId().equals(userId)) {
+			throw new AlkemyException(HttpStatus.FORBIDDEN, "No esta autorizado para modificar esta cuenta.");
+		}
+
+		// Actualizar el límite de transferencia
+		account.setTransactionLimit(newTransactionLimit);
+		ar.save(account);
+
+		// Devolver el DTO actualizado
+		return new AccountDTO().mapFromAccount(account);
+	}
+
+	public PageableResponseDTO<AccountDTO> getAllAccountsPaginated(int page, int size) {
+		// Crea el objeto Pageable con la página y tamaño proporcionados
+		Pageable pageable = PageRequest.of(page, size);
+
+		// Obtén las cuentas paginadas desde el repositorio
+		Page<Account> accountPage = ar.findAll(pageable); // Cambia ur por accountRepository
+
+		// Filtra las cuentas que no están eliminadas (soft delete)
+		List<AccountDTO> accountDTOs = accountPage.getContent().stream()
+				.filter(account -> account.getUser().getSoftDelete() == null) // Ajusta la lógica si `softDelete` es diferente en Account
+				.map(AccountDTO::mapFromAccount) // Asegúrate de que `mapFromAccount` esté implementado correctamente
+				.collect(Collectors.toList());
+
+		// Devuelve la respuesta paginada con datos relevantes
+		return new PageableResponseDTO<>(
+				accountDTOs,
+				accountPage.getNumber(),
+				accountPage.getTotalPages(),
+				accountPage.hasPrevious() ? "/accounts?page=" + (page - 1) : null, // Cambia las rutas a "/accounts"
+				accountPage.hasNext() ? "/accounts?page=" + (page + 1) : null
+		);
+	}
+
 }
+
+
+

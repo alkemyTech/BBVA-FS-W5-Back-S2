@@ -23,15 +23,16 @@ public class AccountDTO {
     private CurrencyTypeEnum currency;
     private Double transactionLimit;
     private Double balance;
-    
-    public AccountDTO mapFromAccount(Account account) {
-    	this.id = account.getId();
-    	this.currency = account.getCurrency();
-    	this.transactionLimit  = account.getTransactionLimit();
-    	this.balance = account.getBalance();
-		this.cbu = account.getCbu();
-    	return this;
-    }
+
+	public static AccountDTO mapFromAccount(Account account) {
+		AccountDTO accountDTO = new AccountDTO();
+		accountDTO.setId(account.getId());
+		accountDTO.setCurrency(account.getCurrency());
+		accountDTO.setTransactionLimit(account.getTransactionLimit());
+		accountDTO.setBalance(account.getBalance());
+		accountDTO.setCbu(account.getCbu());
+		return accountDTO;
+	}
 
 
 
