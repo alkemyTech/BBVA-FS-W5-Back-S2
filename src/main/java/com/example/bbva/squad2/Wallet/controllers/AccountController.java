@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
-import com.example.bbva.squad2.Wallet.dtos.AccountBalanceDTO;
-import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
+import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.services.UserService;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.services.AccountService;
 
 @RestController
@@ -79,4 +77,27 @@ public class AccountController {
 
 		return ResponseEntity.ok(updatedAccount);
 	}
+
+	@GetMapping("/paginated")
+	@Operation(summary = "Obtener cuentas paginados", description = "Devuelve una lista paginada " +
+			"de cuentas no eliminados.")
+	public ResponseEntity<?> getAllUsers(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		try {
+			// Validar valores de entrada
+			if (page < 0 || size <= 0) {
+				return ResponseEntity.badRequest().body("Los valores de página y tamaño deben " +
+						"ser positivos.");
+			}
+
+			// Llama al servicio para obtener los usuarios paginados
+			PageableResponseDTO<AccountDTO> paginatedAccounts = as.getAllAccountsPaginated(page, size);
+			return ResponseEntity.ok(paginatedAccounts);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error al obtener cuentas paginados.");
+		}
+	}
+
 }

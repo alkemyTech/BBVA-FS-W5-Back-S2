@@ -14,6 +14,9 @@ import com.example.bbva.squad2.Wallet.models.FixedTermDeposit;
 import com.example.bbva.squad2.Wallet.models.Transaction;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -145,5 +148,30 @@ public class AccountService {
 		return new AccountDTO().mapFromAccount(account);
 	}
 
+	public PageableResponseDTO<AccountDTO> getAllAccountsPaginated(int page, int size) {
+		// Crea el objeto Pageable con la página y tamaño proporcionados
+		Pageable pageable = PageRequest.of(page, size);
+
+		// Obtén las cuentas paginadas desde el repositorio
+		Page<Account> accountPage = ar.findAll(pageable); // Cambia ur por accountRepository
+
+		// Filtra las cuentas que no están eliminadas (soft delete)
+		List<AccountDTO> accountDTOs = accountPage.getContent().stream()
+				.filter(account -> account.getUser().getSoftDelete() == null) // Ajusta la lógica si `softDelete` es diferente en Account
+				.map(AccountDTO::mapFromAccount) // Asegúrate de que `mapFromAccount` esté implementado correctamente
+				.collect(Collectors.toList());
+
+		// Devuelve la respuesta paginada con datos relevantes
+		return new PageableResponseDTO<>(
+				accountDTOs,
+				accountPage.getNumber(),
+				accountPage.getTotalPages(),
+				accountPage.hasPrevious() ? "/accounts?page=" + (page - 1) : null, // Cambia las rutas a "/accounts"
+				accountPage.hasNext() ? "/accounts?page=" + (page + 1) : null
+		);
+	}
 
 }
+
+
+
