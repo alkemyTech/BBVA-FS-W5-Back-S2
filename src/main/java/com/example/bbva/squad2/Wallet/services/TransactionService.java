@@ -179,11 +179,12 @@ public class TransactionService {
         return transaction;
     }
 
-    public Optional<TransactionListDTO> getTransactionById(Long transactionId, Long userId) {
+    public TransactionListDTO getTransactionById(Long transactionId, Long userId) {
         return transactionRepository.findByAccount_User_Id(userId).stream()
                 .filter(transaction -> transaction.getId().equals(transactionId))
                 .findFirst()
-                .map(transaction -> new TransactionListDTO().fromEntity(transaction)); // Convertir a DTO si existe
+                .map(transaction -> new TransactionListDTO().fromEntity(transaction)) // Convertir a DTO si existe
+                .orElseThrow(() -> new AlkemyException(HttpStatus.UNAUTHORIZED, "No existe la transacción solicitada para esa cuenta"));
     }
 
 

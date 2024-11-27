@@ -43,15 +43,7 @@ public class AuthController {
         try {
             // Registrar usuario
             User createdUser = userService.registerUser(userDTO);
-            AccountDTO accountDTO = as.createAccount(createdUser.getId(), CurrencyTypeEnum.ARS);
-
-            //lo comente por que ya mapeo sino seria dos veces
-            // Construir respuesta con datos visibles
-//            RegisterDTO responseDTO = RegisterDTO.builder()
-//                    .firstName(createdUser.getFirstName())
-//                    .lastName(createdUser.getLastName())
-//                    .email(createdUser.getEmail())
-//                    .build();
+            as.createAccount(createdUser.getId(), CurrencyTypeEnum.ARS);
 
             // Generar token de autenticación
             String token = authService.generateToken(createdUser);

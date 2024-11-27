@@ -35,6 +35,7 @@ public class TransactionController {
    private TransactionService ts;
 
     @PostMapping("/sendTransaction")
+    @Operation(summary = "Enviar una transacción a otra cuenta")
     public ResponseEntity<String> sendTransaction(
             @RequestBody SendTransactionDTO request,
             HttpServletRequest httpRequest
@@ -43,8 +44,8 @@ public class TransactionController {
         return ResponseEntity.ok("Transacción finalizada exitosamente.");
     }
 
-
     @PostMapping("/deposit/{cbu}")
+    @Operation(summary = "Realizar un deposito a una cuenta del usuario loggeado")
     public ResponseEntity<DepositDTO> deposit(
             @PathVariable String cbu,
             @RequestBody SendDepositDTO request,
@@ -54,23 +55,18 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Obtener la transacción del usuario loggeado por id")
     public ResponseEntity<TransactionListDTO> getTransactionById(
             @PathVariable Long id, HttpServletRequest request) {
         UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
 
-        Optional<TransactionListDTO> transaction = ts.getTransactionById(id, userSecurity.getId());
+        TransactionListDTO transaction = ts.getTransactionById(id, userSecurity.getId());
 
-        return transaction
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
+        return ResponseEntity.ok(transaction);
     }
 
-
-
-    // empece a realizar la ful 38 (hugo)
-
     @GetMapping("/user/{userId}")
-    @Operation(summary = "Obtener la transaccion de usuarios por Id")
+    @Operation(summary = "Obtener las transacciones de usuarios por id")
     public ResponseEntity<List<TransactionListDTO>> listUserTransactions(
             @PathVariable Long userId,
             HttpServletRequest request

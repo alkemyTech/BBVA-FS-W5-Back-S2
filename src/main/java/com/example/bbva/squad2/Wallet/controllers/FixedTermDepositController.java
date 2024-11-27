@@ -6,6 +6,7 @@ import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.models.FixedTermDeposit;
 import com.example.bbva.squad2.Wallet.services.FixedTermDepositService;
 import com.example.bbva.squad2.Wallet.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,8 +34,11 @@ public class FixedTermDepositController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FixedTermDTO>> getAllFixedTermDeposits() {
-        List<FixedTermDTO> fixedTerms = fixedTermDepositService.getAllFixedTermDeposits()
+    @Operation(summary = "Obtener los plazos fijos del usuario loggeado")
+    public ResponseEntity<List<FixedTermDTO>> getAllFixedTermDeposits(HttpServletRequest request) {
+        UsuarioSeguridad userDetails = userService.getInfoUserSecurity(request);
+
+        List<FixedTermDTO> fixedTerms = fixedTermDepositService.getFixedTermDepositsByUserId(userDetails.getId())
                 .stream()
                 .map(fixedTerm -> new FixedTermDTO().mapFromFixedTerm(fixedTerm))
                 .collect(Collectors.toList());
@@ -43,6 +47,7 @@ public class FixedTermDepositController {
     }
 
     @PostMapping("/fixedTerm")
+    @Operation(summary = "Crear un plazo fijo para el usuario loggeado")
     public ResponseEntity<?> createFixedTermDeposit(
             @RequestParam Double amount,
             @RequestParam Integer days,
