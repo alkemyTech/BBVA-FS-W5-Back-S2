@@ -3,6 +3,7 @@ package com.example.bbva.squad2.Wallet.controllers;
 import com.example.bbva.squad2.Wallet.config.JwtServices;
 import com.example.bbva.squad2.Wallet.dtos.PageableResponseDTO;
 import com.example.bbva.squad2.Wallet.dtos.UserDTO;
+import com.example.bbva.squad2.Wallet.dtos.UserUpdatedDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -130,4 +132,19 @@ public class UserController {
             throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
         }
     }
+
+    @PatchMapping("/")
+    public ResponseEntity<String> updateUser(
+            @RequestBody UserUpdatedDTO userUpdated,
+            HttpServletRequest request) {
+        UsuarioSeguridad user = userService.getInfoUserSecurity(request);
+        String result = userService.updateUser(user.getId(), userUpdated);
+
+        if ("Usuario actualizado exitosamente.".equals(result)) {
+            return ResponseEntity.ok(result);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+    }
+
+
 }

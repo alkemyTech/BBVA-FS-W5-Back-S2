@@ -151,6 +151,8 @@ public class UserService {
 		return userRepository.findById(id);
 	}
 
+
+
     // codeo ful 42 metodo para obtener detalle de usuario
     public UserDTO getUserDetail(Long id) {
         User user = userRepository.findById(id)
@@ -183,6 +185,24 @@ public class UserService {
                 userPage.hasNext() ? "/users?page=" + (page + 1) : null
         );
     }
+
+    public String updateUser(Long id, UserUpdatedDTO userUpdatedDTO) {
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setFirstName(userUpdatedDTO.getFirstName());
+            user.setLastName(userUpdatedDTO.getLastName());
+            user.setPassword(encryptPassword(userUpdatedDTO.getPassword()));
+
+            userRepository.save(user);
+
+            return "Usuario actualizado exitosamente.";
+        }
+        return "El usuario no fue encontrado.";
+    }
+
+
 }
 
 
