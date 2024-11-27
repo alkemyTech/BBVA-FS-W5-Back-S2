@@ -30,10 +30,7 @@ public class AuthController {
 
     @Autowired
     private AccountService as;
-
-    /*@Autowired
-    private final UserService userService;*/
-
+    
     @Autowired
     private final UserRegisterServices userRegisterServices;
 
