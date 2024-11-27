@@ -116,8 +116,7 @@ public class TransactionController {
             );
 
             // Actualizar el balance de la cuenta
-            cuenta.setBalance(cuenta.getBalance() - request.getAmount());
-            accountsRepository.save(account);
+            
 
             // Construir la respuesta con la transacción y la cuenta afectada
             return ResponseEntity.ok(
