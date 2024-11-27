@@ -6,6 +6,7 @@ import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.repositories.TransactionsRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -105,9 +106,6 @@ public class TransactionService {
                 dto.getDescription()
         );
 
-
-
-
         // Actualizar balances en ambas cuentas
         senderAccount.setBalance(senderAccount.getBalance() - dto.getAmount());
         destinationAccount.setBalance(destinationAccount.getBalance() + dto.getAmount());
@@ -167,6 +165,74 @@ public class TransactionService {
                 .build();
     }
 
+    public DepositDTO payment(SendPaymentDTO dto, HttpServletRequest request) throws AlkemyException {
+        // Validar monto mayor a cero
+        if (dto.getAmount() <= 0) {
+            throw new AlkemyException(
+                    HttpStatus.BAD_REQUEST,
+                    "El monto a depositar debe ser mayor a cero."
+            );
+        }
+
+        // Obtener el usuario autenticado a través del token
+        String token = request.getHeader("Authorization").substring(7);
+        UsuarioSeguridad userSecurity = jwtServices.validateAndGetSecurity(token);
+        Optional<User> userOpt = ur.findById(userSecurity.getId());
+        if (userOpt.isEmpty()) {
+            throw new AlkemyException(
+                    HttpStatus.BAD_REQUEST,
+                    "Usuario no autorizado."
+            );
+        }
+
+        User user = userOpt.get();
+
+        // Validar que el usuario tenga una cuenta con la moneda indicada
+        Optional<Account> cuentaOpt = user.getAccounts().stream()
+                .filter(cuenta -> cuenta.getCurrency().equals(dto.getCurrency()))
+                .findFirst();
+
+        if (cuentaOpt.isEmpty()) {
+            throw new AlkemyException(
+                    HttpStatus.BAD_REQUEST,
+                    "No se encontró una cuenta con la moneda especificada."
+            );
+        }
+
+        Account cuenta = cuentaOpt.get();
+
+        // Validar saldo suficiente en la cuenta
+        if (cuenta.getBalance() < dto.getAmount()) {
+            throw new AlkemyException(
+                    HttpStatus.BAD_REQUEST,
+                    "Saldo insuficiente en la cuenta."
+            );
+        }
+
+        // Crear y registrar la transacción de pago
+        Transaction transaccion = createTransaction(
+                cuenta,
+                cuenta.getCbu(),
+                "Pago de tarjeta",
+                dto.getAmount(),
+                TransactionTypeEnum.PAGO,
+                dto.getDescription()
+        );
+
+        // Actualizar el balance de la cuenta
+        cuenta.setBalance(cuenta.getBalance() - dto.getAmount());
+        accountsRepository.save(cuenta);
+
+        TransactionBalanceDTO transactionDTO = new TransactionBalanceDTO().mapFromTransaction(transaccion);
+        AccountDTO accountDTO = new AccountDTO().mapFromAccount(cuenta);
+
+        // Construir la respuesta con la transacción y la cuenta afectada
+        return DepositDTO.builder()
+                .transaction(transactionDTO)
+                .account(accountDTO)
+                .build();
+    }
+
     public Transaction createTransaction(Account account, String cbuOrigen, String cbuDestino, Double amount, TransactionTypeEnum type, String description) {
         Transaction transaction = Transaction.builder()
                 .account(account)
@@ -200,9 +266,5 @@ public class TransactionService {
         return transactions.stream()
                 .map(transaction -> TransactionListDTO.fromEntity(transaction))
                 .toList();
-    }
-
-    public void actualizarBalanceCuenta(Account cuenta) {
-        accountsRepository.save(cuenta);
     }
 }
