@@ -134,15 +134,17 @@ public class UserController {
     }
 
     @PatchMapping("/")
-    public ResponseEntity<UserUpdatedDTO> updateUser(
+    public ResponseEntity<String> updateUser(
             @RequestBody UserUpdatedDTO userUpdated,
             HttpServletRequest request) {
-
         UsuarioSeguridad user = userService.getInfoUserSecurity(request);
-        Optional<UserUpdatedDTO> updatedUser = userService.updateUser(user.getId(), userUpdated);
+        String result = userService.updateUser(user.getId(), userUpdated);
 
-        return updatedUser.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        if ("Usuario actualizado exitosamente.".equals(result)) {
+            return ResponseEntity.ok(result);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
     }
+
 
 }
