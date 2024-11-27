@@ -7,6 +7,7 @@ import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.services.AccountService;
 import com.example.bbva.squad2.Wallet.services.AuthService;
+import com.example.bbva.squad2.Wallet.services.UserRegisterServices;
 import com.example.bbva.squad2.Wallet.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -30,34 +31,23 @@ public class AuthController {
     @Autowired
     private AccountService as;
 
-    @Autowired
-    private final UserService userService;
+    /*@Autowired
+    private final UserService userService;*/
 
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    @Autowired
+    private final UserRegisterServices userRegisterServices;
+
+    public AuthController(UserRegisterServices userRegisterServices) {
+
+        this.userRegisterServices = userRegisterServices;
     }
 
     @PostMapping("/register")
     @Operation(summary = "Registrar nuevos usuarios")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterDTO userDTO) {
         try {
-            // Registrar usuario
-            User createdUser = userService.registerUser(userDTO);
-            as.createAccount(createdUser.getId(), CurrencyTypeEnum.ARS);
-
-            // Generar token de autenticación
-            String token = authService.generateToken(createdUser);
-
-            //Construir respuesta con token y datos del usuario
-            Map<String, Object> response = Map.of(
-                    "user", RegisterDTO.builder()
-                            .firstName(createdUser.getFirstName())
-                            .lastName(createdUser.getLastName())
-                            .email(createdUser.getEmail())
-                            .build(),
-                    "token", token
-            );
-
+            // modifique el register al UserRegisterServices
+            Map<String, Object> response = userRegisterServices.registerUser(userDTO);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
 
         } catch (IllegalArgumentException e) {

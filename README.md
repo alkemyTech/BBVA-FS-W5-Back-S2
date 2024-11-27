@@ -9,37 +9,37 @@ Repositorio Back Squad 2 | BBVA Fullstack Wave 5.
 ### Detalle de los Usuarios Admin y User
 
 #### Admins
-| ID  | First Name | Last Name   | Email                           | Password               |
-|-----|------------|-------------|---------------------------------|------------------------|
-| 1   | Pepe       | Giménez     | pepe.gimenez@empresa.com        | Pepe@2024Gimenez!      |
-| 2   | Juan       | Pérez       | juan.perez@correo.com           | JuanP@2024Perez!       |
-| 3   | Ana        | Martínez    | ana.martinez@empresa.com        | Ana_M@2024Martinez#    |
-| 4   | Carlos     | López       | carlos.lopez@corporativo.com    | Carlos!2024Lopez@      |
-| 5   | Marta      | Fernández   | marta.fernandez@empresa.com     | Marta2024_Fernandez!   |
-| 6   | Luis       | Sánchez     | luis.sanchez@empresa.com        | Luis@2024Sanchez#      |
-| 7   | Raúl       | Díaz        | raul.diaz@empresa.com          | Raul2024D!az#          |
-| 8   | Lucía      | González    | lucia.gonzalez@correo.com       | Lucia@2024Gonzalez!    |
-| 9   | Sofía      | Rodríguez   | sofia.rodriguez@empresa.com     | Sofia2024_Rodriguez!   |
-| 10  | David      | Hernández   | david.hernandez@corporativo.com | David2024!Hernandez@   |
+| ID  | First Name | Last Name   | Email                       | Password               |
+|-----|------------|-------------|-----------------------------|------------------------|
+| 1   | Pepe       | Giménez     | pepe.gimenez@yopmail.com    | Pepe@2024Gimenez!      |
+| 2   | Juan       | Pérez       | juan.perez@yopmail.com      | JuanP@2024Perez!       |
+| 3   | Ana        | Martínez    | ana.martinez@yopmail.com    | Ana_M@2024Martinez#    |
+| 4   | Carlos     | López       | carlos.lopez@yopmail.com    | Carlos!2024Lopez@      |
+| 5   | Marta      | Fernández   | marta.fernandez@yopmail.com | Marta2024_Fernandez!   |
+| 6   | Luis       | Sánchez     | luis.sanchez@yopmail.com    | Luis@2024Sanchez#      |
+| 7   | Raúl       | Díaz        | raul.diaz@yopmail.com       | Raul2024D!az#          |
+| 8   | Lucía      | González    | lucia.gonzalez@yopmail.com  | Lucia@2024Gonzalez!    |
+| 9   | Sofía      | Rodríguez   | sofia.rodriguez@yopmail.com | Sofia2024_Rodriguez!   |
+| 10  | David      | Hernández   | david.hernandez@yopmail.com | David2024!Hernandez@   |
 
 #### Users
-| ID  | First Name | Last Name   | Email                           | Password               |
-|-----|------------|-------------|---------------------------------|------------------------|
-| 11  | Pedro      | Ruiz        | pedro.ruiz@gmail.com            | Pedro!2024Ruiz#        |
-| 12  | María      | García      | maria.garcia@gmail.com          | Maria@2024Garcia!      |
-| 13  | Fernando   | Jiménez     | fernando.jimenez@correo.com     | Fernando2024!Jimenez#  |
-| 14  | Carmen     | Álvarez     | carmen.alvarez@hotmail.com      | Carmen!2024Alvarez#    |
-| 15  | Rafael     | Moreno      | rafael.moreno@outlook.com       | Rafael2024_Moreno!     |
-| 16  | Isabel     | Gil         | isabel.gil@empresa.com          | Isabel!2024Gil@        |
-| 17  | Antonio    | Vázquez     | antonio.vazquez@gmail.com       | Antonio2024_Vazquez!   |
-| 18  | Raquel     | Romero      | raquel.romero@empresa.com       | Raquel@2024Romero!     |
-| 19  | José       | Martín      | jose.martin@correo.com          | Jose@2024Martin#       |
-| 20  | Patricia   | Serrano     | patricia.serrano@gmail.com      | Patricia2024!Serrano#  |
+| ID  | First Name | Last Name   | Email                         | Password               |
+|-----|------------|-------------|-------------------------------|------------------------|
+| 11  | Pedro      | Ruiz        | pedro.ruiz@yopmail.com        | Pedro!2024Ruiz#        |
+| 12  | María      | García      | maria.garcia@yopmail.com      | Maria@2024Garcia!      |
+| 13  | Fernando   | Jiménez     | fernando.jimenez@yopmail.com  | Fernando2024!Jimenez#  |
+| 14  | Carmen     | Álvarez     | carmen.alvarez@yopmail.com    | Carmen!2024Alvarez#    |
+| 15  | Rafael     | Moreno      | rafael.moreno@yopmail.com     | Rafael2024_Moreno!     |
+| 16  | Isabel     | Gil         | isabel.gil@yopmail.com        | Isabel!2024Gil@        |
+| 17  | Antonio    | Vázquez     | antonio.vazquez@yopmail.com   | Antonio2024_Vazquez!   |
+| 18  | Raquel     | Romero      | raquel.romero@yopmail.com     | Raquel@2024Romero!     |
+| 19  | José       | Martín      | jose.martin@yopmail.com       | Jose@2024Martin#       |
+| 20  | Patricia   | Serrano     | patricia.serrano@yopmail.com  | Patricia2024!Serrano#  |
 ---
 
 ## Equipo de Trabajo
 
-- **Líder Técnico (Alkemy)**: Frutille, Daniel
+- **Líder Técnico (Alkemy)**: Futrille, Daniel
 - **Desarrolladores (BBVA )**:
     - Caggiano, Juan Cruz
     - Cozzani, Hugo
