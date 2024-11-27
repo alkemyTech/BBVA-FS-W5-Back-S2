@@ -1,16 +1,13 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
 import java.util.List;
-import java.util.Objects;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
 import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -81,7 +78,7 @@ public class AccountController {
 	@GetMapping("/paginated")
 	@Operation(summary = "Obtener cuentas paginados", description = "Devuelve una lista paginada " +
 			"de cuentas no eliminados.")
-	public ResponseEntity<?> getAllUsers(
+	public ResponseEntity<?> getAllAccounts(
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
 		try {
