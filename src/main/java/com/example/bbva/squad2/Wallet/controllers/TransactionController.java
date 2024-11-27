@@ -90,64 +90,13 @@ public class TransactionController {
     }
 
     @PostMapping("/payment")
-    public ResponseEntity<?> realizarPago(
-            @RequestBody SendTransactionDTO request,
+    @Operation(summary = "Realizar un pago por el usuario loggeado")
+    public ResponseEntity<DepositDTO> realizarPago(
+            @RequestBody SendPaymentDTO request,
             HttpServletRequest httpRequest
     ) {
-        try {
-            // Validar monto mayor a cero
-            if (request.getAmount() <= 0) {
-                return ResponseEntity.badRequest().body("El monto debe ser mayor a cero.");
-            }
-
-            // Obtener el usuario autenticado a través del token
-            UsuarioSeguridad userSecurity = us.getInfoUserSecurity(httpRequest);
-            Optional<User> userOpt = us.findById(userSecurity.getId());
-            if (userOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autorizado.");
-            }
-            User user = userOpt.get();
-
-            // Validar que el usuario tenga una cuenta con la moneda indicada
-            Optional<Account> cuentaOpt = user.getAccounts().stream()
-                    .filter(cuenta -> cuenta.getCurrency().equals(request.getCurrency()))
-                    .findFirst();
-
-            if (cuentaOpt.isEmpty()) {
-                return ResponseEntity.badRequest().body("No se encontró una cuenta con la moneda especificada.");
-            }
-
-            Account cuenta = cuentaOpt.get();
-
-            // Validar saldo suficiente en la cuenta
-            if (cuenta.getBalance() < request.getAmount()) {
-                return ResponseEntity.badRequest().body("Saldo insuficiente en la cuenta.");
-            }
-
-            // Crear y registrar la transacción de pago
-            Transaction transaccion = ts.createTransaction(
-                    cuenta,
-                    cuenta.getCbu(),
-                    "Pago - Sin destino",
-                    request.getAmount(),
-                    TransactionTypeEnum.PAGO,
-                    request.getDescription()
-            );
-
-            // Actualizar el balance de la cuenta
-            cuenta.setBalance(cuenta.getBalance() - request.getAmount());
-            ts.actualizarBalanceCuenta(cuenta);
-
-            // Construir la respuesta con la transacción y la cuenta afectada
-            return ResponseEntity.ok(
-                    Map.of(
-                            "transaccion", transaccion,
-                            "cuenta", cuenta
-                    )
-            );
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al realizar el pago: " + e.getMessage());
-        }
+        DepositDTO payment = ts.payment(request, httpRequest);
+        return ResponseEntity.ok(payment);
     }
 
 }
