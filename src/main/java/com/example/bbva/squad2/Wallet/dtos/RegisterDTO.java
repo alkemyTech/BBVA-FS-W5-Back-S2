@@ -4,10 +4,8 @@ import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Role;
 import com.example.bbva.squad2.Wallet.models.User;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 
@@ -30,9 +28,10 @@ public class RegisterDTO {
     private String email;
 
     @NotBlank(message = "La contraseña es obligatorio")
-    @Size(min= 8, message = "La contraseña debe tener al menos 8 caracteres")
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,}$",
+            message = "La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un signo especial.")
+    @Schema(example = "Pass123!@")
     private String password;
-
 
     public RegisterDTO mapFromAccount(final User user) {
         this.firstName = user.getFirstName();

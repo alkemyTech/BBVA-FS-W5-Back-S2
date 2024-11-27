@@ -34,6 +34,7 @@ public class AccountController {
 	private JwtServices js;
 	
 	@GetMapping("/{id}")
+	@Operation(summary = "Obtener cuentas de un usuario específico")
 	public ResponseEntity<List<AccountDTO>> getAccounts(@PathVariable Long id) throws Exception {
 	    List<AccountDTO> accountsByUser = as.getAccountsByUser(id);
 	  
@@ -41,6 +42,7 @@ public class AccountController {
 	}
 
 	@PostMapping("/{currency}")
+	@Operation(summary = "Crear una cuenta para el usuario loggeado")
 	public ResponseEntity<AccountDTO> createAccount(HttpServletRequest request,
 													@PathVariable CurrencyTypeEnum currency
 													) {
@@ -52,7 +54,7 @@ public class AccountController {
 	}
 
 	@GetMapping("/balance")
-	@Operation(summary = "Obtener balance de cuentas")
+	@Operation(summary = "Obtener balance de cuentas del usuario loggeado")
 	public ResponseEntity<AccountBalanceDTO> getBalance(HttpServletRequest request) {
 		UsuarioSeguridad security = userService.getInfoUserSecurity(request);
 		Long userId = security.getId();
@@ -63,6 +65,7 @@ public class AccountController {
 	}
 
 	@PatchMapping("/{id}")
+	@Operation(summary = "Editar el limite de transacción de la cuenta del usuario loggeado")
 	public ResponseEntity<AccountDTO> updateTransactionLimit(
 			@PathVariable Long id,
 			@RequestParam Double newTransactionLimit,

@@ -41,11 +41,9 @@ public class AccountService {
 
 		if (user.isPresent()) {
 			List<Account> accounts = user.get().getAccounts();
-			List<AccountDTO> accountDTOs = accounts.stream()
+			return accounts.stream()
 					.map(account -> new AccountDTO().mapFromAccount(account))
 					.collect(Collectors.toList());
-
-			return accountDTOs;
 		} else {
 			return new ArrayList<>();
 		}

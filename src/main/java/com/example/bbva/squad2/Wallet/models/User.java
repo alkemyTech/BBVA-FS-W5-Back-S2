@@ -31,7 +31,8 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    //@Pattern(regexp = "^.{8,}$\n", message = "La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un signo especial.")
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,}$",
+    message = "La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un signo especial.")
     private String password;
 
     @ManyToOne(fetch = FetchType.EAGER)

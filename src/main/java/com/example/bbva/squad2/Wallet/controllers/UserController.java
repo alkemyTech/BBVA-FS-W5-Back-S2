@@ -63,7 +63,6 @@ public class UserController {
         }
     }
 
-
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar usuarios por Id")
 
@@ -101,18 +100,10 @@ public class UserController {
     // comence a codear la ful 42 (hugo)
 
     @GetMapping("/{id}/")
-    @Operation(summary = "Buscar los usuarios por Id")
+    @Operation(summary = "Buscar usuario loggeado por id")
     public ResponseEntity<UserDTO> getUserDetail(@PathVariable Long id, HttpServletRequest request) {
         try {
-            // Extraer el token JWT del header Authorization
-            String token = request.getHeader("Authorization");
-            if (token == null || !token.startsWith("Bearer ")) {
-                throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o ausente.");
-            }
-            token = token.substring(7);
-
-            // Extraer el rol del token JWT
-            UsuarioSeguridad usuarioSeguridad = jwtServices.validateAndGetSecurity(token);
+            UsuarioSeguridad usuarioSeguridad = userService.getInfoUserSecurity(request);
 
             // Verificar si el ID en la URL coincide con el ID del usuario logueado
             if (!usuarioSeguridad.getId().equals(id)) {
@@ -134,6 +125,7 @@ public class UserController {
     }
 
     @PatchMapping("/")
+    @Operation(summary = "Editar para el usuario loggeado")
     public ResponseEntity<String> updateUser(
             @RequestBody UserUpdatedDTO userUpdated,
             HttpServletRequest request) {
