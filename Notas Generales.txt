@@ -13,13 +13,13 @@ para autenticar en swagger (actuales):
 
 ADMIN:
 {
-  "email": "pepe.gimenez@empresa.com",
+  "email": "pepe.gimenez@yopmail.com",
   "password": "Pepe@2024Gimenez!"
 }
 
 USER:
 {
-  "email": "pedro.ruiz@gmail.com",
+  "email": "pedro.ruiz@yopmail.com",
   "password": "Pedro!2024Ruiz#"
 }
 
