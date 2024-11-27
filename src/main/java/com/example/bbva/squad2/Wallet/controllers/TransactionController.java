@@ -9,6 +9,7 @@ import com.example.bbva.squad2.Wallet.models.Transaction;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.services.TransactionService;
 import com.example.bbva.squad2.Wallet.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ public class TransactionController {
    private TransactionService ts;
 
     @PostMapping("/sendTransaction")
+    @Operation(summary = "Enviar una transacción a otra cuenta")
     public ResponseEntity<String> sendTransaction(
             @RequestBody SendTransactionDTO request,
             HttpServletRequest httpRequest
@@ -43,8 +45,8 @@ public class TransactionController {
         return ResponseEntity.ok("Transacción finalizada exitosamente.");
     }
 
-
     @PostMapping("/deposit/{cbu}")
+    @Operation(summary = "Realizar un deposito a una cuenta del usuario loggeado")
     public ResponseEntity<DepositDTO> deposit(
             @PathVariable String cbu,
             @RequestBody SendDepositDTO request,
@@ -54,20 +56,37 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TransactionBalanceDTO> obtenerTransactionBalanceDTO(@PathVariable Long id, HttpServletRequest request) {
+    @Operation(summary = "Obtener la transacción del usuario loggeado por id")
+    public ResponseEntity<TransactionListDTO> getTransactionById(
+            @PathVariable Long id, HttpServletRequest request) {
         UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
-        Optional<User> user = us.findById(userSecurity.getId());
-        if (user.isPresent()) {
-            boolean isOwner = ts.isTransactionOwnedByUser(id, user.get().getId());
-            if (isOwner) {
-                Optional<TransactionBalanceDTO> transaction = ts.getTransactionById(id);
-                return transaction.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-            } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+
+        TransactionListDTO transaction = ts.getTransactionById(id, userSecurity.getId());
+
+        return ResponseEntity.ok(transaction);
+    }
+
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "Obtener las transacciones de usuarios por id")
+    public ResponseEntity<List<TransactionListDTO>> listUserTransactions(
+            @PathVariable Long userId,
+            HttpServletRequest request
+    ) {
+        // Obtener el usuario desde el token JWT
+        UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
+
+        // Validar si el usuario tiene el rol ADMIN o es el dueño de las transacciones
+        boolean isAdmin = "ADMIN".equals(userSecurity.getRole());
+        boolean isOwner = Objects.equals(userSecurity.getId(), userId);
+
+        if (!isAdmin && !isOwner) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        // Obtener las transacciones desde el servicio
+        List<TransactionListDTO> transactions = ts.getTransactionDtosByUserId(userId);
+
+        return ResponseEntity.ok(transactions);
     }
 
     @PostMapping("/payment")

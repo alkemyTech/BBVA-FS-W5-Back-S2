@@ -8,6 +8,7 @@ import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.services.AccountService;
 import com.example.bbva.squad2.Wallet.services.AuthService;
 import com.example.bbva.squad2.Wallet.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,19 +38,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @Operation(summary = "Registrar nuevos usuarios")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterDTO userDTO) {
         try {
             // Registrar usuario
             User createdUser = userService.registerUser(userDTO);
-            AccountDTO accountDTO = as.createAccount(createdUser.getId(), CurrencyTypeEnum.ARS);
-
-            //lo comente por que ya mapeo sino seria dos veces
-            // Construir respuesta con datos visibles
-//            RegisterDTO responseDTO = RegisterDTO.builder()
-//                    .firstName(createdUser.getFirstName())
-//                    .lastName(createdUser.getLastName())
-//                    .email(createdUser.getEmail())
-//                    .build();
+            as.createAccount(createdUser.getId(), CurrencyTypeEnum.ARS);
 
             // Generar token de autenticación
             String token = authService.generateToken(createdUser);
@@ -74,6 +68,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Login de usuarios ya creados")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
         try {
             // Llama al servicio de autenticación con los datos del DTO

@@ -8,6 +8,8 @@ import com.example.bbva.squad2.Wallet.dtos.AccountBalanceDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
+import com.example.bbva.squad2.Wallet.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,48 +27,36 @@ public class AccountController {
 	@Autowired
 	private AccountService as;
 
+	@Autowired
+	private UserService userService;
 
 	@Autowired
 	private JwtServices js;
 	
 	@GetMapping("/{id}")
+	@Operation(summary = "Obtener cuentas de un usuario específico")
 	public ResponseEntity<List<AccountDTO>> getAccounts(@PathVariable Long id) throws Exception {
 	    List<AccountDTO> accountsByUser = as.getAccountsByUser(id);
 	  
 	    return ResponseEntity.ok(accountsByUser);
 	}
 
-
 	@PostMapping("/{currency}")
+	@Operation(summary = "Crear una cuenta para el usuario loggeado")
 	public ResponseEntity<AccountDTO> createAccount(HttpServletRequest request,
 													@PathVariable CurrencyTypeEnum currency
 													) {
-		final String authHeader = request.getHeader("Authorization");
-		final String token;
-		if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
-			throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Invalid or missing Authorization header");
-		}
-		token = authHeader.substring(7);
-		UsuarioSeguridad security = js.validateAndGetSecurity(token);
+		UsuarioSeguridad security = userService.getInfoUserSecurity(request);
 		Long userId = security.getId();
 
 		AccountDTO accountDTO = as.createAccount(userId, currency);
 		return ResponseEntity.ok(accountDTO);
 	}
 
-	// agregue para ful 30
-
 	@GetMapping("/balance")
+	@Operation(summary = "Obtener balance de cuentas del usuario loggeado")
 	public ResponseEntity<AccountBalanceDTO> getBalance(HttpServletRequest request) {
-		final String authHeader = request.getHeader("Authorization");
-		final String token;
-
-		if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
-			throw new RuntimeException("Invalid or missing Authorization header");
-		}
-
-		token = authHeader.substring(7);
-		UsuarioSeguridad security = js.validateAndGetSecurity(token);
+		UsuarioSeguridad security = userService.getInfoUserSecurity(request);
 		Long userId = security.getId();
 
 		AccountBalanceDTO balanceDTO = as.getBalanceByUserId(userId);
@@ -74,5 +64,19 @@ public class AccountController {
 		return ResponseEntity.ok(balanceDTO);
 	}
 
+	@PatchMapping("/{id}")
+	@Operation(summary = "Editar el limite de transacción de la cuenta del usuario loggeado")
+	public ResponseEntity<AccountDTO> updateTransactionLimit(
+			@PathVariable Long id,
+			@RequestParam Double newTransactionLimit,
+			HttpServletRequest request) {
 
+		UsuarioSeguridad security = userService.getInfoUserSecurity(request);
+		Long userId = security.getId();
+
+		// Actualizar el límite de transferencia
+		AccountDTO updatedAccount = as.updateTransactionLimit(id, userId, newTransactionLimit);
+
+		return ResponseEntity.ok(updatedAccount);
+	}
 }

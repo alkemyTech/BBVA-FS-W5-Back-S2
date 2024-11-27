@@ -182,25 +182,24 @@ public class TransactionService {
         return transaction;
     }
 
-    public Optional<TransactionBalanceDTO> getTransactionById(Long id) {
-        return transactionRepository.findById(id)
-                .map(transaction ->
-                        new TransactionBalanceDTO().
-                                mapFromTransaction(transaction));
+    public TransactionListDTO getTransactionById(Long transactionId, Long userId) {
+        return transactionRepository.findByAccount_User_Id(userId).stream()
+                .filter(transaction -> transaction.getId().equals(transactionId))
+                .findFirst()
+                .map(transaction -> new TransactionListDTO().fromEntity(transaction)) // Convertir a DTO si existe
+                .orElseThrow(() -> new AlkemyException(HttpStatus.UNAUTHORIZED, "No existe la transacción solicitada para esa cuenta"));
     }
 
-    public boolean isTransactionOwnedByUser(Long transactionId, Long userId) {
-        Optional<User> user = ur.findById(userId);
-        if (user.isPresent()) {
-            List<Account> accounts = user.get().getAccounts();
-            Optional<TransactionBalanceDTO> transaction = getTransactionById(transactionId);
-            if (transaction.isPresent()) {
-                boolean cbuMatch = accounts.stream()
-                        .anyMatch(account -> account.getCbu().equals(transaction.get().getCbuOrigen()));
-                return cbuMatch;
-            }
-        }
-        return false;
+
+    // empece a codear la ful 38 (hugo)
+
+    public List<TransactionListDTO> getTransactionDtosByUserId(Long userId) {
+        List<Transaction> transactions = transactionRepository.findByAccount_User_Id(userId);
+
+        // Mapear las entidades a DTOs
+        return transactions.stream()
+                .map(transaction -> TransactionListDTO.fromEntity(transaction))
+                .toList();
     }
 
     public void actualizarBalanceCuenta(Account cuenta) {

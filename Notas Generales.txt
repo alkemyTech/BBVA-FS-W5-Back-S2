@@ -4,9 +4,22 @@ spring-boot:run "-Dspring-boot.run.jvmArguments=-Xdebug -Xrunjdwp:transport=dt_s
 
 -------------------------------
 
-para autenticar en swagger:
+para dirigirse a la aplicacion
 
+http://localhost:8080/api/docs
+
+------------------------------
+para autenticar en swagger (actuales):
+
+ADMIN:
 {
-  "email": "juancruz.caggiano@bbva.com",
-  "password": "1234"
+  "email": "pepe.gimenez@empresa.com",
+  "password": "Pepe@2024Gimenez!"
 }
+
+USER:
+{
+  "email": "pedro.ruiz@gmail.com",
+  "password": "Pedro!2024Ruiz#"
+}
+

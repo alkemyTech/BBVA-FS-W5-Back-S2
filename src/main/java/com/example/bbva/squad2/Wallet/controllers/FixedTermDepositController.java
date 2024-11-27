@@ -5,6 +5,8 @@ import com.example.bbva.squad2.Wallet.dtos.FixedTermDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.models.FixedTermDeposit;
 import com.example.bbva.squad2.Wallet.services.FixedTermDepositService;
+import com.example.bbva.squad2.Wallet.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,13 +26,19 @@ public class FixedTermDepositController {
     @Autowired
     private JwtServices jwtServices;
 
+    @Autowired
+    private UserService userService;
+
     public FixedTermDepositController(FixedTermDepositService fixedTermDepositService) {
         this.fixedTermDepositService = fixedTermDepositService;
     }
 
     @GetMapping
-    public ResponseEntity<List<FixedTermDTO>> getAllFixedTermDeposits() {
-        List<FixedTermDTO> fixedTerms = fixedTermDepositService.getAllFixedTermDeposits()
+    @Operation(summary = "Obtener los plazos fijos del usuario loggeado")
+    public ResponseEntity<List<FixedTermDTO>> getAllFixedTermDeposits(HttpServletRequest request) {
+        UsuarioSeguridad userDetails = userService.getInfoUserSecurity(request);
+
+        List<FixedTermDTO> fixedTerms = fixedTermDepositService.getFixedTermDepositsByUserId(userDetails.getId())
                 .stream()
                 .map(fixedTerm -> new FixedTermDTO().mapFromFixedTerm(fixedTerm))
                 .collect(Collectors.toList());
@@ -39,19 +47,17 @@ public class FixedTermDepositController {
     }
 
     @PostMapping("/fixedTerm")
+    @Operation(summary = "Crear un plazo fijo para el usuario loggeado")
     public ResponseEntity<?> createFixedTermDeposit(
             @RequestParam Double amount,
             @RequestParam Integer days,
             HttpServletRequest request) {
 
         // Obtener usuario autenticado desde el token
-        final String authHeader = request.getHeader("Authorization");
-
-        String token = authHeader.substring(7);
-        UsuarioSeguridad userDetails = jwtServices.validateAndGetSecurity(token);
+        UsuarioSeguridad userDetails = userService.getInfoUserSecurity(request);
 
         try {
-            ResponseEntity<FixedTermDTO> fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days);
+            ResponseEntity<Object> fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days, false);
             return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDeposit);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
