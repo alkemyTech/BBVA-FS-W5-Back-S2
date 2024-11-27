@@ -20,7 +20,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,10 +37,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final AccountsRepository accountsRepository;
     private final RolesRepository rolesRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
 
     @Autowired
     private UserRepository usuarioRepository;
@@ -191,22 +186,21 @@ public class UserService {
         );
     }
 
-    public Optional<UserUpdatedDTO> updateUser(Long id, UserUpdatedDTO userUpdatedDTO) {
+    public String updateUser(Long id, UserUpdatedDTO userUpdatedDTO) {
         Optional<User> userOptional = userRepository.findById(id);
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             user.setFirstName(userUpdatedDTO.getFirstName());
             user.setLastName(userUpdatedDTO.getLastName());
-            String hashedPassword = passwordEncoder.encode(userUpdatedDTO.getPassword());
-            user.setPassword(hashedPassword);
+            user.setPassword(encryptPassword(userUpdatedDTO.getPassword()));
 
-            User updatedUser = userRepository.save(user);
-            return Optional.of(new UserUpdatedDTO().mapFromUser(updatedUser));
+            userRepository.save(user);
+
+            return "Usuario actualizado exitosamente.";
         }
-        throw new AlkemyException(HttpStatus.NOT_FOUND, "User no encontrado");
+        return "El usuario no fue encontrado.";
     }
-
 
 
 }
