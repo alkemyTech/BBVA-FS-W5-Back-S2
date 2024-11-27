@@ -105,6 +105,9 @@ public class TransactionService {
                 dto.getDescription()
         );
 
+
+
+
         // Actualizar balances en ambas cuentas
         senderAccount.setBalance(senderAccount.getBalance() - dto.getAmount());
         destinationAccount.setBalance(destinationAccount.getBalance() + dto.getAmount());
@@ -164,7 +167,7 @@ public class TransactionService {
                 .build();
     }
 
-    private Transaction createTransaction(Account account, String cbuOrigen, String cbuDestino, Double amount, TransactionTypeEnum type, String description) {
+    public Transaction createTransaction(Account account, String cbuOrigen, String cbuDestino, Double amount, TransactionTypeEnum type, String description) {
         Transaction transaction = Transaction.builder()
                 .account(account)
                 .amount(amount)
@@ -198,5 +201,9 @@ public class TransactionService {
             }
         }
         return false;
+    }
+
+    public void actualizarBalanceCuenta(Account cuenta) {
+        accountsRepository.save(cuenta);
     }
 }

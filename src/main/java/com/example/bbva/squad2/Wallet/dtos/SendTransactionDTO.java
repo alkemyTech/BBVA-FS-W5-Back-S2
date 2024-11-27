@@ -25,3 +25,4 @@ public class SendTransactionDTO {
 
     private String description;
 }
+
