@@ -203,7 +203,5 @@ public class TransactionService {
         return false;
     }
 
-    public void actualizarBalanceCuenta(Account cuenta) {
-        accountsRepository.save(cuenta);
-    }
+
 }
