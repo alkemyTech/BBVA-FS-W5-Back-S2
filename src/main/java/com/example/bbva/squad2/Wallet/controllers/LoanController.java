@@ -16,7 +16,7 @@ public class LoanController {
     private double tasaDeInteres;
 
     @PostMapping("/simulate")
-    @Operation(summary = "Simulador de plazos fijos")
+    @Operation(summary = "Simulador de prestamos")
     public ResponseEntity<LoanSimulationDTO> simulateLoan(
             @RequestParam double monto,
             @RequestParam int meses) {

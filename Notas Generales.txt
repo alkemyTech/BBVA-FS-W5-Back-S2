@@ -4,6 +4,10 @@ spring-boot:run "-Dspring-boot.run.jvmArguments=-Xdebug -Xrunjdwp:transport=dt_s
 
 -------------------------------
 
+para dirigirse a la aplicacion
+
+http://localhost:8080/api/docs
+
 para autenticar en swagger:
 
 {
