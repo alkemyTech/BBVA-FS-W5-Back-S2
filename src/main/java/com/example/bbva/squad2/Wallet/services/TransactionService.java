@@ -6,6 +6,9 @@ import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.repositories.TransactionsRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -256,6 +259,27 @@ public class TransactionService {
                 .orElseThrow(() -> new AlkemyException(HttpStatus.UNAUTHORIZED, "No existe la transacción solicitada para esa cuenta"));
     }
 
+
+    public PageableResponseDTO<TransactionListDTO> getTransactionsByUserIdPaginated(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Obtener la página de transacciones
+        Page<Transaction> transactionPage = transactionRepository.findByAccount_User_Id(userId, pageable);
+
+        // Mapear las entidades a DTOs
+        List<TransactionListDTO> transactionDTOs = transactionPage.getContent().stream()
+                .map(TransactionListDTO::fromEntity)
+                .toList();
+
+        // Construir y devolver la respuesta paginada
+        return new PageableResponseDTO<>(
+                transactionDTOs,
+                transactionPage.getNumber(),
+                transactionPage.getTotalPages(),
+                transactionPage.hasPrevious() ? "/transactions/user/" + userId + "?page=" + (page - 1) + "&size=" + size : null,
+                transactionPage.hasNext() ? "/transactions/user/" + userId + "?page=" + (page + 1) + "&size=" + size : null
+        );
+    }
 
 
     // empece a codear la ful 38 (hugo)
