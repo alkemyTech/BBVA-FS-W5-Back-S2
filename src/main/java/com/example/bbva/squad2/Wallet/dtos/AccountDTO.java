@@ -2,15 +2,7 @@ package com.example.bbva.squad2.Wallet.dtos;
 
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.models.Account;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.*;
 
 @Builder
 @Data
