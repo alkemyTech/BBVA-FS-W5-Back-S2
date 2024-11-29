@@ -14,21 +14,6 @@ public class AccountBalanceDTO {
     private List<TransactionBalanceDTO> history;
     private List<FixedTermDTO> fixedTerms;
 
-    public void setAccountArs(AccountBalance accountArs) {
-        this.accountArs = accountArs;
-    }
-
-    public void setAccountUsd(AccountBalance accountUsd) {
-        this.accountUsd = accountUsd;
-    }
-
-    public void setHistory(List<TransactionBalanceDTO> history) {
-        this.history = history;
-    }
-
-    public void setFixedTerms(List<FixedTermDTO> fixedTerms) {
-        this.fixedTerms = fixedTerms;
-    }
 
     @Getter
     @Setter
