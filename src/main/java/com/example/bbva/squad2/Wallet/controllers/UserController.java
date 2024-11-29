@@ -5,7 +5,7 @@ import com.example.bbva.squad2.Wallet.dtos.UserDTO;
 import com.example.bbva.squad2.Wallet.dtos.UserUpdatedDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.services.UserService;
 import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -70,7 +70,7 @@ public class UserController {
 
             // Si no tiene rol ADMIN, lanzar una excepción de seguridad
             if (!isAdmin) {
-                throw new AlkemyException(
+                throw new WalletsException(
                         HttpStatus.FORBIDDEN,
                         "Usted no esta autorizado para eliminar usuarios."
                 );
@@ -80,7 +80,7 @@ public class UserController {
             userService.deleteUser(id);
 
             return ResponseEntity.noContent().build();
-        } catch (AlkemyException e) {
+        } catch (WalletsException e) {
             // Manejar la excepción específica de falta de permisos
             return ResponseEntity.status(e.getStatus()).body(null);
         } catch (RuntimeException e) {
@@ -88,7 +88,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             // Manejar cualquier otra excepción general
-            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
+            throw new WalletsException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
         }
     }
 
@@ -102,7 +102,7 @@ public class UserController {
 
             // Verificar si el ID en la URL coincide con el ID del usuario logueado
             if (!usuarioSeguridad.getId().equals(id)) {
-                throw new AlkemyException(HttpStatus.FORBIDDEN, "No tienes permisos para ver este usuario.");
+                throw new WalletsException(HttpStatus.FORBIDDEN, "No tienes permisos para ver este usuario.");
             }
 
             // Llamar al servicio para obtener los detalles del usuario y devolver el UserDTO
@@ -110,12 +110,12 @@ public class UserController {
 
             return ResponseEntity.ok(userDTO);
 
-        } catch (AlkemyException e) {
+        } catch (WalletsException e) {
             return ResponseEntity.status(e.getStatus()).body(null);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
-            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
+            throw new WalletsException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
         }
     }
 

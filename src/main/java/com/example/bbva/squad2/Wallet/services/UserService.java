@@ -5,7 +5,7 @@ import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
 import com.example.bbva.squad2.Wallet.dtos.UserDTO;
 import com.example.bbva.squad2.Wallet.dtos.UserUpdatedDTO;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.models.Role;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
@@ -73,7 +73,7 @@ public class UserService {
 
     public void deleteUser(Long userId) {
         User userToDelete = userRepository.findById(userId)
-                .orElseThrow(() -> new AlkemyException(
+                .orElseThrow(() -> new WalletsException(
                         HttpStatus.NOT_FOUND,
                         "Usuario no encontrado."
                 ));
@@ -134,7 +134,7 @@ public class UserService {
     // codeo ful 42 metodo para obtener detalle de usuario
     public UserDTO getUserDetail(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new AlkemyException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+                .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
         return UserDTO.mapFromUser(user);
     }
