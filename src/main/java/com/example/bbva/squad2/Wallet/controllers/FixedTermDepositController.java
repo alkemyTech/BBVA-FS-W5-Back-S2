@@ -4,7 +4,6 @@ import com.example.bbva.squad2.Wallet.config.JwtServices;
 import com.example.bbva.squad2.Wallet.dtos.FixedTermDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.services.FixedTermDepositService;
-import com.example.bbva.squad2.Wallet.services.UserService;
 import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;

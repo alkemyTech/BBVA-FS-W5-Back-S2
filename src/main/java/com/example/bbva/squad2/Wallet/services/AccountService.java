@@ -4,6 +4,7 @@ import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.models.Account;
+import com.example.bbva.squad2.Wallet.models.AccountStatic;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
@@ -114,8 +115,8 @@ public class AccountService {
 				.collect(Collectors.toList());
 
 		AccountBalanceDTO balanceDTO = new AccountBalanceDTO();
-		balanceDTO.setAccountArs(accountArs != null ? new AccountBalanceDTO.AccountBalance(balanceArs, "ARS") : null);
-		balanceDTO.setAccountUsd(accountUsd != null ? new AccountBalanceDTO.AccountBalance(balanceUsd, "USD") : null);
+		balanceDTO.setAccountArs(accountArs != null ? new AccountStatic.AccountBalance(balanceArs, "ARS") : null);
+		balanceDTO.setAccountUsd(accountUsd != null ? new AccountStatic.AccountBalance(balanceUsd, "USD") : null);
 		balanceDTO.setHistory(history);
 		balanceDTO.setFixedTerms(fixedTerms);
 

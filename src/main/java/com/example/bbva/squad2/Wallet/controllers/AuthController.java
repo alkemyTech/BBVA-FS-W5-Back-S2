@@ -26,7 +26,7 @@ public class AuthController {
 
     @Autowired
     private AccountService as;
-    
+
     @Autowired
     private final UserRegisterServices userRegisterServices;
 
