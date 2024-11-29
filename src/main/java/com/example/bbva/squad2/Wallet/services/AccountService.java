@@ -1,17 +1,12 @@
 package com.example.bbva.squad2.Wallet.services;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.stream.Collectors;
-
 import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.models.Account;
-import com.example.bbva.squad2.Wallet.models.FixedTermDeposit;
-import com.example.bbva.squad2.Wallet.models.Transaction;
+import com.example.bbva.squad2.Wallet.models.AccountStatic;
+import com.example.bbva.squad2.Wallet.models.User;
+import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,10 +14,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import com.example.bbva.squad2.Wallet.models.User;
-import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
@@ -117,8 +115,8 @@ public class AccountService {
 				.collect(Collectors.toList());
 
 		AccountBalanceDTO balanceDTO = new AccountBalanceDTO();
-		balanceDTO.setAccountArs(accountArs != null ? new AccountBalanceDTO.AccountBalance(balanceArs, "ARS") : null);
-		balanceDTO.setAccountUsd(accountUsd != null ? new AccountBalanceDTO.AccountBalance(balanceUsd, "USD") : null);
+		balanceDTO.setAccountArs(accountArs != null ? new AccountStatic.AccountBalance(balanceArs, "ARS") : null);
+		balanceDTO.setAccountUsd(accountUsd != null ? new AccountStatic.AccountBalance(balanceUsd, "USD") : null);
 		balanceDTO.setHistory(history);
 		balanceDTO.setFixedTerms(fixedTerms);
 
