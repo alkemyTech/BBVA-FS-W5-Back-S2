@@ -4,11 +4,14 @@ import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Role;
+import com.example.bbva.squad2.Wallet.models.Transaction;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.repositories.RolesRepository;
+import com.example.bbva.squad2.Wallet.repositories.TransactionsRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import com.example.bbva.squad2.Wallet.services.AccountService;
+import com.example.bbva.squad2.Wallet.services.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +19,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Configuration
 public class DataInitializer {
@@ -24,7 +29,9 @@ public class DataInitializer {
     public CommandLineRunner initData(UserRepository usuarioRepository,
                                       RolesRepository roleRepository,
                                       AccountsRepository accountRepository,
-                                      AccountService accountService) {
+                                      AccountService accountService,
+                                      TransactionsRepository tr,
+                                      UserService us) {
         return args -> {
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -145,7 +152,23 @@ public class DataInitializer {
                                     .balance(10000.0)
                                     .user(regularUser)
                                     .build());
+
+
+
+
                 }
+                Optional<User> user = us.findById(1L);
+
+
+
+
+                tr.save(
+                        Transaction.builder()
+                                .CBUDestino(accountService.)
+
+
+                )
+
             }
         };
     }
