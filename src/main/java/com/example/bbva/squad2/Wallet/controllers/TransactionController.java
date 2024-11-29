@@ -108,7 +108,7 @@ public class TransactionController {
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request
     ) {
-        UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
+        UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(request);
 
         // Validar si el usuario tiene permisos
         boolean isAdmin = "ADMIN".equals(userSecurity.getRole());
