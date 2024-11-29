@@ -1,7 +1,7 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.dtos.LoanSimulationDTO;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ public class LoanController {
             @RequestParam int meses) {
 
         if (monto <= 0 || meses <= 0) {
-            throw new AlkemyException(HttpStatus.BAD_REQUEST, "El monto y el plazo deben ser mayores a cero.");
+            throw new WalletsException(HttpStatus.BAD_REQUEST, "El monto y el plazo deben ser mayores a cero.");
         }
 
         // Calcular intereses, cuotas y pagos

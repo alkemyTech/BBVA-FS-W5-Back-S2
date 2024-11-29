@@ -2,7 +2,7 @@ package com.example.bbva.squad2.Wallet.services;
 
 import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Transaction;
 import com.example.bbva.squad2.Wallet.models.User;
@@ -32,25 +32,25 @@ public class TransactionService {
         return transactionRepository.findByAccount_User_Id(userId);
     }
 
-    public void sendTransaction(SendTransactionDTO dto, String usernamen) throws AlkemyException {
+    public void sendTransaction(SendTransactionDTO dto, String usernamen) throws WalletsException {
 
         // Buscar la cuenta emisora a través del email del usuario autenticado (extraído del token)
         Account senderAccount = accountsRepository.findByCurrencyAndUser_Email(dto.getCurrency(), usernamen)
-                .orElseThrow(() -> new AlkemyException(
+                .orElseThrow(() -> new WalletsException(
                         HttpStatus.NOT_FOUND,
                         "Cuenta emisora no encontrada para el usuario autenticado con la moneda especificada."
                 ));
 
         // Buscar la cuenta destinataria usando el CBU del DTO
         Account destinationAccount = accountsRepository.findByCbuAndCurrency(dto.getDestinationCbu(), dto.getCurrency())
-                .orElseThrow(() -> new AlkemyException(
+                .orElseThrow(() -> new WalletsException(
                         HttpStatus.NOT_FOUND,
                         "Cuenta destinataria no encontrada con el CBU especificado."
                 ));
 
         // Validar que la cuenta emisora y destinataria no pertenezcan al mismo usuario
         if (senderAccount.getUser().getId().equals(destinationAccount.getUser().getId())) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "No se puede realizar una transferencia a una cuenta propia."
             );
@@ -58,7 +58,7 @@ public class TransactionService {
 
         // Validar si el monto a transferir es menor o igual al balance de la cuenta emisora
         if (dto.getAmount() > senderAccount.getBalance()) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "Saldo insuficiente en la cuenta emisora."
             );
@@ -66,7 +66,7 @@ public class TransactionService {
 
         // Validar si el monto a transferir está dentro del límite permitido por la cuenta emisora
         if (dto.getAmount() > senderAccount.getTransactionLimit()) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "El monto excede el límite de transacciones de la cuenta emisora."
             );
@@ -99,16 +99,16 @@ public class TransactionService {
         accountsRepository.save(destinationAccount);
     }
 
-    public DepositDTO deposit(SendDepositDTO dto, String accountCBU, String username) throws AlkemyException {
+    public DepositDTO deposit(SendDepositDTO dto, String accountCBU, String username) throws WalletsException {
 
         Account account = accountsRepository.findBycbu(accountCBU)
-                .orElseThrow(() -> new AlkemyException(
+                .orElseThrow(() -> new WalletsException(
                         HttpStatus.NOT_FOUND,
                         "Cuenta no encontrada."
                 ));
 
         if (!account.getUser().getEmail().equals(username)) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.UNAUTHORIZED,
                     "No tienes permiso para realizar esta operación en una cuenta que no te pertenece."
             );
@@ -116,7 +116,7 @@ public class TransactionService {
 
         // Validar el monto del depósito
         if (dto.getAmount() <= 0) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "El monto a depositar debe ser mayor a cero."
             );
@@ -146,10 +146,10 @@ public class TransactionService {
                 .build();
     }
 
-    public DepositDTO payment(SendPaymentDTO dto, Long idUser) throws AlkemyException {
+    public DepositDTO payment(SendPaymentDTO dto, Long idUser) throws WalletsException {
         // Validar monto mayor a cero
         if (dto.getAmount() <= 0) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "El monto a depositar debe ser mayor a cero."
             );
@@ -157,7 +157,7 @@ public class TransactionService {
 
         Optional<User> userOpt = ur.findById(idUser);
         if (userOpt.isEmpty()) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "Usuario no autorizado."
             );
@@ -171,7 +171,7 @@ public class TransactionService {
                 .findFirst();
 
         if (cuentaOpt.isEmpty()) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "No se encontró una cuenta con la moneda especificada."
             );
@@ -181,7 +181,7 @@ public class TransactionService {
 
         // Validar saldo suficiente en la cuenta
         if (cuenta.getBalance() < dto.getAmount()) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "Saldo insuficiente en la cuenta."
             );
@@ -231,7 +231,7 @@ public class TransactionService {
                 .filter(transaction -> transaction.getId().equals(transactionId))
                 .findFirst()
                 .map(transaction -> new TransactionListDTO().fromEntity(transaction)) // Convertir a DTO si existe
-                .orElseThrow(() -> new AlkemyException(HttpStatus.UNAUTHORIZED, "No existe la transacción solicitada para esa cuenta"));
+                .orElseThrow(() -> new WalletsException(HttpStatus.UNAUTHORIZED, "No existe la transacción solicitada para esa cuenta"));
     }
 
     // empece a codear la ful 38 (hugo)
