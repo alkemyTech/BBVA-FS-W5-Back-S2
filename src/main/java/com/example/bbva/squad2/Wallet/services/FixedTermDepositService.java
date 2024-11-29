@@ -3,7 +3,7 @@ package com.example.bbva.squad2.Wallet.services;
 import com.example.bbva.squad2.Wallet.dtos.FixedTermDTO;
 import com.example.bbva.squad2.Wallet.dtos.FixedTermSimulationDTO;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.FixedTermDeposit;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
@@ -45,16 +45,16 @@ public class FixedTermDepositService {
 
     public ResponseEntity<Object> createFixedTermDeposit(Long userId, Double amount, Integer days, boolean simulation) {
         if (days < 30) {
-            throw new AlkemyException(HttpStatus.BAD_REQUEST, "El plazo fijo debe ser de al menos 30 días.");
+            throw new WalletsException(HttpStatus.BAD_REQUEST, "El plazo fijo debe ser de al menos 30 días.");
         }
 
         // Obtener la cuenta en pesos del usuario
         Account account = accountRepository.findByUserIdAndCurrency(userId, CurrencyTypeEnum.ARS)
-                .orElseThrow(() -> new AlkemyException(HttpStatus.NOT_FOUND, "El usuario no tiene una cuenta en pesos."));
+                .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "El usuario no tiene una cuenta en pesos."));
 
         // Validar que el balance es suficiente
         if (account.getBalance() < amount) {
-            throw new AlkemyException(HttpStatus.BAD_REQUEST, "Saldo insuficiente para crear el plazo fijo.");
+            throw new WalletsException(HttpStatus.BAD_REQUEST, "Saldo insuficiente para crear el plazo fijo.");
         }
 
         // Calcular el interés total
@@ -82,15 +82,17 @@ public class FixedTermDepositService {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDepositDTO);
         } else {
-            FixedTermDeposit simulationDTO = FixedTermDeposit.builder()
+            FixedTermDeposit fixedTermDepositSimulation = FixedTermDeposit.builder()
                     .amount(amount)
                     .account(account)
                     .interest(totalInterest)
                     .creationDate(LocalDateTime.now())
+                    //.closingDate(LocalDateTime.now().plusDays(days)) descomentar luego
                     .closingDate(LocalDateTime.now().plusMinutes(1))
                     .processed(false)
                     .build();
 
+            FixedTermSimulationDTO simulationDTO = new FixedTermSimulationDTO().mapFromFixedTerm(fixedTermDepositSimulation);
             return ResponseEntity.ok(simulationDTO);
         }
     }

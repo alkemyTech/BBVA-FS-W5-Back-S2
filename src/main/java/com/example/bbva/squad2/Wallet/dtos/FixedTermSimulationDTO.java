@@ -16,6 +16,7 @@ public class FixedTermSimulationDTO {
     private String endDate;
     private Double interestRate;
     private String accountCBU;
+    private double total;
 
     public FixedTermSimulationDTO mapFromFixedTerm(FixedTermDeposit fixedTermDeposit) {
         this.amount = fixedTermDeposit.getAmount();
@@ -23,6 +24,7 @@ public class FixedTermSimulationDTO {
         this.endDate = fixedTermDeposit.getEndDate() != null ? fixedTermDeposit.getEndDate().toString() : "N/A";
         this.interestRate = fixedTermDeposit.getInterestRate();
         this.accountCBU = fixedTermDeposit.getAccount().getCbu();
+        this.total = fixedTermDeposit.getAmount() + fixedTermDeposit.getInterest();
         return this;
     }
 }

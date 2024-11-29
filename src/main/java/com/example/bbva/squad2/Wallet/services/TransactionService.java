@@ -1,8 +1,12 @@
 package com.example.bbva.squad2.Wallet.services;
 
 import com.example.bbva.squad2.Wallet.dtos.*;
+import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
+import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Transaction;
 import com.example.bbva.squad2.Wallet.models.User;
+import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.repositories.TransactionsRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,66 +14,47 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
-
-import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
-import com.example.bbva.squad2.Wallet.models.Account;
-import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
-import com.example.bbva.squad2.Wallet.config.JwtServices;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpStatus;
 
 @Service
 public class TransactionService {
 
-    private final TransactionsRepository transactionRepository;
-    private final AccountsRepository accountsRepository;
-    private final JwtServices jwtServices;
+    @Autowired
+    private TransactionsRepository transactionRepository;
+
+    @Autowired
+    private AccountsRepository accountsRepository;
 
     @Autowired
     private UserRepository ur;
-
-    @Autowired
-    public TransactionService(
-            TransactionsRepository transactionRepository,
-            AccountsRepository accountsRepository,
-            JwtServices jwtServices
-    ) {
-        this.transactionRepository = transactionRepository;
-        this.accountsRepository = accountsRepository;
-        this.jwtServices = jwtServices;
-    }
 
     public List<Transaction> getTransactionsByUserId(Long userId) {
         return transactionRepository.findByAccount_User_Id(userId);
     }
 
-    public void sendTransaction(SendTransactionDTO dto, HttpServletRequest request) throws AlkemyException {
-        String token = request.getHeader("Authorization");
-        token = token.substring(7);
-
-        UsuarioSeguridad usuarioSeguridad = jwtServices.validateAndGetSecurity(token);
+    public void sendTransaction(SendTransactionDTO dto, String usernamen) throws WalletsException {
 
         // Buscar la cuenta emisora a través del email del usuario autenticado (extraído del token)
-        Account senderAccount = accountsRepository.findByCurrencyAndUser_Email(dto.getCurrency(), usuarioSeguridad.getUsername())
-                .orElseThrow(() -> new AlkemyException(
+        Account senderAccount = accountsRepository.findByCurrencyAndUser_Email(dto.getCurrency(), usernamen)
+                .orElseThrow(() -> new WalletsException(
                         HttpStatus.NOT_FOUND,
                         "Cuenta emisora no encontrada para el usuario autenticado con la moneda especificada."
                 ));
 
         // Buscar la cuenta destinataria usando el CBU del DTO
         Account destinationAccount = accountsRepository.findByCbuAndCurrency(dto.getDestinationCbu(), dto.getCurrency())
-                .orElseThrow(() -> new AlkemyException(
+                .orElseThrow(() -> new WalletsException(
                         HttpStatus.NOT_FOUND,
                         "Cuenta destinataria no encontrada con el CBU especificado."
                 ));
 
         // Validar que la cuenta emisora y destinataria no pertenezcan al mismo usuario
         if (senderAccount.getUser().getId().equals(destinationAccount.getUser().getId())) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "No se puede realizar una transferencia a una cuenta propia."
             );
@@ -77,7 +62,7 @@ public class TransactionService {
 
         // Validar si el monto a transferir es menor o igual al balance de la cuenta emisora
         if (dto.getAmount() > senderAccount.getBalance()) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "Saldo insuficiente en la cuenta emisora."
             );
@@ -85,7 +70,7 @@ public class TransactionService {
 
         // Validar si el monto a transferir está dentro del límite permitido por la cuenta emisora
         if (dto.getAmount() > senderAccount.getTransactionLimit()) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "El monto excede el límite de transacciones de la cuenta emisora."
             );
@@ -118,19 +103,16 @@ public class TransactionService {
         accountsRepository.save(destinationAccount);
     }
 
-    public DepositDTO deposit(SendDepositDTO dto, HttpServletRequest request, String accountCBU) throws AlkemyException {
-        // Extraer y validar el token del usuario
-        String token = request.getHeader("Authorization").substring(7);
-        UsuarioSeguridad usuarioSeguridad = jwtServices.validateAndGetSecurity(token);
+    public DepositDTO deposit(SendDepositDTO dto, String accountCBU, String username) throws WalletsException {
 
         Account account = accountsRepository.findBycbu(accountCBU)
-                .orElseThrow(() -> new AlkemyException(
+                .orElseThrow(() -> new WalletsException(
                         HttpStatus.NOT_FOUND,
                         "Cuenta no encontrada."
                 ));
 
-        if (!account.getUser().getEmail().equals(usuarioSeguridad.getUsername())) {
-            throw new AlkemyException(
+        if (!account.getUser().getEmail().equals(username)) {
+            throw new WalletsException(
                     HttpStatus.UNAUTHORIZED,
                     "No tienes permiso para realizar esta operación en una cuenta que no te pertenece."
             );
@@ -138,7 +120,7 @@ public class TransactionService {
 
         // Validar el monto del depósito
         if (dto.getAmount() <= 0) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "El monto a depositar debe ser mayor a cero."
             );
@@ -168,21 +150,18 @@ public class TransactionService {
                 .build();
     }
 
-    public DepositDTO payment(SendPaymentDTO dto, HttpServletRequest request) throws AlkemyException {
+    public DepositDTO payment(SendPaymentDTO dto, Long idUser) throws WalletsException {
         // Validar monto mayor a cero
         if (dto.getAmount() <= 0) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "El monto a depositar debe ser mayor a cero."
             );
         }
 
-        // Obtener el usuario autenticado a través del token
-        String token = request.getHeader("Authorization").substring(7);
-        UsuarioSeguridad userSecurity = jwtServices.validateAndGetSecurity(token);
-        Optional<User> userOpt = ur.findById(userSecurity.getId());
+        Optional<User> userOpt = ur.findById(idUser);
         if (userOpt.isEmpty()) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "Usuario no autorizado."
             );
@@ -196,7 +175,7 @@ public class TransactionService {
                 .findFirst();
 
         if (cuentaOpt.isEmpty()) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "No se encontró una cuenta con la moneda especificada."
             );
@@ -206,7 +185,7 @@ public class TransactionService {
 
         // Validar saldo suficiente en la cuenta
         if (cuenta.getBalance() < dto.getAmount()) {
-            throw new AlkemyException(
+            throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "Saldo insuficiente en la cuenta."
             );
@@ -256,9 +235,8 @@ public class TransactionService {
                 .filter(transaction -> transaction.getId().equals(transactionId))
                 .findFirst()
                 .map(transaction -> new TransactionListDTO().fromEntity(transaction)) // Convertir a DTO si existe
-                .orElseThrow(() -> new AlkemyException(HttpStatus.UNAUTHORIZED, "No existe la transacción solicitada para esa cuenta"));
+                .orElseThrow(() -> new WalletsException(HttpStatus.UNAUTHORIZED, "No existe la transacción solicitada para esa cuenta"));
     }
-
 
     public PageableResponseDTO<TransactionListDTO> getTransactionsByUserIdPaginated(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -280,9 +258,6 @@ public class TransactionService {
                 transactionPage.hasNext() ? "/transactions/user/" + userId + "?page=" + (page + 1) + "&size=" + size : null
         );
     }
-
-
-    // empece a codear la ful 38 (hugo)
 
     public List<TransactionListDTO> getTransactionDtosByUserId(Long userId) {
         List<Transaction> transactions = transactionRepository.findByAccount_User_Id(userId);

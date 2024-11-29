@@ -3,9 +3,8 @@ package com.example.bbva.squad2.Wallet.controllers;
 import com.example.bbva.squad2.Wallet.config.JwtServices;
 import com.example.bbva.squad2.Wallet.dtos.FixedTermDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
-import com.example.bbva.squad2.Wallet.models.FixedTermDeposit;
 import com.example.bbva.squad2.Wallet.services.FixedTermDepositService;
-import com.example.bbva.squad2.Wallet.services.UserService;
+import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ public class FixedTermDepositController {
     private JwtServices jwtServices;
 
     @Autowired
-    private UserService userService;
+    private UsuarioLoggeadoService usuarioLoggeadoService;
 
     public FixedTermDepositController(FixedTermDepositService fixedTermDepositService) {
         this.fixedTermDepositService = fixedTermDepositService;
@@ -36,7 +35,7 @@ public class FixedTermDepositController {
     @GetMapping
     @Operation(summary = "Obtener los plazos fijos del usuario loggeado")
     public ResponseEntity<List<FixedTermDTO>> getAllFixedTermDeposits(HttpServletRequest request) {
-        UsuarioSeguridad userDetails = userService.getInfoUserSecurity(request);
+        UsuarioSeguridad userDetails = usuarioLoggeadoService.getInfoUserSecurity(request);
 
         List<FixedTermDTO> fixedTerms = fixedTermDepositService.getFixedTermDepositsByUserId(userDetails.getId())
                 .stream()
@@ -54,7 +53,7 @@ public class FixedTermDepositController {
             HttpServletRequest request) {
 
         // Obtener usuario autenticado desde el token
-        UsuarioSeguridad userDetails = userService.getInfoUserSecurity(request);
+        UsuarioSeguridad userDetails = usuarioLoggeadoService.getInfoUserSecurity(request);
 
         try {
             ResponseEntity<Object> fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days, false);
@@ -65,14 +64,14 @@ public class FixedTermDepositController {
     }
 
     @PostMapping("/fixedTerm/simulate")
-    @Operation(summary = "Crear un plazo fijo para el usuario loggeado")
+    @Operation(summary = "Simular un plazo fijo para el usuario loggeado")
     public ResponseEntity<?> createFixedTermDepositSimulation(
             @RequestParam Double amount,
             @RequestParam Integer days,
             HttpServletRequest request) {
 
         // Obtener usuario autenticado desde el token
-        UsuarioSeguridad userDetails = userService.getInfoUserSecurity(request);
+        UsuarioSeguridad userDetails = usuarioLoggeadoService.getInfoUserSecurity(request);
 
         try {
             ResponseEntity<Object> fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days, true);

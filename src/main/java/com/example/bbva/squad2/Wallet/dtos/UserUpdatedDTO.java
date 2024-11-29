@@ -3,8 +3,6 @@ package com.example.bbva.squad2.Wallet.dtos;
 import com.example.bbva.squad2.Wallet.models.User;
 import lombok.*;
 
-import java.util.stream.Collectors;
-
 @Builder
 @Data
 @AllArgsConstructor

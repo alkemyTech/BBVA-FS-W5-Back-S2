@@ -1,11 +1,10 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
+import com.example.bbva.squad2.Wallet.models.Role;
+import com.example.bbva.squad2.Wallet.services.RoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import com.example.bbva.squad2.Wallet.models.Role;
-import com.example.bbva.squad2.Wallet.services.RoleService;
 
 import java.util.List;
 
