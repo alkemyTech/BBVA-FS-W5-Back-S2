@@ -93,7 +93,6 @@ public class FixedTermDepositService {
                     .build();
 
             FixedTermSimulationDTO simulationDTO = new FixedTermSimulationDTO().mapFromFixedTerm(fixedTermDepositSimulation);
-
             return ResponseEntity.ok(simulationDTO);
         }
     }

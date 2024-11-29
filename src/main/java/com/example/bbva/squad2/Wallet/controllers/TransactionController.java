@@ -100,6 +100,30 @@ public class TransactionController {
         return ResponseEntity.ok(payment);
     }
 
+    @GetMapping("/user/{userId}/paginated")
+    @Operation(summary = "Obtener las transacciones paginadas de un usuario")
+    public ResponseEntity<?> listUserTransactionsPaginated(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpServletRequest request
+    ) {
+        UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
+
+        // Validar si el usuario tiene permisos
+        boolean isAdmin = "ADMIN".equals(userSecurity.getRole());
+        boolean isOwner = Objects.equals(userSecurity.getId(), userId);
+        if (!isAdmin && !isOwner) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        // Llamar al servicio para obtener las transacciones paginadas
+        PageableResponseDTO<TransactionListDTO> paginatedTransactions = ts.getTransactionsByUserIdPaginated(userId, page, size);
+
+        return ResponseEntity.ok(paginatedTransactions);
+    }
+
+
 }
 
 
