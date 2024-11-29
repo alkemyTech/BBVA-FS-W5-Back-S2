@@ -1,6 +1,7 @@
 package com.example.bbva.squad2.Wallet.services;
 
 import com.example.bbva.squad2.Wallet.dtos.FixedTermDTO;
+import com.example.bbva.squad2.Wallet.dtos.FixedTermSimulationDTO;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
 import com.example.bbva.squad2.Wallet.models.Account;
@@ -81,9 +82,16 @@ public class FixedTermDepositService {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDepositDTO);
         } else {
-            //el DTO de mati para que se muestre por pantalla,
-            // aca devuelvo el account para q no rompa, pero seria tu DTO
-            return ResponseEntity.status(HttpStatus.CREATED).body(account);
+            FixedTermDeposit simulationDTO = FixedTermDeposit.builder()
+                    .amount(amount)
+                    .account(account)
+                    .interest(totalInterest)
+                    .creationDate(LocalDateTime.now())
+                    .closingDate(LocalDateTime.now().plusMinutes(1))
+                    .processed(false)
+                    .build();
+
+            return ResponseEntity.ok(simulationDTO);
         }
     }
 

@@ -63,4 +63,23 @@ public class FixedTermDepositController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @PostMapping("/fixedTerm/simulate")
+    @Operation(summary = "Crear un plazo fijo para el usuario loggeado")
+    public ResponseEntity<?> createFixedTermDepositSimulation(
+            @RequestParam Double amount,
+            @RequestParam Integer days,
+            HttpServletRequest request) {
+
+        // Obtener usuario autenticado desde el token
+        UsuarioSeguridad userDetails = userService.getInfoUserSecurity(request);
+
+        try {
+            ResponseEntity<Object> fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days, true);
+            return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDeposit);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }
