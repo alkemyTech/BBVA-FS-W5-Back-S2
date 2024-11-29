@@ -64,14 +64,14 @@ public class FixedTermDepositController {
     }
 
     @PostMapping("/fixedTerm/simulate")
-    @Operation(summary = "Crear un plazo fijo para el usuario loggeado")
+    @Operation(summary = "Simular un plazo fijo para el usuario loggeado")
     public ResponseEntity<?> createFixedTermDepositSimulation(
             @RequestParam Double amount,
             @RequestParam Integer days,
             HttpServletRequest request) {
 
         // Obtener usuario autenticado desde el token
-        UsuarioSeguridad userDetails = userService.getInfoUserSecurity(request);
+        UsuarioSeguridad userDetails = usuarioLoggeadoService.getInfoUserSecurity(request);
 
         try {
             ResponseEntity<Object> fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days, true);

@@ -82,14 +82,17 @@ public class FixedTermDepositService {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDepositDTO);
         } else {
-            FixedTermDeposit simulationDTO = FixedTermDeposit.builder()
+            FixedTermDeposit fixedTermDepositSimulation = FixedTermDeposit.builder()
                     .amount(amount)
                     .account(account)
                     .interest(totalInterest)
                     .creationDate(LocalDateTime.now())
+                    //.closingDate(LocalDateTime.now().plusDays(days)) descomentar luego
                     .closingDate(LocalDateTime.now().plusMinutes(1))
                     .processed(false)
                     .build();
+
+            FixedTermSimulationDTO simulationDTO = new FixedTermSimulationDTO().mapFromFixedTerm(fixedTermDepositSimulation);
 
             return ResponseEntity.ok(simulationDTO);
         }
