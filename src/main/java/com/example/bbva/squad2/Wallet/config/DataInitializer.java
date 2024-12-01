@@ -65,7 +65,27 @@ public class DataInitializer {
                         {"David", "Hernández", "david.hernandez@yopmail.com", "David2024!Hernandez@"}
                 };
 
+// Crear 10 usuarios regulares con nombres variados y correos realistas
+                String[][] regularUsers = {
+                        {"Pedro", "Ruiz", "pedro.ruiz@yopmail.com", "Pedro!2024Ruiz#"},
+                        {"María", "García", "maria.garcia@yopmail.com", "Maria@2024Garcia!"},
+                        {"Fernando", "Jiménez", "fernando.jimenez@yopmail.com", "Fernando2024!Jimenez#"},
+                        {"Carmen", "Álvarez", "carmen.alvarez@yopmail.com", "Carmen!2024Alvarez#"},
+                        {"Rafael", "Moreno", "rafael.moreno@yopmail.com", "Rafael2024_Moreno!"},
+                        {"Isabel", "Gil", "isabel.gil@yopmail.com", "Isabel!2024Gil@"},
+                        {"Antonio", "Vázquez", "antonio.vazquez@yopmail.com", "Antonio2024_Vazquez!"},
+                        {"Raquel", "Romero", "raquel.romero@yopmail.com", "Raquel@2024Romero!"},
+                        {"José", "Martín", "jose.martin@yopmail.com", "Jose@2024Martin#"},
+                        {"Patricia", "Serrano", "patricia.serrano@yopmail.com", "Patricia2024!Serrano#"}
+                };
+
+                int maxDeposits = 5;  // Limite total de depósitos
+                int depositCount = 0;  // Contador global de depósitos
+
+// Crear usuarios ADMIN y regular con sus respectivas cuentas y depósitos
                 for (String[] userData : adminUsers) {
+                    if (depositCount >= maxDeposits) break; // Salir si ya se alcanzaron los 15 depósitos
+
                     String firstName = userData[0];
                     String lastName = userData[1];
                     String email = userData[2];
@@ -104,50 +124,39 @@ public class DataInitializer {
                                     .user(adminUser)
                                     .build());
 
-                    // Crear una transacción de tipo DEPOSITO para los usuarios ADMIN
-                    tr.save(
-                            Transaction.builder()
-                                    .CbuDestino(accountPesos.getCbu())
-                                    .CbuOrigen("External")
-                                    .description("Deposito Inicial USD")
-                                    .timestamp(LocalDateTime.now())
-                                    .amount(5000.00)
-                                    .account(accountDolares)
-                                    .type(TransactionTypeEnum.DEPOSITO)
-                                    .build());
+                    // Crear depósitos solo si no se ha alcanzado el límite total
+                    if (depositCount < maxDeposits) {
+                        tr.save(
+                                Transaction.builder()
+                                        .CbuDestino(accountPesos.getCbu())
+                                        .CbuOrigen("External")
+                                        .description("Deposito Inicial USD")
+                                        .timestamp(LocalDateTime.now())
+                                        .amount(5000.00)
+                                        .account(accountDolares)
+                                        .type(TransactionTypeEnum.DEPOSITO)
+                                        .build());
 
-                    tr.save(
-                            Transaction.builder()
-                                    .CbuDestino(accountPesos.getCbu())
-                                    .CbuOrigen("External")
-                                    .description("Deposito Inicial ARS")
-                                    .timestamp(LocalDateTime.now())
-                                    .amount(15000.00)
-                                    .account(accountPesos)
-                                    .type(TransactionTypeEnum.DEPOSITO)
-                                    .build());
+                        tr.save(
+                                Transaction.builder()
+                                        .CbuDestino(accountPesos.getCbu())
+                                        .CbuOrigen("External")
+                                        .description("Deposito Inicial ARS")
+                                        .timestamp(LocalDateTime.now())
+                                        .amount(15000.00)
+                                        .account(accountPesos)
+                                        .type(TransactionTypeEnum.DEPOSITO)
+                                        .build());
 
-
+                        depositCount++;  // Incrementa el contador de depósitos
+                    } else {
+                        System.out.println("Se ha alcanzado el límite de depósitos.");
+                    }
                 }
 
-                // Crear 10 usuarios user con nombres variados y correos realistas
-                String[][] regularUsers = {
-                        {"Pedro", "Ruiz", "pedro.ruiz@yopmail.com", "Pedro!2024Ruiz#"},
-                        {"María", "García", "maria.garcia@yopmail.com", "Maria@2024Garcia!"},
-                        {"Fernando", "Jiménez", "fernando.jimenez@yopmail.com", "Fernando2024!Jimenez#"},
-                        {"Carmen", "Álvarez", "carmen.alvarez@yopmail.com", "Carmen!2024Alvarez#"},
-                        {"Rafael", "Moreno", "rafael.moreno@yopmail.com", "Rafael2024_Moreno!"},
-                        {"Isabel", "Gil", "isabel.gil@yopmail.com", "Isabel!2024Gil@"},
-                        {"Antonio", "Vázquez", "antonio.vazquez@yopmail.com", "Antonio2024_Vazquez!"},
-                        {"Raquel", "Romero", "raquel.romero@yopmail.com", "Raquel@2024Romero!"},
-                        {"José", "Martín", "jose.martin@yopmail.com", "Jose@2024Martin#"},
-                        {"Patricia", "Serrano", "patricia.serrano@yopmail.com", "Patricia2024!Serrano#"}
-                };
-
-                int maxDeposits = 1;  // Limite total de depósitos
-                int depositCount = 0;  // Contador global de depósitos
-
                 for (String[] userData : regularUsers) {
+                    if (depositCount >= maxDeposits) break; // Salir si ya se alcanzaron los 15 depósitos
+
                     String firstName = userData[0];
                     String lastName = userData[1];
                     String email = userData[2];
