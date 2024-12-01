@@ -144,13 +144,14 @@ public class DataInitializer {
                         {"Patricia", "Serrano", "patricia.serrano@yopmail.com", "Patricia2024!Serrano#"}
                 };
 
+                int maxDeposits = 1;  // Limite total de depósitos
+                int depositCount = 0;  // Contador global de depósitos
+
                 for (String[] userData : regularUsers) {
                     String firstName = userData[0];
                     String lastName = userData[1];
                     String email = userData[2];
                     String password = userData[3];
-                    String CBUpesos = accountService.generaCBU();
-                    String CBUdolares = accountService.generaCBU();
 
                     // Hash de la contraseña
                     String hashedPassword = passwordEncoder.encode(password);
@@ -169,7 +170,7 @@ public class DataInitializer {
                     // Crear cuentas en dólares (USD) y pesos (ARS) para el usuario regular
                     Account accountPesos = accountRepository.save(
                             Account.builder()
-                                    .cbu(CBUpesos)
+                                    .cbu(accountService.generaCBU())
                                     .currency(CurrencyTypeEnum.ARS)
                                     .transactionLimit(300000.0)
                                     .balance(10000.0)
@@ -178,36 +179,47 @@ public class DataInitializer {
 
                     Account accountDolares = accountRepository.save(
                             Account.builder()
-                                    .cbu(CBUdolares)
+                                    .cbu(accountService.generaCBU())
                                     .currency(CurrencyTypeEnum.USD)
                                     .transactionLimit(1000.0)
                                     .balance(10000.0)
                                     .user(regularUser)
                                     .build());
 
-                    // Crear una transacción de tipo DEPOSITO para los usuarios regulares
-                    tr.save(
-                            Transaction.builder()
-                                    .CbuDestino(accountPesos.getCbu())
-                                    .CbuOrigen("External")
-                                    .description("Deposito Inicial USD")
-                                    .timestamp(LocalDateTime.now())
-                                    .amount(5000.00)
-                                    .account(accountDolares)
-                                    .type(TransactionTypeEnum.DEPOSITO)
-                                    .build());
+                    // Crear depósitos solo si no se ha alcanzado el límite total
+                    if (depositCount < maxDeposits) {
+                        tr.save(
+                                Transaction.builder()
+                                        .CbuDestino(accountPesos.getCbu())
+                                        .CbuOrigen("External")
+                                        .description("Deposito Inicial USD")
+                                        .timestamp(LocalDateTime.now())
+                                        .amount(5000.00)
+                                        .account(accountDolares)
+                                        .type(TransactionTypeEnum.DEPOSITO)
+                                        .build());
 
-                    tr.save(
-                            Transaction.builder()
-                                    .CbuDestino(accountPesos.getCbu())
-                                    .CbuOrigen("External")
-                                    .description("Deposito Inicial ARS")
-                                    .timestamp(LocalDateTime.now())
-                                    .amount(15000.00)
-                                    .account(accountPesos)
-                                    .type(TransactionTypeEnum.DEPOSITO)
-                                    .build()
-                    );
+                        tr.save(
+                                Transaction.builder()
+                                        .CbuDestino(accountPesos.getCbu())
+                                        .CbuOrigen("External")
+                                        .description("Deposito Inicial ARS")
+                                        .timestamp(LocalDateTime.now())
+                                        .amount(15000.00)
+                                        .account(accountPesos)
+                                        .type(TransactionTypeEnum.DEPOSITO)
+                                        .build());
+
+                        depositCount++;  // Incrementa el contador de depósitos
+                    } else {
+                        System.out.println("Se ha alcanzado el límite de depósitos.");
+                    }
+                }
+
+
+
+                int maxTransfers = 10;
+                    int transferCount = 0;  // Contador de transferencias
 
                     List<Account> allAccounts = accountRepository.findAll();
 
@@ -216,6 +228,12 @@ public class DataInitializer {
                             .toList();
 
                     for (int i = 0; i < arsAccounts.size(); i++) {
+                        // Comprobación si se ha alcanzado el límite antes de procesar la cuenta
+                        if (transferCount >= maxTransfers) {
+                            System.out.println("Se ha alcanzado el límite máximo de transferencias.");
+                            break;  // Salir del bucle si se alcanzó el límite
+                        }
+
                         Account originAccount = arsAccounts.get(i);
 
                         List<Account> filteredAccounts = arsAccounts.stream()
@@ -257,22 +275,25 @@ public class DataInitializer {
                                         .build();
                                 tr.save(transferTransactionPago);
 
+                                transferCount++;  // Incrementa el contador de transferencias
                             } else {
                                 System.out.println("No se encontró una cuenta destino válida para el usuario: " +
                                         originAccount.getUser().getFirstName());
                             }
-                        } else {
-                            System.out.println("No hay cuentas disponibles para transferir desde el usuario: " +
-                                    originAccount.getUser().getFirstName());
                         }
                     }
 
-// Repetir el mismo proceso para cuentas en USD
                     List<Account> usdAccounts = allAccounts.stream()
                             .filter(a -> a.getCurrency() == CurrencyTypeEnum.USD)
                             .toList();
 
                     for (int i = 0; i < usdAccounts.size(); i++) {
+                        // Comprobación si se ha alcanzado el límite antes de procesar la cuenta
+                        if (transferCount >= maxTransfers) {
+                            System.out.println("Se ha alcanzado el límite máximo de transferencias.");
+                            break;  // Salir del bucle si se alcanzó el límite
+                        }
+
                         Account originAccount = usdAccounts.get(i);
 
                         List<Account> filteredAccounts = usdAccounts.stream()
@@ -314,18 +335,20 @@ public class DataInitializer {
                                         .build();
                                 tr.save(transferTransactionPago);
 
+                                transferCount++;  // Incrementa el contador de transferencias
                             } else {
                                 System.out.println("No se encontró una cuenta destino válida para el usuario: " +
                                         originAccount.getUser().getFirstName());
                             }
-                        } else {
-                            System.out.println("No hay cuentas disponibles para transferir desde el usuario: " +
-                                    originAccount.getUser().getFirstName());
                         }
                     }
+
+
+
+
                 }
-            }
-        };
+            };
+        }
     }
-}
+
 
