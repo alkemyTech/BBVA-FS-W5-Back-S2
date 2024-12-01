@@ -1,14 +1,10 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
-import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.dtos.LoginDTO;
 import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
-import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
-import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.services.AccountService;
 import com.example.bbva.squad2.Wallet.services.AuthService;
 import com.example.bbva.squad2.Wallet.services.UserRegisterServices;
-import com.example.bbva.squad2.Wallet.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +26,7 @@ public class AuthController {
 
     @Autowired
     private AccountService as;
-    
+
     @Autowired
     private final UserRegisterServices userRegisterServices;
 

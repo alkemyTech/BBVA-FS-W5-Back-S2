@@ -1,17 +1,12 @@
 package com.example.bbva.squad2.Wallet.dtos;
 
-import com.example.bbva.squad2.Wallet.enums.RoleName;
-import com.example.bbva.squad2.Wallet.models.Account;
-import com.example.bbva.squad2.Wallet.models.Role;
 import com.example.bbva.squad2.Wallet.models.User;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 @Builder

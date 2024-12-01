@@ -1,16 +1,14 @@
 package com.example.bbva.squad2.Wallet.models;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
-
-import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "Accounts")

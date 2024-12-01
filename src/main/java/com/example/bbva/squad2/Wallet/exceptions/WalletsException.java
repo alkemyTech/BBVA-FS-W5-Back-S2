@@ -4,14 +4,14 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class AlkemyException extends RuntimeException {
+public class WalletsException extends RuntimeException {
     private final HttpStatus status;
 
-    public AlkemyException(final HttpStatus httpStatus) {
+    public WalletsException(final HttpStatus httpStatus) {
         this.status = httpStatus;
     }
 
-    public AlkemyException(final HttpStatus httpStatus, final String message) {
+    public WalletsException(final HttpStatus httpStatus, final String message) {
         super(message);
         this.status = httpStatus;
     }

@@ -1,14 +1,13 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
-import com.example.bbva.squad2.Wallet.config.JwtServices;
 import com.example.bbva.squad2.Wallet.dtos.PageableResponseDTO;
 import com.example.bbva.squad2.Wallet.dtos.UserDTO;
 import com.example.bbva.squad2.Wallet.dtos.UserUpdatedDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
-import com.example.bbva.squad2.Wallet.models.User;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.services.UserService;
+import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,20 +16,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
-    private final JwtServices jwtServices;
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    public UserController(UserService userService, JwtServices jwtServices) {
-        this.userService = userService;
-        this.jwtServices = jwtServices;
-    }
+    private UsuarioLoggeadoService usuarioLoggeadoService;
 
     @GetMapping
     @Operation(summary = "Buscar todos los usuarios")
@@ -68,14 +63,14 @@ public class UserController {
 
     public ResponseEntity<Void> deleteUser(@PathVariable Long id, HttpServletRequest request) {
         try {
-            UsuarioSeguridad usuarioSeguridad = userService.getInfoUserSecurity(request);
+            UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
 
             // Verificar si el usuario tiene rol ADMIN
             boolean isAdmin = usuarioSeguridad.getRole().equals(RoleName.ADMIN.name());
 
             // Si no tiene rol ADMIN, lanzar una excepción de seguridad
             if (!isAdmin) {
-                throw new AlkemyException(
+                throw new WalletsException(
                         HttpStatus.FORBIDDEN,
                         "Usted no esta autorizado para eliminar usuarios."
                 );
@@ -85,7 +80,7 @@ public class UserController {
             userService.deleteUser(id);
 
             return ResponseEntity.noContent().build();
-        } catch (AlkemyException e) {
+        } catch (WalletsException e) {
             // Manejar la excepción específica de falta de permisos
             return ResponseEntity.status(e.getStatus()).body(null);
         } catch (RuntimeException e) {
@@ -93,7 +88,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             // Manejar cualquier otra excepción general
-            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
+            throw new WalletsException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
         }
     }
 
@@ -103,11 +98,11 @@ public class UserController {
     @Operation(summary = "Buscar usuario loggeado por id")
     public ResponseEntity<UserDTO> getUserDetail(@PathVariable Long id, HttpServletRequest request) {
         try {
-            UsuarioSeguridad usuarioSeguridad = userService.getInfoUserSecurity(request);
+            UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
 
             // Verificar si el ID en la URL coincide con el ID del usuario logueado
             if (!usuarioSeguridad.getId().equals(id)) {
-                throw new AlkemyException(HttpStatus.FORBIDDEN, "No tienes permisos para ver este usuario.");
+                throw new WalletsException(HttpStatus.FORBIDDEN, "No tienes permisos para ver este usuario.");
             }
 
             // Llamar al servicio para obtener los detalles del usuario y devolver el UserDTO
@@ -115,12 +110,12 @@ public class UserController {
 
             return ResponseEntity.ok(userDTO);
 
-        } catch (AlkemyException e) {
+        } catch (WalletsException e) {
             return ResponseEntity.status(e.getStatus()).body(null);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
-            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
+            throw new WalletsException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
         }
     }
 
@@ -129,7 +124,7 @@ public class UserController {
     public ResponseEntity<String> updateUser(
             @RequestBody UserUpdatedDTO userUpdated,
             HttpServletRequest request) {
-        UsuarioSeguridad user = userService.getInfoUserSecurity(request);
+        UsuarioSeguridad user = usuarioLoggeadoService.getInfoUserSecurity(request);
         String result = userService.updateUser(user.getId(), userUpdated);
 
         if ("Usuario actualizado exitosamente.".equals(result)) {

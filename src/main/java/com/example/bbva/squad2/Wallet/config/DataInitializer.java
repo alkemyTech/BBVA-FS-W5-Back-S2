@@ -2,6 +2,7 @@ package com.example.bbva.squad2.Wallet.config;
 
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
+import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Role;
 import com.example.bbva.squad2.Wallet.models.Transaction;
@@ -19,8 +20,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+
 
 @Configuration
 public class DataInitializer {
@@ -81,7 +86,16 @@ public class DataInitializer {
                                     .build());
 
                     // Crear cuentas en dólares (USD) y pesos (ARS) para el usuario ADMIN
-                    accountRepository.save(
+                    Account accountPesos = accountRepository.save(
+                            Account.builder()
+                                    .cbu(accountService.generaCBU())
+                                    .currency(CurrencyTypeEnum.ARS)
+                                    .transactionLimit(300000.0)
+                                    .balance(10000.0)
+                                    .user(adminUser)
+                                    .build());
+
+                    Account accountDolares = accountRepository.save(
                             Account.builder()
                                     .cbu(accountService.generaCBU())
                                     .currency(CurrencyTypeEnum.USD)
@@ -90,14 +104,30 @@ public class DataInitializer {
                                     .user(adminUser)
                                     .build());
 
-                    accountRepository.save(
-                            Account.builder()
-                                    .cbu(accountService.generaCBU())
-                                    .currency(CurrencyTypeEnum.ARS)
-                                    .transactionLimit(300000.0)
-                                    .balance(10000.0)
-                                    .user(adminUser)
+                    // Crear una transacción de tipo DEPOSITO para los usuarios ADMIN
+                    tr.save(
+                            Transaction.builder()
+                                    .CbuDestino(accountPesos.getCbu())
+                                    .CbuOrigen("External")
+                                    .description("Deposito Inicial USD")
+                                    .timestamp(LocalDateTime.now())
+                                    .amount(5000.00)
+                                    .account(accountDolares)
+                                    .type(TransactionTypeEnum.DEPOSITO)
                                     .build());
+
+                    tr.save(
+                            Transaction.builder()
+                                    .CbuDestino(accountPesos.getCbu())
+                                    .CbuOrigen("External")
+                                    .description("Deposito Inicial ARS")
+                                    .timestamp(LocalDateTime.now())
+                                    .amount(15000.00)
+                                    .account(accountPesos)
+                                    .type(TransactionTypeEnum.DEPOSITO)
+                                    .build());
+
+
                 }
 
                 // Crear 10 usuarios user con nombres variados y correos realistas
@@ -119,6 +149,8 @@ public class DataInitializer {
                     String lastName = userData[1];
                     String email = userData[2];
                     String password = userData[3];
+                    String CBUpesos = accountService.generaCBU();
+                    String CBUdolares = accountService.generaCBU();
 
                     // Hash de la contraseña
                     String hashedPassword = passwordEncoder.encode(password);
@@ -135,41 +167,165 @@ public class DataInitializer {
                                     .build());
 
                     // Crear cuentas en dólares (USD) y pesos (ARS) para el usuario regular
-                    accountRepository.save(
+                    Account accountPesos = accountRepository.save(
                             Account.builder()
-                                    .cbu(accountService.generaCBU())
-                                    .currency(CurrencyTypeEnum.USD)
-                                    .transactionLimit(1000.0)
-                                    .balance(10000.0)
-                                    .user(regularUser)
-                                    .build());
-
-                    accountRepository.save(
-                            Account.builder()
-                                    .cbu(accountService.generaCBU())
+                                    .cbu(CBUpesos)
                                     .currency(CurrencyTypeEnum.ARS)
                                     .transactionLimit(300000.0)
                                     .balance(10000.0)
                                     .user(regularUser)
                                     .build());
 
+                    Account accountDolares = accountRepository.save(
+                            Account.builder()
+                                    .cbu(CBUdolares)
+                                    .currency(CurrencyTypeEnum.USD)
+                                    .transactionLimit(1000.0)
+                                    .balance(10000.0)
+                                    .user(regularUser)
+                                    .build());
 
+                    // Crear una transacción de tipo DEPOSITO para los usuarios regulares
+                    tr.save(
+                            Transaction.builder()
+                                    .CbuDestino(accountPesos.getCbu())
+                                    .CbuOrigen("External")
+                                    .description("Deposito Inicial USD")
+                                    .timestamp(LocalDateTime.now())
+                                    .amount(5000.00)
+                                    .account(accountDolares)
+                                    .type(TransactionTypeEnum.DEPOSITO)
+                                    .build());
 
+                    tr.save(
+                            Transaction.builder()
+                                    .CbuDestino(accountPesos.getCbu())
+                                    .CbuOrigen("External")
+                                    .description("Deposito Inicial ARS")
+                                    .timestamp(LocalDateTime.now())
+                                    .amount(15000.00)
+                                    .account(accountPesos)
+                                    .type(TransactionTypeEnum.DEPOSITO)
+                                    .build()
+                    );
 
+                    List<Account> allAccounts = accountRepository.findAll();
+
+                    List<Account> arsAccounts = allAccounts.stream()
+                            .filter(a -> a.getCurrency() == CurrencyTypeEnum.ARS)
+                            .toList();
+
+                    for (int i = 0; i < arsAccounts.size(); i++) {
+                        Account originAccount = arsAccounts.get(i);
+
+                        List<Account> filteredAccounts = arsAccounts.stream()
+                                .filter(dest -> !dest.getUser().getId().equals(originAccount.getUser().getId())) // Filtrar diferente usuario
+                                .toList();
+
+                        if (!filteredAccounts.isEmpty()) {
+                            Account destinationAccount = null;
+
+                            // Selección aleatoria manual con validación
+                            for (int j = 0; j < filteredAccounts.size(); j++) {
+                                int randomIndex = ThreadLocalRandom.current().nextInt(filteredAccounts.size());
+                                destinationAccount = filteredAccounts.get(randomIndex);
+                                if (destinationAccount != null) {
+                                    break; // Si se encuentra una cuenta válida, salir del bucle
+                                }
+                            }
+
+                            if (destinationAccount != null) {
+                                Transaction transferTransactionIngreso = Transaction.builder()
+                                        .CbuOrigen(originAccount.getCbu())
+                                        .CbuDestino(destinationAccount.getCbu())
+                                        .description("Transferencia entre cuentas ARS")
+                                        .timestamp(LocalDateTime.now())
+                                        .amount(1000.00)
+                                        .account(originAccount)
+                                        .type(TransactionTypeEnum.INGRESO)
+                                        .build();
+                                tr.save(transferTransactionIngreso);
+
+                                Transaction transferTransactionPago = Transaction.builder()
+                                        .CbuOrigen(originAccount.getCbu())
+                                        .CbuDestino(destinationAccount.getCbu())
+                                        .description("Transferencia entre cuentas ARS")
+                                        .timestamp(LocalDateTime.now())
+                                        .amount(1000.00)
+                                        .account(destinationAccount)
+                                        .type(TransactionTypeEnum.PAGO)
+                                        .build();
+                                tr.save(transferTransactionPago);
+
+                            } else {
+                                System.out.println("No se encontró una cuenta destino válida para el usuario: " +
+                                        originAccount.getUser().getFirstName());
+                            }
+                        } else {
+                            System.out.println("No hay cuentas disponibles para transferir desde el usuario: " +
+                                    originAccount.getUser().getFirstName());
+                        }
+                    }
+
+// Repetir el mismo proceso para cuentas en USD
+                    List<Account> usdAccounts = allAccounts.stream()
+                            .filter(a -> a.getCurrency() == CurrencyTypeEnum.USD)
+                            .toList();
+
+                    for (int i = 0; i < usdAccounts.size(); i++) {
+                        Account originAccount = usdAccounts.get(i);
+
+                        List<Account> filteredAccounts = usdAccounts.stream()
+                                .filter(dest -> !dest.getUser().getId().equals(originAccount.getUser().getId())) // Filtrar diferente usuario
+                                .toList();
+
+                        if (!filteredAccounts.isEmpty()) {
+                            Account destinationAccount = null;
+
+                            // Selección aleatoria manual con validación
+                            for (int j = 0; j < filteredAccounts.size(); j++) {
+                                int randomIndex = ThreadLocalRandom.current().nextInt(filteredAccounts.size());
+                                destinationAccount = filteredAccounts.get(randomIndex);
+                                if (destinationAccount != null) {
+                                    break; // Si se encuentra una cuenta válida, salir del bucle
+                                }
+                            }
+
+                            if (destinationAccount != null) {
+                                Transaction transferTransactionIngreso = Transaction.builder()
+                                        .CbuOrigen(originAccount.getCbu())
+                                        .CbuDestino(destinationAccount.getCbu())
+                                        .description("Transferencia entre cuentas USD")
+                                        .timestamp(LocalDateTime.now())
+                                        .amount(1000.00)
+                                        .account(originAccount)
+                                        .type(TransactionTypeEnum.INGRESO)
+                                        .build();
+                                tr.save(transferTransactionIngreso);
+
+                                Transaction transferTransactionPago = Transaction.builder()
+                                        .CbuOrigen(originAccount.getCbu())
+                                        .CbuDestino(destinationAccount.getCbu())
+                                        .description("Transferencia entre cuentas USD")
+                                        .timestamp(LocalDateTime.now())
+                                        .amount(1000.00)
+                                        .account(destinationAccount)
+                                        .type(TransactionTypeEnum.PAGO)
+                                        .build();
+                                tr.save(transferTransactionPago);
+
+                            } else {
+                                System.out.println("No se encontró una cuenta destino válida para el usuario: " +
+                                        originAccount.getUser().getFirstName());
+                            }
+                        } else {
+                            System.out.println("No hay cuentas disponibles para transferir desde el usuario: " +
+                                    originAccount.getUser().getFirstName());
+                        }
+                    }
                 }
-                Optional<User> user = us.findById(1L);
-
-
-
-
-                tr.save(
-                        Transaction.builder()
-                                .CBUDestino(accountService.)
-
-
-                )
-
             }
         };
     }
 }
+
