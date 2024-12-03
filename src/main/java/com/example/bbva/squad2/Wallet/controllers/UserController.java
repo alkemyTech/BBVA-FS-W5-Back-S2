@@ -66,59 +66,39 @@ public class UserController {
     @Operation(summary = "Eliminar usuarios por Id")
 
     public ResponseEntity<Void> deleteUser(@PathVariable Long id, HttpServletRequest request) {
-        try {
-            UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
+        UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
 
-            // Verificar si el usuario tiene rol ADMIN
-            boolean isAdmin = usuarioSeguridad.getRole().equals(RoleName.ADMIN.name());
+        // Verificar si el usuario tiene rol ADMIN
+        boolean isAdmin = usuarioSeguridad.getRole().equals(RoleName.ADMIN.name());
 
-            // Si no tiene rol ADMIN, lanzar una excepción de seguridad
-            if (!isAdmin) {
-                throw new WalletsException(
-                        HttpStatus.FORBIDDEN,
-                        "Usted no esta autorizado para eliminar usuarios."
-                );
-            }
-
-            // Llamar al servicio para eliminar el usuario
-            userService.deleteUser(id);
-
-            return ResponseEntity.noContent().build();
-        } catch (WalletsException e) {
-            // Manejar la excepción específica de falta de permisos
-            return ResponseEntity.status(e.getStatus()).body(null);
-        } catch (RuntimeException e) {
-            // Manejar el caso cuando el usuario no se encuentra
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            // Manejar cualquier otra excepción general
-            throw new WalletsException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
+        // Si no tiene rol ADMIN, lanzar una excepción de seguridad
+        if (!isAdmin) {
+            throw new WalletsException(
+                    HttpStatus.FORBIDDEN,
+                    "Usted no esta autorizado para eliminar usuarios."
+            );
         }
+
+        // Llamar al servicio para eliminar el usuario
+        userService.deleteUser(id);
+
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/")
     @Operation(summary = "Buscar usuario loggeado por id")
     public ResponseEntity<UserDTO> getUserDetail(@PathVariable Long id, HttpServletRequest request) {
-        try {
-            UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
+        UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
 
-            // Verificar si el ID en la URL coincide con el ID del usuario logueado
-            if (!usuarioSeguridad.getId().equals(id)) {
-                throw new WalletsException(HttpStatus.FORBIDDEN, "No tienes permisos para ver este usuario.");
-            }
-
-            // Llamar al servicio para obtener los detalles del usuario y devolver el UserDTO
-            UserDTO userDTO = userService.getUserDetail(id);
-
-            return ResponseEntity.ok(userDTO);
-
-        } catch (WalletsException e) {
-            return ResponseEntity.status(e.getStatus()).body(null);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            throw new WalletsException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
+        // Verificar si el ID en la URL coincide con el ID del usuario logueado
+        if (!usuarioSeguridad.getId().equals(id)) {
+            throw new WalletsException(HttpStatus.FORBIDDEN, "No tienes permisos para ver este usuario.");
         }
+
+        // Llamar al servicio para obtener los detalles del usuario y devolver el UserDTO
+        UserDTO userDTO = userService.getUserDetail(id);
+
+        return ResponseEntity.ok(userDTO);
     }
 
     @PatchMapping("/")

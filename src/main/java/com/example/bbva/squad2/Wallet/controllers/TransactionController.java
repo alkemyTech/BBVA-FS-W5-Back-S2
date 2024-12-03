@@ -109,16 +109,9 @@ public class TransactionController {
     public ResponseEntity<String> enviarDinero(
             @RequestBody SendTransactionDTO request,
             HttpServletRequest httpRequest) {
-        try {
-            UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(httpRequest);
-            ts.sendTransactionToBeneficiario(request, userSecurity.getUsername());
-            return ResponseEntity.ok("Transacción finalizada exitosamente.");
-        } catch (WalletsException e) {
-            return ResponseEntity.status(e.getStatus()).body(e.getMessage());
-        } catch (Exception e) {
-            // Captura de otras excepciones genéricas
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+        UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(httpRequest);
+        ts.sendTransactionToBeneficiario(request, userSecurity.getUsername());
+        return ResponseEntity.ok("Transacción finalizada exitosamente.");
     }
 
     @GetMapping("/user/{userId}/paginated")

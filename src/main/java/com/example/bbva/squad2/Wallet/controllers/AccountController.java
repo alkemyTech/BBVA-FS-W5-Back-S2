@@ -72,16 +72,8 @@ public class AccountController {
 		UsuarioSeguridad security = usuarioLoggeadoService.getInfoUserSecurity(request);
 		Long userId = security.getId();
 
-		try {
-			// Actualizar el límite de transferencia
-			AccountDTO updatedAccount = as.updateTransactionLimit(id, userId, newTransactionLimit);
-			return ResponseEntity.status(HttpStatus.CREATED).body(updatedAccount);
-		} catch (WalletsException e) {
-			return ResponseEntity.status(e.getStatus()).body(e.getMessage());
-		} catch (Exception e) {
-			// Captura de otras excepciones genéricas
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-		}
+		AccountDTO updatedAccount = as.updateTransactionLimit(id, userId, newTransactionLimit);
+		return ResponseEntity.status(HttpStatus.CREATED).body(updatedAccount);
 	}
 
 	@GetMapping("/paginated")
