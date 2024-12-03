@@ -10,20 +10,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FixedTermSimulationDTO {
-    private Double amount;
-    private String startDate;
-    private String endDate;
-    private Double interestRate;
-    private String accountCBU;
+public class FixedTermSimulationDTO extends FixedTermDTO {
     private double total;
 
     public FixedTermSimulationDTO mapFromFixedTerm(FixedTermDeposit fixedTermDeposit) {
-        this.amount = fixedTermDeposit.getAmount();
-        this.startDate = fixedTermDeposit.getStartDate().toString();
-        this.endDate = fixedTermDeposit.getEndDate() != null ? fixedTermDeposit.getEndDate().toString() : "N/A";
-        this.interestRate = fixedTermDeposit.getInterestRate();
-        this.accountCBU = fixedTermDeposit.getAccount().getCbu();
+        super.mapFromFixedTerm(fixedTermDeposit);
         this.total = fixedTermDeposit.getAmount() + fixedTermDeposit.getInterest();
         return this;
     }

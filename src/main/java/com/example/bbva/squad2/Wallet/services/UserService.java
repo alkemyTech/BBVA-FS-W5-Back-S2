@@ -1,11 +1,10 @@
 package com.example.bbva.squad2.Wallet.services;
 
-import com.example.bbva.squad2.Wallet.dtos.PageableResponseDTO;
-import com.example.bbva.squad2.Wallet.dtos.RegisterDTO;
-import com.example.bbva.squad2.Wallet.dtos.UserDTO;
-import com.example.bbva.squad2.Wallet.dtos.UserUpdatedDTO;
+import com.example.bbva.squad2.Wallet.dtos.*;
+import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
+import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Role;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -178,6 +178,58 @@ public class UserService {
             return "Usuario actualizado exitosamente.";
         }
         return "El usuario no fue encontrado.";
+    }
+
+    public ResponseEntity<RecipientResponseDTO> addBeneficiario(Long usuarioId, RecipientDTO beneficiarioDTO) throws WalletsException {
+        // Obtener el usuario principal
+        User usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        Account accountBeneficiario = accountsRepository.findBycbu(beneficiarioDTO.getCbu())
+                .orElseThrow(() -> new WalletsException(
+                        HttpStatus.NOT_FOUND,
+                        "Cuenta no encontrada con el CBU especificado."
+                ));
+
+        if (usuario.getId().equals(accountBeneficiario.getUser().getId())) {
+            throw new WalletsException(
+                    HttpStatus.BAD_REQUEST,
+                    "No se puede agregar a una cuenta propia como beneficiario."
+            );
+        }
+
+        if(accountBeneficiario.getCurrency() == CurrencyTypeEnum.USD){
+            throw new WalletsException(
+                HttpStatus.BAD_REQUEST,
+                "No se puede agregar una cuenta en dolares."
+            );
+        }
+
+        // Obtener el beneficiario
+        User beneficiario = accountBeneficiario.getUser();
+
+        // Agregar al beneficiario
+        usuario.getBeneficiarios().add(beneficiario);
+
+        // Guardar cambios
+        usuarioRepository.save(usuario);
+
+        RecipientResponseDTO nuevoBeneficiario = new RecipientResponseDTO();
+        nuevoBeneficiario.setIdRecipient(beneficiario.getId());
+        nuevoBeneficiario.setNombreApellido(beneficiario.getFirstName() + " " + beneficiario.getLastName());
+        AccountDTO accountDTO = new AccountDTO().mapFromAccount(accountBeneficiario);
+        nuevoBeneficiario.addAccountDTO(accountDTO);
+        nuevoBeneficiario.setUsername(beneficiario.getEmail());
+        nuevoBeneficiario.setBancoWallet("Banco");
+
+        return ResponseEntity.ok(nuevoBeneficiario);
+    }
+
+    public List<User> getBeneficiarios(Long usuarioId) throws WalletsException{
+        User usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        return usuario.getBeneficiarios();
     }
 
 

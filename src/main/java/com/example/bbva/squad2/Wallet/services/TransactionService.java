@@ -1,6 +1,7 @@
 package com.example.bbva.squad2.Wallet.services;
 
 import com.example.bbva.squad2.Wallet.dtos.*;
+import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.models.Account;
@@ -56,6 +57,95 @@ public class TransactionService {
             throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "No se puede realizar una transferencia a una cuenta propia."
+            );
+        }
+
+        // Validar si el monto a transferir es menor o igual al balance de la cuenta emisora
+        if (dto.getAmount() > senderAccount.getBalance()) {
+            throw new WalletsException(
+                    HttpStatus.BAD_REQUEST,
+                    "Saldo insuficiente en la cuenta emisora."
+            );
+        }
+
+        // Validar si el monto a transferir está dentro del límite permitido por la cuenta emisora
+        if (dto.getAmount() > senderAccount.getTransactionLimit()) {
+            throw new WalletsException(
+                    HttpStatus.BAD_REQUEST,
+                    "El monto excede el límite de transacciones de la cuenta emisora."
+            );
+        }
+
+        // Crear y registrar la transacción para el usuario emisor (PAYMENT)
+        createTransaction(senderAccount,
+                senderAccount.getCbu(),
+                destinationAccount.getCbu(),
+                dto.getAmount(),
+                TransactionTypeEnum.PAGO,
+                dto.getDescription()
+        );
+
+        // Crear y registrar la transacción para el usuario receptor (INCOME)
+        createTransaction(destinationAccount,
+                senderAccount.getCbu(),
+                destinationAccount.getCbu(),
+                dto.getAmount(),
+                TransactionTypeEnum.INGRESO,
+                dto.getDescription()
+        );
+
+        // Actualizar balances en ambas cuentas
+        senderAccount.setBalance(senderAccount.getBalance() - dto.getAmount());
+        destinationAccount.setBalance(destinationAccount.getBalance() + dto.getAmount());
+
+        // Guardar las cuentas actualizadas
+        accountsRepository.save(senderAccount);
+        accountsRepository.save(destinationAccount);
+    }
+
+    public void sendTransactionToBeneficiario(SendTransactionDTO dto, String usernamen) throws WalletsException {
+
+        // Buscar la cuenta emisora a través del email del usuario autenticado (extraído del token)
+        Account senderAccount = accountsRepository.findByCurrencyAndUser_Email(dto.getCurrency(), usernamen)
+                .orElseThrow(() -> new WalletsException(
+                        HttpStatus.NOT_FOUND,
+                        "Cuenta emisora no encontrada para el usuario autenticado con la moneda especificada."
+                ));
+
+        // Buscar la cuenta destinataria usando el CBU del DTO
+        Account destinationAccount = accountsRepository.findByCbuAndCurrency(dto.getDestinationCbu(), dto.getCurrency())
+                .orElseThrow(() -> new WalletsException(
+                        HttpStatus.NOT_FOUND,
+                        "Cuenta destinataria no encontrada con el CBU especificado."
+                ));
+
+        // Validar que la cuenta emisora y destinataria no pertenezcan al mismo usuario
+        if (senderAccount.getUser().getId().equals(destinationAccount.getUser().getId())) {
+            throw new WalletsException(
+                    HttpStatus.BAD_REQUEST,
+                    "No se puede realizar una transferencia a una cuenta propia."
+            );
+        }
+
+        if (senderAccount.getCurrency().equals(CurrencyTypeEnum.USD)) {
+            throw new WalletsException(
+                    HttpStatus.BAD_REQUEST,
+                    "No se puede realizar una transferencia en dolares."
+            );
+        }
+
+        User usuarioDestino = destinationAccount.getUser();
+        User usuarioOrigen = senderAccount.getUser();
+
+        // Verificar si el usuarioDestino está dentro de los beneficiarios del usuarioOrigen
+        boolean isBeneficiary = usuarioOrigen.getBeneficiarios().stream()
+                .anyMatch(beneficiary -> beneficiary.getId().equals(usuarioDestino.getId()));
+
+        // Si el usuarioDestino no es un beneficiario del usuarioOrigen, lanzar una excepción
+        if (!isBeneficiary) {
+            throw new WalletsException(
+                    HttpStatus.BAD_REQUEST,
+                    "El usuario destino no es un beneficiario de la cuenta origen."
             );
         }
 
@@ -229,7 +319,7 @@ public class TransactionService {
         return transaction;
     }
 
-    public TransactionListDTO getTransactionById(Long transactionId, Long userId) {
+    public TransactionListDTO getTransactionById(Long transactionId, Long userId) throws WalletsException{
         return transactionRepository.findByAccount_User_Id(userId).stream()
                 .filter(transaction -> transaction.getId().equals(transactionId))
                 .findFirst()
@@ -256,6 +346,26 @@ public class TransactionService {
                 transactionPage.hasPrevious() ? "/transactions/user/" + userId + "?page=" + (page - 1) + "&size=" + size : null,
                 transactionPage.hasNext() ? "/transactions/user/" + userId + "?page=" + (page + 1) + "&size=" + size : null
         );
+    }
+
+    public UpdateTransactionDTO updateTransactionDescription(Long transactionId, String newDescription, Long userId) {
+        // Buscar la transacción por ID
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Transacción no encontrada"));
+
+        // Verificar que la transacción pertenece al usuario logueado
+        if (!transaction.getAccount().getUser().getId().equals(userId)) {
+            throw new WalletsException(HttpStatus.FORBIDDEN, "No tienes permisos para editar esta transacción");
+        }
+
+        // Modificar solo la descripción
+        transaction.setDescription(newDescription);
+
+        // Guardar la transacción actualizada
+        Transaction updatedTransaction = transactionRepository.save(transaction);
+
+        // Convertir la transacción actualizada a DTO y devolverla
+        return UpdateTransactionDTO.fromTransaction(updatedTransaction);
     }
 
     public List<TransactionListDTO> getTransactionDtosByUserId(Long userId) {

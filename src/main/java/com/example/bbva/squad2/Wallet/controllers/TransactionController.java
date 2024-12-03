@@ -25,7 +25,7 @@ public class TransactionController {
     private JwtServices js;
 
     @Autowired
-    private UserService us;
+    private UsuarioLoggeadoService us;
 
     @Autowired
     private UsuarioLoggeadoService usuarioLoggeadoService;
@@ -69,6 +69,29 @@ public class TransactionController {
         return ResponseEntity.ok(transaction);
     }
 
+    @PatchMapping("/{id}")
+    @Operation(summary = "Editar una transacción para modificar solo la descripción")
+    public ResponseEntity<UpdateTransactionDTO> updateTransactionDescription(
+            @PathVariable Long id,
+            @RequestBody UpdateTransactionDTO updateRequest,
+            HttpServletRequest request) {
+
+        // Obtener el usuario autenticado desde el token JWT
+        UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
+
+        // Llamar al servicio para actualizar la transacción
+        UpdateTransactionDTO updatedTransaction = ts.updateTransactionDescription(id, updateRequest.getDescription(), userSecurity.getId());
+
+        // Si la transacción no fue encontrada, devolver un error
+        if (updatedTransaction == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        // Retornar la transacción actualizada
+        return ResponseEntity.ok(updatedTransaction);
+    }
+
+
     @GetMapping("/user/{userId}")
     @Operation(summary = "Obtener las transacciones de usuarios por id")
     public ResponseEntity<List<TransactionListDTO>> listUserTransactions(
@@ -104,6 +127,16 @@ public class TransactionController {
         return ResponseEntity.ok(payment);
     }
 
+    @PostMapping("/sendRecipient")
+    @Operation(summary = "Enviar dinero a un beneficiario")
+    public ResponseEntity<String> enviarDinero(
+            @RequestBody SendTransactionDTO request,
+            HttpServletRequest httpRequest) {
+        UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(httpRequest);
+        ts.sendTransactionToBeneficiario(request, userSecurity.getUsername());
+        return ResponseEntity.ok("Transacción finalizada exitosamente.");
+    }
+
     @GetMapping("/user/{userId}/paginated")
     @Operation(summary = "Obtener las transacciones paginadas de un usuario")
     public ResponseEntity<?> listUserTransactionsPaginated(
@@ -120,6 +153,8 @@ public class TransactionController {
         if (!isAdmin && !isOwner) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        // Falta URLS
 
         // Llamar al servicio para obtener las transacciones paginadas
         PageableResponseDTO<TransactionListDTO> paginatedTransactions = ts.getTransactionsByUserIdPaginated(userId, page, size);
