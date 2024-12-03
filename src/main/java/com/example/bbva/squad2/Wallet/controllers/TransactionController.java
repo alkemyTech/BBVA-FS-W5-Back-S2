@@ -104,6 +104,23 @@ public class TransactionController {
         return ResponseEntity.ok(payment);
     }
 
+    @PostMapping("/sendRecipient")
+    @Operation(summary = "Enviar dinero a un beneficiario")
+    public ResponseEntity<String> enviarDinero(
+            @RequestBody SendTransactionDTO request,
+            HttpServletRequest httpRequest) {
+        try {
+            UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(httpRequest);
+            ts.sendTransactionToBeneficiario(request, userSecurity.getUsername());
+            return ResponseEntity.ok("Transacción finalizada exitosamente.");
+        } catch (WalletsException e) {
+            return ResponseEntity.status(e.getStatus()).body(e.getMessage());
+        } catch (Exception e) {
+            // Captura de otras excepciones genéricas
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @GetMapping("/user/{userId}/paginated")
     @Operation(summary = "Obtener las transacciones paginadas de un usuario")
     public ResponseEntity<?> listUserTransactionsPaginated(

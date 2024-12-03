@@ -41,6 +41,14 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Account> accounts;
 
+    @ManyToMany
+    @JoinTable(
+            name = "usuario_beneficiarios",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "beneficiario_id")
+    )
+    private List<User> beneficiarios;
+
     @Column(name = "creation_date", nullable = false, updatable = false)
     private LocalDateTime creationDate;
 

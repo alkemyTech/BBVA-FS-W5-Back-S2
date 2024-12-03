@@ -123,9 +123,9 @@ public class AccountService {
 		return balanceDTO;
 	}
 
-	public AccountDTO updateTransactionLimit(Long accountId, Long userId, Double newTransactionLimit) {
+	public AccountDTO updateTransactionLimit(Long accountId, Long userId, Double newTransactionLimit) throws WalletsException{
 		// Validar que el límite no sea nulo ni negativo
-		if (newTransactionLimit == null || newTransactionLimit < 0) {
+		if (newTransactionLimit == null || newTransactionLimit <= 0) {
 			throw new WalletsException(HttpStatus.BAD_REQUEST, "El limite de transacción no puede ser nulo.");
 		}
 
