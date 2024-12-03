@@ -43,7 +43,7 @@ public class FixedTermDepositService {
         return fixedTermDepositRepository.findAll(); // Devuelve todos los registros
     }
 
-    public ResponseEntity<Object> createFixedTermDeposit(Long userId, Double amount, Integer days, boolean simulation) {
+    public ResponseEntity<Object> createFixedTermDeposit(Long userId, Double amount, Integer days, boolean simulation) throws WalletsException{
         if (days < 30) {
             throw new WalletsException(HttpStatus.BAD_REQUEST, "El plazo fijo debe ser de al menos 30 días.");
         }
