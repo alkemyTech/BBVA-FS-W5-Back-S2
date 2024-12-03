@@ -43,7 +43,7 @@ public class FixedTermDepositService {
         return fixedTermDepositRepository.findAll(); // Devuelve todos los registros
     }
 
-    public ResponseEntity<Object> createFixedTermDeposit(Long userId, Double amount, Integer days, boolean simulation) {
+    public FixedTermSimulationDTO createFixedTermDeposit(Long userId, Double amount, Integer days, boolean simulation) throws WalletsException{
         if (days < 30) {
             throw new WalletsException(HttpStatus.BAD_REQUEST, "El plazo fijo debe ser de al menos 30 días.");
         }
@@ -78,9 +78,7 @@ public class FixedTermDepositService {
 
             FixedTermDeposit savedDeposit = fixedTermDepositRepository.save(fixedTermDeposit);
 
-            FixedTermDTO fixedTermDepositDTO = new FixedTermDTO().mapFromFixedTerm(savedDeposit);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDepositDTO);
+            return new FixedTermSimulationDTO().mapFromFixedTerm(savedDeposit);
         } else {
             FixedTermDeposit fixedTermDepositSimulation = FixedTermDeposit.builder()
                     .amount(amount)
@@ -92,8 +90,7 @@ public class FixedTermDepositService {
                     .processed(false)
                     .build();
 
-            FixedTermSimulationDTO simulationDTO = new FixedTermSimulationDTO().mapFromFixedTerm(fixedTermDepositSimulation);
-            return ResponseEntity.ok(simulationDTO);
+            return new FixedTermSimulationDTO().mapFromFixedTerm(fixedTermDepositSimulation);
         }
     }
 
