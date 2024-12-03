@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -256,7 +255,7 @@ public class TransactionService {
                 .filter(transaction -> transaction.getId().equals(transactionId))
                 .findFirst()
                 .map(transaction -> new TransactionListDTO().fromEntity(transaction)) // Convertir a DTO si existe
-                .orElseThrow(() -> new AlkemyException(HttpStatus.UNAUTHORIZED, "No existe la transacción solicitada para esa cuenta"));
+                .orElseThrow(() -> new WalletsException(HttpStatus.UNAUTHORIZED, "No existe la transacción solicitada para esa cuenta"));
     }
 
 
@@ -280,6 +279,29 @@ public class TransactionService {
                 transactionPage.hasNext() ? "/transactions/user/" + userId + "?page=" + (page + 1) + "&size=" + size : null
         );
     }
+
+    public UpdateTransactionDTO updateTransactionDescription(Long transactionId, String newDescription, Long userId) {
+        // Buscar la transacción por ID
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new AlkemyException(HttpStatus.NOT_FOUND, "Transacción no encontrada"));
+
+        // Verificar que la transacción pertenece al usuario logueado
+        if (!transaction.getAccount().getUser().getId().equals(userId)) {
+            throw new AlkemyException(HttpStatus.FORBIDDEN, "No tienes permisos para editar esta transacción");
+        }
+
+        // Modificar solo la descripción
+        transaction.setDescription(newDescription);
+
+        // Guardar la transacción actualizada
+        Transaction updatedTransaction = transactionRepository.save(transaction);
+
+        // Convertir la transacción actualizada a DTO y devolverla
+        return UpdateTransactionDTO.fromTransaction(updatedTransaction);
+    }
+
+
+
 
 
     // empece a codear la ful 38 (hugo)
