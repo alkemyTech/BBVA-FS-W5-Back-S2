@@ -2,6 +2,7 @@ package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
 import com.example.bbva.squad2.Wallet.dtos.*;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.services.TransactionService;
 import com.example.bbva.squad2.Wallet.services.UserService;
 import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
@@ -43,16 +44,19 @@ public class TransactionController {
         return ResponseEntity.ok("Transacción finalizada exitosamente.");
     }
 
+
     @PostMapping("/deposit/{cbu}")
     @Operation(summary = "Realizar un deposito a una cuenta del usuario loggeado")
     public ResponseEntity<DepositDTO> deposit(
             @PathVariable String cbu,
             @RequestBody SendDepositDTO request,
-            HttpServletRequest httpRequest) {
+            HttpServletRequest httpRequest
+    ) {
         UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(httpRequest);
         DepositDTO deposit = ts.deposit(request, cbu, usuarioSeguridad.getUsername());
         return ResponseEntity.ok(deposit);
     }
+
 
     @GetMapping("/{id}")
     @Operation(summary = "Obtener la transacción del usuario loggeado por id")
