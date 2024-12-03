@@ -3,7 +3,6 @@ package com.example.bbva.squad2.Wallet.controllers;
 import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
-import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.services.TransactionService;
 import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import org.junit.jupiter.api.Assertions;
@@ -16,20 +15,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import java.util.Map;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 @SpringBootTest
 public class TransactionsControllerTest {
 
 
-    @Mock
-    AccountsRepository accountsRepository;
+
 
     @Mock
     private TransactionService ts;
