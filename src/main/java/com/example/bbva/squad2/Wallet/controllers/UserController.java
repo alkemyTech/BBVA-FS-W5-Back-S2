@@ -1,11 +1,12 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
-import com.example.bbva.squad2.Wallet.dtos.PageableResponseDTO;
-import com.example.bbva.squad2.Wallet.dtos.UserDTO;
-import com.example.bbva.squad2.Wallet.dtos.UserUpdatedDTO;
-import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
+import com.example.bbva.squad2.Wallet.dtos.*;
+import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
+import com.example.bbva.squad2.Wallet.models.Account;
+import com.example.bbva.squad2.Wallet.models.User;
+import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.services.UserService;
 import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -23,6 +25,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AccountsRepository accountsRepository;
 
     @Autowired
     private UsuarioLoggeadoService usuarioLoggeadoService;
@@ -34,7 +39,6 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    //codeo la ful 46, es para paginar los usuarios
     @GetMapping("/paginated")
     @Operation(summary = "Obtener usuarios paginados", description = "Devuelve una lista paginada " +
             "de usuarios no eliminados.")
@@ -92,8 +96,6 @@ public class UserController {
         }
     }
 
-    // comence a codear la ful 42 (hugo)
-
     @GetMapping("/{id}/")
     @Operation(summary = "Buscar usuario loggeado por id")
     public ResponseEntity<UserDTO> getUserDetail(@PathVariable Long id, HttpServletRequest request) {
@@ -133,5 +135,43 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
     }
 
+    @PostMapping("/beneficiarios/{beneficiarioCBU}/add")
+    @Operation(summary = "Agregar un beneficiario a un usuario")
+    public ResponseEntity<RecipientResponseDTO> addBeneficiario(
+            HttpServletRequest request,
+            @RequestBody RecipientDTO beneficiarioDTO) {
 
+        UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
+        return userService.addBeneficiario(usuarioSeguridad.getId(), beneficiarioDTO);
+    }
+
+    @GetMapping("/beneficiarios")
+    @Operation(summary = "Listar los beneficiarios de un usuario")
+    public ResponseEntity<List<RecipientResponseDTO>> getBeneficiarios(HttpServletRequest request) {
+        UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
+        List<User> beneficiarios = userService.getBeneficiarios(usuarioSeguridad.getId());
+
+        List<RecipientResponseDTO> beneficiariosDTO = beneficiarios.stream()
+                .map(beneficiario -> {
+                    RecipientResponseDTO dto = new RecipientResponseDTO();
+                    dto.setIdRecipient(beneficiario.getId());
+                    dto.setNombreApellido(beneficiario.getFirstName() + " " + beneficiario.getLastName());
+                    dto.setUsername(beneficiario.getEmail());
+                    dto.setBancoWallet("Banco");
+
+                    List<Account> cuentas = beneficiario.getAccounts();
+
+                    for (Account cuenta : cuentas) {
+                        if (cuenta.getCurrency().equals(CurrencyTypeEnum.ARS)) {
+                            AccountDTO accountDTO = new AccountDTO().mapFromAccount(cuenta);
+                            dto.addAccountDTO(accountDTO);
+                        }
+                    }
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(beneficiariosDTO);
+    }
 }

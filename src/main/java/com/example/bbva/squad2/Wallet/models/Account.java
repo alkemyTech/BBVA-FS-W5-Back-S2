@@ -56,8 +56,6 @@ public class Account {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime deletedAt;
 
-
-
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
