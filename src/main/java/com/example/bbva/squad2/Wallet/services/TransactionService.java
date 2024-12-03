@@ -348,6 +348,26 @@ public class TransactionService {
         );
     }
 
+    public UpdateTransactionDTO updateTransactionDescription(Long transactionId, String newDescription, Long userId) {
+        // Buscar la transacción por ID
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Transacción no encontrada"));
+
+        // Verificar que la transacción pertenece al usuario logueado
+        if (!transaction.getAccount().getUser().getId().equals(userId)) {
+            throw new WalletsException(HttpStatus.FORBIDDEN, "No tienes permisos para editar esta transacción");
+        }
+
+        // Modificar solo la descripción
+        transaction.setDescription(newDescription);
+
+        // Guardar la transacción actualizada
+        Transaction updatedTransaction = transactionRepository.save(transaction);
+
+        // Convertir la transacción actualizada a DTO y devolverla
+        return UpdateTransactionDTO.fromTransaction(updatedTransaction);
+    }
+
     public List<TransactionListDTO> getTransactionDtosByUserId(Long userId) {
         List<Transaction> transactions = transactionRepository.findByAccount_User_Id(userId);
 
