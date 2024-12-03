@@ -1,29 +1,29 @@
 package com.example.bbva.squad2.Wallet.services;
 
-import com.example.bbva.squad2.Wallet.config.JwtServices;
 import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
+import com.example.bbva.squad2.Wallet.enums.RoleName;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Role;
 import com.example.bbva.squad2.Wallet.models.User;
-import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.repositories.RolesRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -40,9 +40,6 @@ public class UserService {
 
     @Autowired
     private UserRepository usuarioRepository;
-
-    @Autowired
-    private JwtServices js;
 
     public UserDetailsService userDetailsService() {
         return username -> {
@@ -76,7 +73,7 @@ public class UserService {
 
     public void deleteUser(Long userId) {
         User userToDelete = userRepository.findById(userId)
-                .orElseThrow(() -> new AlkemyException(
+                .orElseThrow(() -> new WalletsException(
                         HttpStatus.NOT_FOUND,
                         "Usuario no encontrado."
                 ));
@@ -130,33 +127,14 @@ public class UserService {
         return new BCryptPasswordEncoder().encode(password);
     }
 
-    public UsuarioSeguridad getInfoUserSecurity(HttpServletRequest request) {
-        final String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Authorization header is missing or invalid");
-        }
-
-        String token = authHeader.substring(7);
-        UsuarioSeguridad userSecurity = js.validateAndGetSecurity(token);
-
-        if (userSecurity == null) {
-            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Invalid token");
-        }
-
-        return userSecurity;
-    }
-
     public Optional<User> findById(Long id){
 		return userRepository.findById(id);
 	}
 
-
-
     // codeo ful 42 metodo para obtener detalle de usuario
     public UserDTO getUserDetail(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new AlkemyException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+                .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
         return UserDTO.mapFromUser(user);
     }
@@ -200,6 +178,58 @@ public class UserService {
             return "Usuario actualizado exitosamente.";
         }
         return "El usuario no fue encontrado.";
+    }
+
+    public ResponseEntity<RecipientResponseDTO> addBeneficiario(Long usuarioId, RecipientDTO beneficiarioDTO) throws WalletsException {
+        // Obtener el usuario principal
+        User usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        Account accountBeneficiario = accountsRepository.findBycbu(beneficiarioDTO.getCbu())
+                .orElseThrow(() -> new WalletsException(
+                        HttpStatus.NOT_FOUND,
+                        "Cuenta no encontrada con el CBU especificado."
+                ));
+
+        if (usuario.getId().equals(accountBeneficiario.getUser().getId())) {
+            throw new WalletsException(
+                    HttpStatus.BAD_REQUEST,
+                    "No se puede agregar a una cuenta propia como beneficiario."
+            );
+        }
+
+        if(accountBeneficiario.getCurrency() == CurrencyTypeEnum.USD){
+            throw new WalletsException(
+                HttpStatus.BAD_REQUEST,
+                "No se puede agregar una cuenta en dolares."
+            );
+        }
+
+        // Obtener el beneficiario
+        User beneficiario = accountBeneficiario.getUser();
+
+        // Agregar al beneficiario
+        usuario.getBeneficiarios().add(beneficiario);
+
+        // Guardar cambios
+        usuarioRepository.save(usuario);
+
+        RecipientResponseDTO nuevoBeneficiario = new RecipientResponseDTO();
+        nuevoBeneficiario.setIdRecipient(beneficiario.getId());
+        nuevoBeneficiario.setNombreApellido(beneficiario.getFirstName() + " " + beneficiario.getLastName());
+        AccountDTO accountDTO = new AccountDTO().mapFromAccount(accountBeneficiario);
+        nuevoBeneficiario.addAccountDTO(accountDTO);
+        nuevoBeneficiario.setUsername(beneficiario.getEmail());
+        nuevoBeneficiario.setBancoWallet("Banco");
+
+        return ResponseEntity.ok(nuevoBeneficiario);
+    }
+
+    public List<User> getBeneficiarios(Long usuarioId) throws WalletsException{
+        User usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        return usuario.getBeneficiarios();
     }
 
 

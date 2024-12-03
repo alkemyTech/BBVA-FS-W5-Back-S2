@@ -1,11 +1,14 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
-import java.util.List;
-
 import com.example.bbva.squad2.Wallet.config.JwtServices;
-import com.example.bbva.squad2.Wallet.dtos.*;
+import com.example.bbva.squad2.Wallet.dtos.AccountBalanceDTO;
+import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
+import com.example.bbva.squad2.Wallet.dtos.PageableResponseDTO;
+import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
-import com.example.bbva.squad2.Wallet.services.UserService;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
+import com.example.bbva.squad2.Wallet.services.AccountService;
+import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.bbva.squad2.Wallet.services.AccountService;
+import java.util.List;
 
 @RestController
 @RequestMapping("/accounts")
@@ -23,7 +26,7 @@ public class AccountController {
 	private AccountService as;
 
 	@Autowired
-	private UserService userService;
+	private UsuarioLoggeadoService usuarioLoggeadoService;
 
 	@Autowired
 	private JwtServices js;
@@ -41,7 +44,7 @@ public class AccountController {
 	public ResponseEntity<AccountDTO> createAccount(HttpServletRequest request,
 													@PathVariable CurrencyTypeEnum currency
 													) {
-		UsuarioSeguridad security = userService.getInfoUserSecurity(request);
+		UsuarioSeguridad security = usuarioLoggeadoService.getInfoUserSecurity(request);
 		Long userId = security.getId();
 
 		AccountDTO accountDTO = as.createAccount(userId, currency);
@@ -51,7 +54,7 @@ public class AccountController {
 	@GetMapping("/balance")
 	@Operation(summary = "Obtener balance de cuentas del usuario loggeado")
 	public ResponseEntity<AccountBalanceDTO> getBalance(HttpServletRequest request) {
-		UsuarioSeguridad security = userService.getInfoUserSecurity(request);
+		UsuarioSeguridad security = usuarioLoggeadoService.getInfoUserSecurity(request);
 		Long userId = security.getId();
 
 		AccountBalanceDTO balanceDTO = as.getBalanceByUserId(userId);
@@ -61,18 +64,16 @@ public class AccountController {
 
 	@PatchMapping("/{id}")
 	@Operation(summary = "Editar el limite de transacción de la cuenta del usuario loggeado")
-	public ResponseEntity<AccountDTO> updateTransactionLimit(
+	public ResponseEntity<Object> updateTransactionLimit(
 			@PathVariable Long id,
 			@RequestParam Double newTransactionLimit,
 			HttpServletRequest request) {
 
-		UsuarioSeguridad security = userService.getInfoUserSecurity(request);
+		UsuarioSeguridad security = usuarioLoggeadoService.getInfoUserSecurity(request);
 		Long userId = security.getId();
 
-		// Actualizar el límite de transferencia
 		AccountDTO updatedAccount = as.updateTransactionLimit(id, userId, newTransactionLimit);
-
-		return ResponseEntity.ok(updatedAccount);
+		return ResponseEntity.status(HttpStatus.CREATED).body(updatedAccount);
 	}
 
 	@GetMapping("/paginated")

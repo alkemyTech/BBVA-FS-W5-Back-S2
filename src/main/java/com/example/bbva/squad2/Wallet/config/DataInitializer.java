@@ -2,13 +2,17 @@ package com.example.bbva.squad2.Wallet.config;
 
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
+import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Role;
+import com.example.bbva.squad2.Wallet.models.Transaction;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.repositories.RolesRepository;
+import com.example.bbva.squad2.Wallet.repositories.TransactionsRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import com.example.bbva.squad2.Wallet.services.AccountService;
+import com.example.bbva.squad2.Wallet.services.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +28,9 @@ public class DataInitializer {
     public CommandLineRunner initData(UserRepository usuarioRepository,
                                       RolesRepository roleRepository,
                                       AccountsRepository accountRepository,
-                                      AccountService accountService) {
+                                      AccountService accountService,
+                                      TransactionsRepository tr,
+                                      UserService us) {
         return args -> {
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -39,20 +45,25 @@ public class DataInitializer {
                         .orElseGet(() -> roleRepository.save(
                                 new Role(RoleName.USER, "User role", LocalDateTime.now(), LocalDateTime.now())));
 
-                // Crear 10 usuarios admin con nombres variados y correos realistas
+                // Crear usuarios ADMIN y REGULAR sin limitaciones
                 String[][] adminUsers = {
                         {"Pepe", "Giménez", "pepe.gimenez@yopmail.com", "Pepe@2024Gimenez!"},
                         {"Juan", "Pérez", "juan.perez@yopmail.com", "JuanP@2024Perez!"},
                         {"Ana", "Martínez", "ana.martinez@yopmail.com", "Ana_M@2024Martinez#"},
                         {"Carlos", "López", "carlos.lopez@yopmail.com", "Carlos!2024Lopez@"},
-                        {"Marta", "Fernández", "marta.fernandez@yopmail.com", "Marta2024_Fernandez!"},
-                        {"Luis", "Sánchez", "luis.sanchez@yopmail.com", "Luis@2024Sanchez#"},
-                        {"Raúl", "Díaz", "raul.diaz@yopmail.com", "Raul2024D!az#"},
-                        {"Lucía", "González", "lucia.gonzalez@yopmail.com", "Lucia@2024Gonzalez!"},
-                        {"Sofía", "Rodríguez", "sofia.rodriguez@yopmail.com", "Sofia2024_Rodriguez!"},
-                        {"David", "Hernández", "david.hernandez@yopmail.com", "David2024!Hernandez@"}
+                        {"Marta", "Fernández", "marta.fernandez@yopmail.com", "Marta2024_Fernandez!"}
                 };
 
+// Crear 10 usuarios regulares con nombres variados y correos realistas
+                String[][] regularUsers = {
+                        {"Pedro", "Ruiz", "pedro.ruiz@yopmail.com", "Pedro!2024Ruiz#"},
+                        {"María", "García", "maria.garcia@yopmail.com", "Maria@2024Garcia!"},
+                        {"Fernando", "Jiménez", "fernando.jimenez@yopmail.com", "Fernando2024!Jimenez#"},
+                        {"Carmen", "Álvarez", "carmen.alvarez@yopmail.com", "Carmen!2024Alvarez#"},
+                        {"Rafael", "Moreno", "rafael.moreno@yopmail.com", "Rafael2024_Moreno!"}
+                };
+
+                // Crear los usuarios ADMIN
                 for (String[] userData : adminUsers) {
                     String firstName = userData[0];
                     String lastName = userData[1];
@@ -74,39 +85,10 @@ public class DataInitializer {
                                     .build());
 
                     // Crear cuentas en dólares (USD) y pesos (ARS) para el usuario ADMIN
-                    accountRepository.save(
-                            Account.builder()
-                                    .cbu(accountService.generaCBU())
-                                    .currency(CurrencyTypeEnum.USD)
-                                    .transactionLimit(1000.0)
-                                    .balance(10000.0)
-                                    .user(adminUser)
-                                    .build());
-
-                    accountRepository.save(
-                            Account.builder()
-                                    .cbu(accountService.generaCBU())
-                                    .currency(CurrencyTypeEnum.ARS)
-                                    .transactionLimit(300000.0)
-                                    .balance(10000.0)
-                                    .user(adminUser)
-                                    .build());
+                    createAccountForUser(accountService, accountRepository, adminUser, tr);
                 }
 
-                // Crear 10 usuarios user con nombres variados y correos realistas
-                String[][] regularUsers = {
-                        {"Pedro", "Ruiz", "pedro.ruiz@yopmail.com", "Pedro!2024Ruiz#"},
-                        {"María", "García", "maria.garcia@yopmail.com", "Maria@2024Garcia!"},
-                        {"Fernando", "Jiménez", "fernando.jimenez@yopmail.com", "Fernando2024!Jimenez#"},
-                        {"Carmen", "Álvarez", "carmen.alvarez@yopmail.com", "Carmen!2024Alvarez#"},
-                        {"Rafael", "Moreno", "rafael.moreno@yopmail.com", "Rafael2024_Moreno!"},
-                        {"Isabel", "Gil", "isabel.gil@yopmail.com", "Isabel!2024Gil@"},
-                        {"Antonio", "Vázquez", "antonio.vazquez@yopmail.com", "Antonio2024_Vazquez!"},
-                        {"Raquel", "Romero", "raquel.romero@yopmail.com", "Raquel@2024Romero!"},
-                        {"José", "Martín", "jose.martin@yopmail.com", "Jose@2024Martin#"},
-                        {"Patricia", "Serrano", "patricia.serrano@yopmail.com", "Patricia2024!Serrano#"}
-                };
-
+                // Crear los usuarios REGULAR
                 for (String[] userData : regularUsers) {
                     String firstName = userData[0];
                     String lastName = userData[1];
@@ -127,26 +109,60 @@ public class DataInitializer {
                                     .updateDate(LocalDateTime.now())
                                     .build());
 
-                    // Crear cuentas en dólares (USD) y pesos (ARS) para el usuario regular
-                    accountRepository.save(
-                            Account.builder()
-                                    .cbu(accountService.generaCBU())
-                                    .currency(CurrencyTypeEnum.USD)
-                                    .transactionLimit(1000.0)
-                                    .balance(10000.0)
-                                    .user(regularUser)
-                                    .build());
-
-                    accountRepository.save(
-                            Account.builder()
-                                    .cbu(accountService.generaCBU())
-                                    .currency(CurrencyTypeEnum.ARS)
-                                    .transactionLimit(300000.0)
-                                    .balance(10000.0)
-                                    .user(regularUser)
-                                    .build());
+                    // Crear cuentas en dólares (USD) y pesos (ARS) para el usuario REGULAR
+                    createAccountForUser(accountService, accountRepository, regularUser, tr);
                 }
+
+                // Aquí puedes agregar la lógica para las transferencias, si es necesario
+
             }
         };
     }
+
+    private void createAccountForUser(AccountService accountService, AccountsRepository accountRepository, User user, TransactionsRepository tr) {
+        // Crear cuentas en dólares (USD) y pesos (ARS) para cada usuario
+        Account accountPesos = accountRepository.save(
+                Account.builder()
+                        .cbu(accountService.generaCBU())
+                        .currency(CurrencyTypeEnum.ARS)
+                        .transactionLimit(300000.0)
+                        .balance(10000.0)
+                        .user(user)
+                        .build());
+
+        Account accountDolares = accountRepository.save(
+                Account.builder()
+                        .cbu(accountService.generaCBU())
+                        .currency(CurrencyTypeEnum.USD)
+                        .transactionLimit(1000.0)
+                        .balance(10000.0)
+                        .user(user)
+                        .build());
+
+        // Crear depósitos (puedes quitar el límite si no lo necesitas)
+        tr.save(
+                Transaction.builder()
+                        .CbuDestino(accountPesos.getCbu())
+                        .CbuOrigen("External")
+                        .description("Deposito Inicial USD")
+                        .timestamp(LocalDateTime.now())
+                        .amount(5000.00)
+                        .account(accountDolares)
+                        .type(TransactionTypeEnum.DEPOSITO)
+                        .build());
+
+        tr.save(
+                Transaction.builder()
+                        .CbuDestino(accountPesos.getCbu())
+                        .CbuOrigen("External")
+                        .description("Deposito Inicial ARS")
+                        .timestamp(LocalDateTime.now())
+                        .amount(15000.00)
+                        .account(accountPesos)
+                        .type(TransactionTypeEnum.DEPOSITO)
+                        .build());
+    }
 }
+
+
+

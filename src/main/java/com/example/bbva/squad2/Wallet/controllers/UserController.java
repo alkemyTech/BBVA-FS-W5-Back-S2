@@ -1,14 +1,14 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
-import com.example.bbva.squad2.Wallet.config.JwtServices;
-import com.example.bbva.squad2.Wallet.dtos.PageableResponseDTO;
-import com.example.bbva.squad2.Wallet.dtos.UserDTO;
-import com.example.bbva.squad2.Wallet.dtos.UserUpdatedDTO;
-import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
+import com.example.bbva.squad2.Wallet.dtos.*;
+import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
+import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.User;
+import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.services.UserService;
+import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,20 +17,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
-    private final JwtServices jwtServices;
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    public UserController(UserService userService, JwtServices jwtServices) {
-        this.userService = userService;
-        this.jwtServices = jwtServices;
-    }
+    private AccountsRepository accountsRepository;
+
+    @Autowired
+    private UsuarioLoggeadoService usuarioLoggeadoService;
 
     @GetMapping
     @Operation(summary = "Buscar todos los usuarios")
@@ -39,7 +39,6 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    //codeo la ful 46, es para paginar los usuarios
     @GetMapping("/paginated")
     @Operation(summary = "Obtener usuarios paginados", description = "Devuelve una lista paginada " +
             "de usuarios no eliminados.")
@@ -67,61 +66,39 @@ public class UserController {
     @Operation(summary = "Eliminar usuarios por Id")
 
     public ResponseEntity<Void> deleteUser(@PathVariable Long id, HttpServletRequest request) {
-        try {
-            UsuarioSeguridad usuarioSeguridad = userService.getInfoUserSecurity(request);
+        UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
 
-            // Verificar si el usuario tiene rol ADMIN
-            boolean isAdmin = usuarioSeguridad.getRole().equals(RoleName.ADMIN.name());
+        // Verificar si el usuario tiene rol ADMIN
+        boolean isAdmin = usuarioSeguridad.getRole().equals(RoleName.ADMIN.name());
 
-            // Si no tiene rol ADMIN, lanzar una excepción de seguridad
-            if (!isAdmin) {
-                throw new AlkemyException(
-                        HttpStatus.FORBIDDEN,
-                        "Usted no esta autorizado para eliminar usuarios."
-                );
-            }
-
-            // Llamar al servicio para eliminar el usuario
-            userService.deleteUser(id);
-
-            return ResponseEntity.noContent().build();
-        } catch (AlkemyException e) {
-            // Manejar la excepción específica de falta de permisos
-            return ResponseEntity.status(e.getStatus()).body(null);
-        } catch (RuntimeException e) {
-            // Manejar el caso cuando el usuario no se encuentra
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            // Manejar cualquier otra excepción general
-            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
+        // Si no tiene rol ADMIN, lanzar una excepción de seguridad
+        if (!isAdmin) {
+            throw new WalletsException(
+                    HttpStatus.FORBIDDEN,
+                    "Usted no esta autorizado para eliminar usuarios."
+            );
         }
-    }
 
-    // comence a codear la ful 42 (hugo)
+        // Llamar al servicio para eliminar el usuario
+        userService.deleteUser(id);
+
+        return ResponseEntity.noContent().build();
+    }
 
     @GetMapping("/{id}/")
     @Operation(summary = "Buscar usuario loggeado por id")
     public ResponseEntity<UserDTO> getUserDetail(@PathVariable Long id, HttpServletRequest request) {
-        try {
-            UsuarioSeguridad usuarioSeguridad = userService.getInfoUserSecurity(request);
+        UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
 
-            // Verificar si el ID en la URL coincide con el ID del usuario logueado
-            if (!usuarioSeguridad.getId().equals(id)) {
-                throw new AlkemyException(HttpStatus.FORBIDDEN, "No tienes permisos para ver este usuario.");
-            }
-
-            // Llamar al servicio para obtener los detalles del usuario y devolver el UserDTO
-            UserDTO userDTO = userService.getUserDetail(id);
-
-            return ResponseEntity.ok(userDTO);
-
-        } catch (AlkemyException e) {
-            return ResponseEntity.status(e.getStatus()).body(null);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Token inválido o expirado.");
+        // Verificar si el ID en la URL coincide con el ID del usuario logueado
+        if (!usuarioSeguridad.getId().equals(id)) {
+            throw new WalletsException(HttpStatus.FORBIDDEN, "No tienes permisos para ver este usuario.");
         }
+
+        // Llamar al servicio para obtener los detalles del usuario y devolver el UserDTO
+        UserDTO userDTO = userService.getUserDetail(id);
+
+        return ResponseEntity.ok(userDTO);
     }
 
     @PatchMapping("/")
@@ -129,7 +106,7 @@ public class UserController {
     public ResponseEntity<String> updateUser(
             @RequestBody UserUpdatedDTO userUpdated,
             HttpServletRequest request) {
-        UsuarioSeguridad user = userService.getInfoUserSecurity(request);
+        UsuarioSeguridad user = usuarioLoggeadoService.getInfoUserSecurity(request);
         String result = userService.updateUser(user.getId(), userUpdated);
 
         if ("Usuario actualizado exitosamente.".equals(result)) {
@@ -138,5 +115,43 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
     }
 
+    @PostMapping("/beneficiarios/{beneficiarioCBU}/add")
+    @Operation(summary = "Agregar un beneficiario a un usuario")
+    public ResponseEntity<RecipientResponseDTO> addBeneficiario(
+            HttpServletRequest request,
+            @RequestBody RecipientDTO beneficiarioDTO) {
 
+        UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
+        return userService.addBeneficiario(usuarioSeguridad.getId(), beneficiarioDTO);
+    }
+
+    @GetMapping("/beneficiarios")
+    @Operation(summary = "Listar los beneficiarios de un usuario")
+    public ResponseEntity<List<RecipientResponseDTO>> getBeneficiarios(HttpServletRequest request) {
+        UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
+        List<User> beneficiarios = userService.getBeneficiarios(usuarioSeguridad.getId());
+
+        List<RecipientResponseDTO> beneficiariosDTO = beneficiarios.stream()
+                .map(beneficiario -> {
+                    RecipientResponseDTO dto = new RecipientResponseDTO();
+                    dto.setIdRecipient(beneficiario.getId());
+                    dto.setNombreApellido(beneficiario.getFirstName() + " " + beneficiario.getLastName());
+                    dto.setUsername(beneficiario.getEmail());
+                    dto.setBancoWallet("Banco");
+
+                    List<Account> cuentas = beneficiario.getAccounts();
+
+                    for (Account cuenta : cuentas) {
+                        if (cuenta.getCurrency().equals(CurrencyTypeEnum.ARS)) {
+                            AccountDTO accountDTO = new AccountDTO().mapFromAccount(cuenta);
+                            dto.addAccountDTO(accountDTO);
+                        }
+                    }
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(beneficiariosDTO);
+    }
 }

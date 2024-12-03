@@ -1,7 +1,7 @@
 package com.example.bbva.squad2.Wallet.services;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.models.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +26,14 @@ public class AuthService {
     @Autowired
     private UserService usuarioService;
 
-    public Map<String, Object> login(final String username, final String password) {
+    public Map<String, Object> login(final String username, final String password) throws WalletsException{
         Map<String, Object> response = new HashMap<>();
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
             Optional<User> usuarioOpt = usuarioService.getByUsername(username);
             if (usuarioOpt.isEmpty()) {
-                throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Usuario no encontrado");
+                throw new WalletsException(HttpStatus.UNAUTHORIZED, "Usuario no encontrado");
             }
 
             User usuario = usuarioOpt.get();
@@ -42,7 +42,7 @@ public class AuthService {
             response.put("nombre", usuario.getFirstName());
             response.put("apellido", usuario.getLastName());
         } catch (Exception e) {
-            throw new AlkemyException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas....");
+            throw new WalletsException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas....");
         }
         return response;
     }

@@ -4,7 +4,6 @@ import com.example.bbva.squad2.Wallet.models.Role;
 import com.example.bbva.squad2.Wallet.models.User;
 import lombok.*;
 
-
 import java.util.List;
 import java.util.stream.Collectors;
 

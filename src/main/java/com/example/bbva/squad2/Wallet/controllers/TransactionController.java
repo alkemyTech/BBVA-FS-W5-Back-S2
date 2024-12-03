@@ -2,13 +2,10 @@ package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
 import com.example.bbva.squad2.Wallet.dtos.*;
-import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
-import com.example.bbva.squad2.Wallet.exceptions.AlkemyException;
-import com.example.bbva.squad2.Wallet.models.Account;
-import com.example.bbva.squad2.Wallet.models.Transaction;
-import com.example.bbva.squad2.Wallet.models.User;
+import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.services.TransactionService;
 import com.example.bbva.squad2.Wallet.services.UserService;
+import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/transactions")
@@ -30,36 +25,44 @@ public class TransactionController {
     private JwtServices js;
 
     @Autowired
-    private UserService us;
+    private UsuarioLoggeadoService us;
+
+    @Autowired
+    private UsuarioLoggeadoService usuarioLoggeadoService;
 
    @Autowired
    private TransactionService ts;
 
-    @PostMapping("/sendTransaction")
+    @PostMapping("/send")
     @Operation(summary = "Enviar una transacción a otra cuenta")
     public ResponseEntity<String> sendTransaction(
             @RequestBody SendTransactionDTO request,
             HttpServletRequest httpRequest
     ) {
-        ts.sendTransaction(request, httpRequest);
+        UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(httpRequest);
+        ts.sendTransaction(request, usuarioSeguridad.getUsername());
         return ResponseEntity.ok("Transacción finalizada exitosamente.");
     }
+
 
     @PostMapping("/deposit/{cbu}")
     @Operation(summary = "Realizar un deposito a una cuenta del usuario loggeado")
     public ResponseEntity<DepositDTO> deposit(
             @PathVariable String cbu,
             @RequestBody SendDepositDTO request,
-            HttpServletRequest httpRequest) {
-        DepositDTO deposit = ts.deposit(request, httpRequest, cbu);
+            HttpServletRequest httpRequest
+    ) {
+        UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(httpRequest);
+        DepositDTO deposit = ts.deposit(request, cbu, usuarioSeguridad.getUsername());
         return ResponseEntity.ok(deposit);
     }
+
 
     @GetMapping("/{id}")
     @Operation(summary = "Obtener la transacción del usuario loggeado por id")
     public ResponseEntity<TransactionListDTO> getTransactionById(
             @PathVariable Long id, HttpServletRequest request) {
-        UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
+        UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(request);
 
         TransactionListDTO transaction = ts.getTransactionById(id, userSecurity.getId());
 
@@ -68,7 +71,7 @@ public class TransactionController {
 
     @PatchMapping("/{id}")
     @Operation(summary = "Editar una transacción para modificar solo la descripción")
-    public ResponseEntity<TransactionListDTO> updateTransactionDescription(
+    public ResponseEntity<UpdateTransactionDTO> updateTransactionDescription(
             @PathVariable Long id,
             @RequestBody UpdateTransactionDTO updateRequest,
             HttpServletRequest request) {
@@ -77,7 +80,7 @@ public class TransactionController {
         UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
 
         // Llamar al servicio para actualizar la transacción
-        TransactionListDTO updatedTransaction = ts.updateTransactionDescription(id, updateRequest.getDescription(), userSecurity.getId());
+        UpdateTransactionDTO updatedTransaction = ts.updateTransactionDescription(id, updateRequest.getDescription(), userSecurity.getId());
 
         // Si la transacción no fue encontrada, devolver un error
         if (updatedTransaction == null) {
@@ -96,7 +99,7 @@ public class TransactionController {
             HttpServletRequest request
     ) {
         // Obtener el usuario desde el token JWT
-        UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
+        UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(request);
 
         // Validar si el usuario tiene el rol ADMIN o es el dueño de las transacciones
         boolean isAdmin = "ADMIN".equals(userSecurity.getRole());
@@ -119,8 +122,19 @@ public class TransactionController {
             HttpServletRequest httpRequest
     ) {
 
-        DepositDTO payment = ts.payment(request, httpRequest);
+        UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(httpRequest);
+        DepositDTO payment = ts.payment(request, userSecurity.getId());
         return ResponseEntity.ok(payment);
+    }
+
+    @PostMapping("/sendRecipient")
+    @Operation(summary = "Enviar dinero a un beneficiario")
+    public ResponseEntity<String> enviarDinero(
+            @RequestBody SendTransactionDTO request,
+            HttpServletRequest httpRequest) {
+        UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(httpRequest);
+        ts.sendTransactionToBeneficiario(request, userSecurity.getUsername());
+        return ResponseEntity.ok("Transacción finalizada exitosamente.");
     }
 
     @GetMapping("/user/{userId}/paginated")
@@ -131,7 +145,7 @@ public class TransactionController {
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request
     ) {
-        UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
+        UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(request);
 
         // Validar si el usuario tiene permisos
         boolean isAdmin = "ADMIN".equals(userSecurity.getRole());
