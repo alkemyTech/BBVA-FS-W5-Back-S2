@@ -54,16 +54,8 @@ public class FixedTermDepositController {
 
         // Obtener usuario autenticado desde el token
         UsuarioSeguridad userDetails = usuarioLoggeadoService.getInfoUserSecurity(request);
-
-//        try {
-            FixedTermSimulationDTO fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days, false);
-            return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDeposit);
-//        } catch (WalletsException e) {
-//            return ResponseEntity.status(e.getStatus()).body(e.getMessage());
-//        } catch (Exception e) {
-//            // Captura de otras excepciones genéricas
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-//        }
+        FixedTermSimulationDTO fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days, false);
+        return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDeposit);
     }
 
     @PostMapping("/fixedTerm/simulate")
@@ -75,13 +67,8 @@ public class FixedTermDepositController {
 
         // Obtener usuario autenticado desde el token
         UsuarioSeguridad userDetails = usuarioLoggeadoService.getInfoUserSecurity(request);
-
-//        try {
-            FixedTermSimulationDTO fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days, true);
-            return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDeposit);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-//        }
+        FixedTermSimulationDTO fixedTermDeposit = fixedTermDepositService.createFixedTermDeposit(userDetails.getId(), amount, days, true);
+        return ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDeposit);
     }
 
 }
