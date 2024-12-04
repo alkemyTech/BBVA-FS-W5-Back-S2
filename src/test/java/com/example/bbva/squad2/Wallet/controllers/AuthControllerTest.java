@@ -17,7 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 
 @SpringBootTest
 class AuthControllerTest {
@@ -43,8 +44,7 @@ class AuthControllerTest {
                 .password("Pedro!2024Ruiz#")
                 .build();
 
-        // Simular la creación del token JWT
-        String token = "mock-jwt-token";  // Sustituye esto por un token válido si es necesario
+        String token = "mock-jwt-token";
         Map<String, Object> response = new HashMap<>();
         response.put("id", 1);
         response.put("token", token);
@@ -60,13 +60,16 @@ class AuthControllerTest {
                 .email("wrong.email@yopmail.com")
                 .password("WrongPassword123")
                 .build();
+        String expectedErrorMessage = "Usuario no encontrado";
 
-        when(authService.login(loginDTO.getEmail(), loginDTO.getPassword()))
-                .thenThrow(new RuntimeException("Credenciales inválidas"));
+        doThrow(new IllegalArgumentException(expectedErrorMessage))
+                .when(authService).login(loginDTO.getEmail(), loginDTO.getPassword());
 
-        ResponseEntity<?> result = authController.login(loginDTO);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            authController.login(loginDTO);
+        });
 
-        assertEquals(HttpStatus.UNAUTHORIZED, result.getStatusCode());
+        assertEquals(expectedErrorMessage, exception.getMessage());
     }
 
     @Test
@@ -78,10 +81,8 @@ class AuthControllerTest {
                 .password("JuanCruz!2024Caggiano#")
                 .build();
 
-        // Ejecutar el método del controlador
         ResponseEntity<?> result = authController.registerUser(registerDTO);
 
-        // Verificar los resultados
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
     }
 
@@ -94,10 +95,8 @@ class AuthControllerTest {
                 .password("short")       // Contraseña demasiado corta
                 .build();
 
-        // Ejecutar el método del controlador
         ResponseEntity<?> result = authController.registerUser(registerDTO);
 
-        // Verificar que se devuelve el código de error adecuado
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
     }
 

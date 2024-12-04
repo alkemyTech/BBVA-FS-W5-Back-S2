@@ -26,26 +26,24 @@ public class AuthService {
     @Autowired
     private UserService usuarioService;
 
-
-
     public Map<String, Object> login(final String username, final String password) throws WalletsException{
         Map<String, Object> response = new HashMap<>();
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-            Optional<User> usuarioOpt = usuarioService.getByUsername(username);
-            if (usuarioOpt.isEmpty()) {
-                throw new WalletsException(HttpStatus.UNAUTHORIZED, "Usuario no encontrado");
-            }
-
-            User usuario = usuarioOpt.get();
-            response.put("id", usuario.getId());
-            response.put("token", jwtService.generateToken(usuario.getId(), username, usuario.getRole().getName().name()));
-            response.put("nombre", usuario.getFirstName());
-            response.put("apellido", usuario.getLastName());
-        } catch (Exception e) {
-            throw new WalletsException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas....");
+        Optional<User> usuarioOpt = usuarioService.getByUsername(username);
+        if (usuarioOpt.isEmpty()) {
+            throw new WalletsException(HttpStatus.UNAUTHORIZED, "Usuario no encontrado");
         }
+
+        User usuario = usuarioOpt.get();
+        if (usuario.getSoftDelete() != null) {
+            throw new WalletsException(HttpStatus.UNAUTHORIZED, "Este usuario ha sido eliminado");
+        }
+        response.put("id", usuario.getId());
+        response.put("token", jwtService.generateToken(usuario.getId(), username, usuario.getRole().getName().name()));
+        response.put("nombre", usuario.getFirstName());
+        response.put("apellido", usuario.getLastName());
+
         return response;
     }
 

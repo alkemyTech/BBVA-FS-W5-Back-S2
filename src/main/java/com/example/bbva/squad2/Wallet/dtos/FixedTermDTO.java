@@ -2,7 +2,6 @@ package com.example.bbva.squad2.Wallet.dtos;
 
 import com.example.bbva.squad2.Wallet.models.FixedTermDeposit;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
