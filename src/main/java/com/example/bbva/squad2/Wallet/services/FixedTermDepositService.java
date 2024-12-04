@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.services;
 
+import com.example.bbva.squad2.Wallet.dtos.FixedTermDTO;
 import com.example.bbva.squad2.Wallet.dtos.FixedTermSimulationDTO;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FixedTermDepositService {
@@ -32,9 +34,14 @@ public class FixedTermDepositService {
         this.fixedTermDepositRepository = fixedTermDepositRepository;
     }
 
-    public List<FixedTermDeposit> getFixedTermDepositsByUserId(Long userId) {
+    public List<FixedTermDTO> getFixedTermDepositsByUserId(Long userId) {
         // Obtener directamente los plazos fijos del usuario logueado
-        return fixedTermDepositRepository.findByAccountUserId(userId);
+
+        return fixedTermDepositRepository.findByAccountUserId(userId)
+                .stream()
+                .map(fixedTerm -> new FixedTermDTO().mapFromFixedTerm(fixedTerm))
+                .collect(Collectors.toList());
+
     }
 
     public List<FixedTermDeposit> getAllFixedTermDeposits() {

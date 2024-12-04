@@ -23,9 +23,6 @@ public class TransactionController {
     private JwtServices js;
 
     @Autowired
-    private UsuarioLoggeadoService us;
-
-    @Autowired
     private UsuarioLoggeadoService usuarioLoggeadoService;
 
    @Autowired
@@ -75,7 +72,7 @@ public class TransactionController {
             HttpServletRequest request) {
 
         // Obtener el usuario autenticado desde el token JWT
-        UsuarioSeguridad userSecurity = us.getInfoUserSecurity(request);
+        UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(request);
 
         // Llamar al servicio para actualizar la transacción
         UpdateTransactionDTO updatedTransaction = ts.updateTransactionDescription(id, updateRequest.getDescription(), userSecurity.getId());
