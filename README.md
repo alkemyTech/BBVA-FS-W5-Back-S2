@@ -557,10 +557,6 @@ Content-Type: application/json
 
 ---
 
-## Endpoints de AdminController
-
----
-
 ### **GET `/admin`**
 
 #### Descripción:
