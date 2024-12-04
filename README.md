@@ -557,30 +557,28 @@ Content-Type: application/json
 
 ---
 
-### 1. **GET `/admin/transactions/{id}`**
+## Endpoints de AdminController
+
+---
+
+### **GET `/admin`**
 
 #### Descripción:
-Este endpoint buscaría una transacción específica por su ID. El controlador `AdminController` tiene un método comentado que se utilizaría para recuperar los detalles de una transacción a partir de un ID proporcionado en la URL.
+Este controlador `AdminController` se utiliza para gestionar las funcionalidades de administración relacionadas con las transacciones. Actualmente, el controlador no tiene ningún endpoint expuesto, pero está preparado para incluir futuras operaciones relacionadas con las transacciones mediante el servicio `TransactionService`.
 
 #### Autenticación:
 - **Requerida**: Sí (Token JWT)
 - **Rol mínimo**: `ADMIN`
 
-#### Parámetros:
-| Parámetro | Tipo   | Ubicación   | Obligatorio | Descripción                          |
-|-----------|--------|-------------|-------------|--------------------------------------|
-| `id`      | Long   | Path        | Sí          | ID de la transacción a buscar.       |
-
 #### Respuestas:
-| Código | Descripción                                  |
-|--------|----------------------------------------------|
-| `200`  | Detalles de la transacción obtenidos exitosamente. |
-| `404`  | Transacción no encontrada.                   |
-| `500`  | Error interno al obtener la transacción.     |
+| Código | Descripción |
+|--------|-------------|
+| `200`  | El controlador está disponible y listo para ser utilizado. |
+| `500`  | Error interno al acceder al controlador. |
 
 #### Ejemplo de Request:
 ```http
-GET /admin/transactions/123 HTTP/1.1
+GET /admin HTTP/1.1
 Host: api.example.com
 Authorization: Bearer <tu-token-jwt>
 ```
@@ -588,17 +586,14 @@ Authorization: Bearer <tu-token-jwt>
 #### Ejemplo de Respuesta:
 ```json
 {
-  "id": 123,
-  "amount": 1000,
-  "currency": "USD",
-  "date": "2024-12-04T10:00:00",
-  "status": "Completed"
+  "status": "success",
+  "message": "Controlador de administración disponible."
 }
 ```
 
 #### Nota Adicional:
-- Autenticación: Este endpoint requiere autenticación mediante un token JWT.
-- Rol mínimo: Solo los usuarios con rol ADMIN pueden acceder a este endpoint.
-
+- El controlador AdminController está preparado para incluir funcionalidades de administración, como la gestión de transacciones, una vez que los métodos sean implementados.
+- El servicio TransactionService está inyectado en el controlador para ser utilizado en los métodos futuros que gestionarán las transacciones.
+- Este controlador aún no tiene métodos activos, pero puede expandirse para incluir rutas relacionadas con las transacciones en el futuro.
 ---
 
