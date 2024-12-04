@@ -52,6 +52,15 @@ public class TransactionService {
                         "Cuenta destinataria no encontrada con el CBU especificado."
                 ));
 
+        User usuarioDestino = destinationAccount.getUser();
+
+        if(usuarioDestino.getSoftDelete() != null){
+            throw new WalletsException(
+                    HttpStatus.BAD_REQUEST,
+                    "El usuario fue eliminado y su cuenta ya no esta disponible para operar."
+            );
+        }
+
         // Validar que la cuenta emisora y destinataria no pertenezcan al mismo usuario
         if (senderAccount.getUser().getId().equals(destinationAccount.getUser().getId())) {
             throw new WalletsException(
@@ -136,6 +145,13 @@ public class TransactionService {
 
         User usuarioDestino = destinationAccount.getUser();
         User usuarioOrigen = senderAccount.getUser();
+
+        if(usuarioDestino.getSoftDelete() != null){
+            throw new WalletsException(
+                    HttpStatus.BAD_REQUEST,
+                    "El usuario fue eliminado y su cuenta ya no esta disponible para operar."
+            );
+        }
 
         // Verificar si el usuarioDestino está dentro de los beneficiarios del usuarioOrigen
         boolean isBeneficiary = usuarioOrigen.getBeneficiarios().stream()
