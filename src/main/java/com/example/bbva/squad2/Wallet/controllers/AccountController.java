@@ -6,7 +6,6 @@ import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.dtos.PageableResponseDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
-import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.services.AccountService;
 import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,9 +1,18 @@
 # BBVA-FS-W5-Back-S2
 Repositorio Back Squad 2 | BBVA Fullstack Wave 5.
 
+## Equipo de Trabajo
+
+- **Líder Técnico (Alkemy)**: Futrille, Daniel
+- **Desarrolladores (BBVA )**:
+  - Caggiano, Juan Cruz
+  - Cozzani, Hugo
+  - Ottoboni, Matias
+  - Pereira, Martin
+
 ### Notas:
-- **Usuarios Admin:** Los primeros 10 usuarios están asignados como **Admin**.
-- **Usuarios User:** Los siguientes 10 usuarios están asignados como **User**.
+- **Usuarios Admin:** Los primeros 5 usuarios están asignados como **Admin**.
+- **Usuarios User:** Los siguientes 5 usuarios están asignados como **User**.
 - **Cuentas de cada usuario:** Cada usuario tiene una cuenta en **ARS** y **USD** con un balance inicial de **10,000** y un límite de transacción diferente para cada tipo de moneda.
 
 ### Detalle de los Usuarios Admin y User
@@ -16,11 +25,6 @@ Repositorio Back Squad 2 | BBVA Fullstack Wave 5.
 | 3   | Ana        | Martínez    | ana.martinez@yopmail.com    | Ana_M@2024Martinez#    |
 | 4   | Carlos     | López       | carlos.lopez@yopmail.com    | Carlos!2024Lopez@      |
 | 5   | Marta      | Fernández   | marta.fernandez@yopmail.com | Marta2024_Fernandez!   |
-| 6   | Luis       | Sánchez     | luis.sanchez@yopmail.com    | Luis@2024Sanchez#      |
-| 7   | Raúl       | Díaz        | raul.diaz@yopmail.com       | Raul2024D!az#          |
-| 8   | Lucía      | González    | lucia.gonzalez@yopmail.com  | Lucia@2024Gonzalez!    |
-| 9   | Sofía      | Rodríguez   | sofia.rodriguez@yopmail.com | Sofia2024_Rodriguez!   |
-| 10  | David      | Hernández   | david.hernandez@yopmail.com | David2024!Hernandez@   |
 
 #### Users
 | ID  | First Name | Last Name   | Email                         | Password               |
@@ -30,20 +34,420 @@ Repositorio Back Squad 2 | BBVA Fullstack Wave 5.
 | 13  | Fernando   | Jiménez     | fernando.jimenez@yopmail.com  | Fernando2024!Jimenez#  |
 | 14  | Carmen     | Álvarez     | carmen.alvarez@yopmail.com    | Carmen!2024Alvarez#    |
 | 15  | Rafael     | Moreno      | rafael.moreno@yopmail.com     | Rafael2024_Moreno!     |
-| 16  | Isabel     | Gil         | isabel.gil@yopmail.com        | Isabel!2024Gil@        |
-| 17  | Antonio    | Vázquez     | antonio.vazquez@yopmail.com   | Antonio2024_Vazquez!   |
-| 18  | Raquel     | Romero      | raquel.romero@yopmail.com     | Raquel@2024Romero!     |
-| 19  | José       | Martín      | jose.martin@yopmail.com       | Jose@2024Martin#       |
-| 20  | Patricia   | Serrano     | patricia.serrano@yopmail.com  | Patricia2024!Serrano#  |
 ---
 
-## Equipo de Trabajo
+----------------------------------------------------------------------
 
-- **Líder Técnico (Alkemy)**: Futrille, Daniel
-- **Desarrolladores (BBVA )**:
-    - Caggiano, Juan Cruz
-    - Cozzani, Hugo
-    - Ottoboni, Matias
-    - Pereira, Martin
+# API Documentation
 
+## Endpoints de UserController
+
+---
+
+### 1. **GET `/users`**
+
+#### Descripción:
+Devuelve una lista con todos los usuarios.
+
+#### Autenticación:
+- **Requerida**: Si
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | Lista de usuarios obtenida exitosamente. |
+
+#### Ejemplo de Request:
+```http
+GET /users HTTP/1.1
+Host: api.example.com
+```
+
+#### Ejemplo de Respuesta:
+```json
+[
+  {
+    "id": 1,
+    "name": "Juan Perez",
+    "email": "juan.perez@example.com"
+  },
+  {
+    "id": 2,
+    "name": "Maria Lopez",
+    "email": "maria.lopez@example.com"
+  }
+]
+```
+
+---
+
+### 2. **GET `/users/paginated`**
+
+#### Descripción:
+Devuelve una lista paginada de usuarios no eliminados.
+
+#### Autenticación:
+- **Requerida**: Si
+
+#### Parámetros:
+| Parámetro | Tipo   | Ubicación | Obligatorio | Descripción |
+|-----------|--------|------------|-------------|-------------|
+| `page`    | int    | Query      | No          | Número de página (por defecto 0). |
+| `size`    | int    | Query      | No          | Tamaño de página (por defecto 10). |
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | Lista de usuarios paginada obtenida exitosamente. |
+| `400`  | Los valores de página y tamaño deben ser positivos. |
+| `500`  | Error interno al obtener los usuarios paginados. |
+
+#### Ejemplo de Request:
+```http
+GET /users/paginated?page=1&size=5 HTTP/1.1
+Host: api.example.com
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "page": 1,
+  "size": 5,
+  "totalElements": 20,
+  "content": [
+    {
+      "id": 6,
+      "name": "Carlos Gonzalez",
+      "email": "carlos.gonzalez@example.com"
+    }
+  ]
+}
+```
+
+---
+
+### 3. **DELETE `/users/{id}`**
+
+#### Descripción:
+Elimina un usuario específico de la base de datos. **Solo los usuarios con rol ADMIN están autorizados.**
+
+#### Autenticación:
+- **Requerida**: Sí (Token JWT)
+- **Rol mínimo**: `ADMIN`
+
+#### Parámetros:
+| Parámetro | Tipo   | Ubicación | Obligatorio | Descripción |
+|-----------|--------|------------|-------------|-------------|
+| `id`      | Long   | Path       | Sí          | ID del usuario a eliminar. |
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `204`  | Usuario eliminado exitosamente. |
+| `403`  | No autorizado para realizar esta acción. |
+| `404`  | Usuario no encontrado. |
+
+#### Ejemplo de Request:
+```http
+DELETE /users/123 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <tu-token-jwt>
+```
+
+#### Ejemplo de Respuestas:
+- **204 No Content**
+  Usuario eliminado exitosamente.
+
+- **403 Forbidden**
+```json
+{
+  "status": 403,
+  "error": "Usted no está autorizado para eliminar usuarios."
+}
+```
+
+- **404 Not Found**
+```json
+{
+  "status": 404,
+  "error": "Usuario no encontrado."
+}
+```
+
+---
+
+### 4. **GET `/users/{id}/`**
+
+#### Descripción:
+Devuelve los detalles del usuario logueado por ID. **Solo el usuario autenticado puede acceder a su propia información.**
+
+#### Autenticación:
+- **Requerida**: Sí (Token JWT)
+
+#### Parámetros:
+| Parámetro | Tipo   | Ubicación | Obligatorio | Descripción |
+|-----------|--------|------------|-------------|-------------|
+| `id`      | Long   | Path       | Sí          | ID del usuario a buscar. |
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | Detalles del usuario obtenidos exitosamente. |
+| `403`  | No tienes permisos para ver este usuario. |
+
+#### Ejemplo de Request:
+```http
+GET /users/123/ HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <tu-token-jwt>
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "id": 123,
+  "name": "Luis Martinez",
+  "email": "luis.martinez@example.com"
+}
+```
+
+---
+
+### 5. **PATCH `/users/`**
+
+#### Descripción:
+Permite al usuario autenticado actualizar su información.
+
+#### Autenticación:
+- **Requerida**: Sí (Token JWT)
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | Usuario actualizado exitosamente. |
+| `404`  | Usuario no encontrado. |
+
+#### Ejemplo de Request:
+```http
+PATCH /users/ HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <tu-token-jwt>
+Content-Type: application/json
+
+{
+  "name": "Luis Martinez",
+  "email": "luis.martinez@example.com"
+}
+```
+
+#### Ejemplo de Respuesta:
+```json
+"Usuario actualizado exitosamente."
+```
+
+---
+
+### 6. **POST `/users/beneficiarios/{beneficiarioCBU}/add`**
+
+#### Descripción:
+Agrega un beneficiario al usuario autenticado.
+
+#### Autenticación:
+- **Requerida**: Sí (Token JWT)
+
+#### Parámetros:
+| Parámetro       | Tipo   | Ubicación | Obligatorio | Descripción |
+|------------------|--------|------------|-------------|-------------|
+| `beneficiarioCBU` | String | Path       | Sí          | CBU del beneficiario. |
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | Beneficiario agregado exitosamente. |
+| `404`  | Usuario o beneficiario no encontrado. |
+
+#### Ejemplo de Request:
+```http
+POST /users/beneficiarios/0987654321/add HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <tu-token-jwt>
+```
+
+#### Ejemplo de Respuesta:
+```json
+"Beneficiario agregado exitosamente."
+```
+
+---
+
+### 7. **GET `/users/beneficiarios`**
+
+#### Descripción:
+Devuelve una lista de beneficiarios asociados al usuario autenticado.
+
+#### Autenticación:
+- **Requerida**: Sí (Token JWT)
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | Lista de beneficiarios obtenida exitosamente. |
+| `404`  | Usuario no encontrado. |
+
+#### Ejemplo de Request:
+```http
+GET /users/beneficiarios HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <tu-token-jwt>
+```
+
+#### Ejemplo de Respuesta:
+```json
+[
+  {
+    "id": 1,
+    "name": "Juan Beneficiario",
+    "email": "juan.beneficiario@example.com",
+    "cbu": "1234567890123456789015"
+  },
+  {
+    "id": 2,
+    "name": "Maria Beneficiaria",
+    "email": "maria.beneficiaria@example.com",
+    "cbu": "0987654321098765432105"
+  }
+]
+```
+
+----------------------------------------------------------------------
+
+## Endpoints de FixedTermDepositController
+
+---
+
+### 1. **GET `/fixed-term-deposits`**
+
+#### Descripción:
+Devuelve una lista de los plazos fijos asociados al usuario autenticado.
+
+#### Autenticación:
+- **Requerida**: Sí (Token JWT)
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | Lista de plazos fijos obtenida exitosamente. |
+
+#### Ejemplo de Request:
+```http
+GET /fixed-term-deposits HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <tu-token-jwt>
+```
+
+#### Ejemplo de Respuesta:
+```json
+[
+  {
+    "id": 1,
+    "amount": 10000.0,
+    "days": 30,
+    "interest": 500.0,
+    "total": 10500.0
+  },
+  {
+    "id": 2,
+    "amount": 20000.0,
+    "days": 60,
+    "interest": 1500.0,
+    "total": 21500.0
+  }
+]
+```
+
+---
+
+### 2. **POST `/fixed-term-deposits/fixedTerm`**
+
+#### Descripción:
+Crea un nuevo plazo fijo asociado al usuario autenticado.
+
+#### Autenticación:
+- **Requerida**: Sí (Token JWT)
+
+#### Parámetros:
+| Parámetro | Tipo   | Ubicación | Obligatorio | Descripción |
+|-----------|--------|------------|-------------|-------------|
+| `amount`  | Double | Query       | Sí          | Monto del plazo fijo. |
+| `days`    | Integer| Query       | Sí          | Días del plazo fijo. |
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `201`  | Plazo fijo creado exitosamente. |
+| `400`  | Parámetros inválidos. |
+
+#### Ejemplo de Request:
+```http
+POST /fixed-term-deposits/fixedTerm?amount=10000&days=30 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <tu-token-jwt>
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "id": 3,
+  "amount": 10000.0,
+  "days": 30,
+  "interest": 500.0,
+  "total": 10500.0
+}
+```
+
+---
+
+### 3. **POST `/fixed-term-deposits/fixedTerm/simulate`**
+
+#### Descripción:
+Simula un plazo fijo para el usuario autenticado, sin realizar la creación.
+
+#### Autenticación:
+- **Requerida**: Sí (Token JWT)
+
+#### Parámetros:
+| Parámetro | Tipo   | Ubicación | Obligatorio | Descripción |
+|-----------|--------|------------|-------------|-------------|
+| `amount`  | Double | Body       | Sí          | Monto del plazo fijo. |
+| `days`    | Integer| Body       | Sí          | Días del plazo fijo. |
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `201`  | Simulación realizada exitosamente. |
+| `400`  | Parámetros inválidos. |
+
+#### Ejemplo de Request:
+```http
+POST /fixed-term-deposits/fixedTerm/simulate HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <tu-token-jwt>
+Content-Type: application/json
+
+{
+  "amount": 15000.0,
+  "days": 45
+}
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "id": null,
+  "amount": 15000.0,
+  "days": 45,
+  "interest": 750.0,
+  "total": 15750.0
+}
+```
 

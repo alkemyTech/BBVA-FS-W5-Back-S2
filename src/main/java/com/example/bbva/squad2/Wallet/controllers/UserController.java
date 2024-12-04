@@ -1,11 +1,8 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.dtos.*;
-import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
-import com.example.bbva.squad2.Wallet.models.Account;
-import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.services.UserService;
 import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
@@ -17,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -64,7 +60,6 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar usuarios por Id")
-
     public ResponseEntity<Void> deleteUser(@PathVariable Long id, HttpServletRequest request) {
         UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
 
@@ -129,28 +124,7 @@ public class UserController {
     @Operation(summary = "Listar los beneficiarios de un usuario")
     public ResponseEntity<List<RecipientResponseDTO>> getBeneficiarios(HttpServletRequest request) {
         UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(request);
-        List<User> beneficiarios = userService.getBeneficiarios(usuarioSeguridad.getId());
-
-        List<RecipientResponseDTO> beneficiariosDTO = beneficiarios.stream()
-                .map(beneficiario -> {
-                    RecipientResponseDTO dto = new RecipientResponseDTO();
-                    dto.setIdRecipient(beneficiario.getId());
-                    dto.setNombreApellido(beneficiario.getFirstName() + " " + beneficiario.getLastName());
-                    dto.setUsername(beneficiario.getEmail());
-                    dto.setBancoWallet("Banco");
-
-                    List<Account> cuentas = beneficiario.getAccounts();
-
-                    for (Account cuenta : cuentas) {
-                        if (cuenta.getCurrency().equals(CurrencyTypeEnum.ARS)) {
-                            AccountDTO accountDTO = new AccountDTO().mapFromAccount(cuenta);
-                            dto.addAccountDTO(accountDTO);
-                        }
-                    }
-
-                    return dto;
-                })
-                .collect(Collectors.toList());
+        List<RecipientResponseDTO> beneficiariosDTO = userService.getBeneficiarios(usuarioSeguridad.getId());
 
         return ResponseEntity.ok(beneficiariosDTO);
     }

@@ -208,6 +208,13 @@ public class UserService {
         // Obtener el beneficiario
         User beneficiario = accountBeneficiario.getUser();
 
+        if(beneficiario.getSoftDelete() != null){
+            throw new WalletsException(
+                    HttpStatus.BAD_REQUEST,
+                    "Este usuario ha sido eliminado y no es posible agregarlo como beneficiario."
+            );
+        }
+
         // Agregar al beneficiario
         usuario.getBeneficiarios().add(beneficiario);
 
@@ -225,11 +232,32 @@ public class UserService {
         return ResponseEntity.ok(nuevoBeneficiario);
     }
 
-    public List<User> getBeneficiarios(Long usuarioId) throws WalletsException{
+    public List<RecipientResponseDTO> getBeneficiarios(Long usuarioId) throws WalletsException{
         User usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
-        return usuario.getBeneficiarios();
+        List<User> beneficiarios = usuario.getBeneficiarios();
+
+        return beneficiarios.stream()
+                .map(beneficiario -> {
+                    RecipientResponseDTO dto = new RecipientResponseDTO();
+                    dto.setIdRecipient(beneficiario.getId());
+                    dto.setNombreApellido(beneficiario.getFirstName() + " " + beneficiario.getLastName());
+                    dto.setUsername(beneficiario.getEmail());
+                    dto.setBancoWallet("Banco");
+
+                    List<Account> cuentas = beneficiario.getAccounts();
+
+                    for (Account cuenta : cuentas) {
+                        if (cuenta.getCurrency().equals(CurrencyTypeEnum.ARS)) {
+                            AccountDTO accountDTO = new AccountDTO().mapFromAccount(cuenta);
+                            dto.addAccountDTO(accountDTO);
+                        }
+                    }
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
 
