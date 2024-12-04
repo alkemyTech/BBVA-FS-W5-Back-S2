@@ -509,7 +509,7 @@ Content-Type: application/json
 Realiza el inicio de sesión de un usuario existente. El usuario debe proporcionar su email y contraseña para obtener un token de autenticación.
 
 #### Autenticación:
-- **Requerida**: Si
+- **Requerida**: No
 
 #### Cuerpo de la solicitud:
 ```json
@@ -550,6 +550,55 @@ Content-Type: application/json
 #### Nota Adicional:
 - /auth/register: El registro de nuevos usuarios no requiere autenticación previa.
 - /auth/login: Se utiliza para autenticar a los usuarios registrados y obtener un token JWT para acceder a otras partes de la API que requieren autenticación.
+
+---
+
+## Endpoints de AdminController
+
+---
+
+### 1. **GET `/admin/transactions/{id}`**
+
+#### Descripción:
+Este endpoint buscaría una transacción específica por su ID. El controlador `AdminController` tiene un método comentado que se utilizaría para recuperar los detalles de una transacción a partir de un ID proporcionado en la URL.
+
+#### Autenticación:
+- **Requerida**: Sí (Token JWT)
+- **Rol mínimo**: `ADMIN`
+
+#### Parámetros:
+| Parámetro | Tipo   | Ubicación   | Obligatorio | Descripción                          |
+|-----------|--------|-------------|-------------|--------------------------------------|
+| `id`      | Long   | Path        | Sí          | ID de la transacción a buscar.       |
+
+#### Respuestas:
+| Código | Descripción                                  |
+|--------|----------------------------------------------|
+| `200`  | Detalles de la transacción obtenidos exitosamente. |
+| `404`  | Transacción no encontrada.                   |
+| `500`  | Error interno al obtener la transacción.     |
+
+#### Ejemplo de Request:
+```http
+GET /admin/transactions/123 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <tu-token-jwt>
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "id": 123,
+  "amount": 1000,
+  "currency": "USD",
+  "date": "2024-12-04T10:00:00",
+  "status": "Completed"
+}
+```
+
+#### Nota Adicional:
+- Autenticación: Este endpoint requiere autenticación mediante un token JWT.
+- Rol mínimo: Solo los usuarios con rol ADMIN pueden acceder a este endpoint.
 
 ---
 
