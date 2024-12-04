@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/fixed-term-deposits")
@@ -34,12 +33,7 @@ public class FixedTermDepositController {
     public ResponseEntity<List<FixedTermDTO>> getAllFixedTermDeposits(HttpServletRequest request) {
         UsuarioSeguridad userDetails = usuarioLoggeadoService.getInfoUserSecurity(request);
 
-        List<FixedTermDTO> fixedTerms = fixedTermDepositService.getFixedTermDepositsByUserId(userDetails.getId())
-                .stream()
-                .map(fixedTerm -> new FixedTermDTO().mapFromFixedTerm(fixedTerm))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(fixedTerms);
+        return ResponseEntity.ok(fixedTermDepositService.getFixedTermDepositsByUserId(userDetails.getId()));
     }
 
     @PostMapping("/fixedTerm")

@@ -109,10 +109,7 @@ public class AccountService {
 				.map(transaction -> new TransactionBalanceDTO().mapFromTransaction(transaction))
 				.collect(Collectors.toList());
 
-		List<FixedTermDTO> fixedTerms = fixedTermDepositService.getFixedTermDepositsByUserId(userId)
-				.stream()
-				.map(fixedTerm -> new FixedTermDTO().mapFromFixedTerm(fixedTerm))
-				.collect(Collectors.toList());
+		List<FixedTermDTO> fixedTerms = fixedTermDepositService.getFixedTermDepositsByUserId(userId);
 
 		AccountBalanceDTO balanceDTO = new AccountBalanceDTO();
 		balanceDTO.setAccountArs(accountArs != null ? new AccountStatic.AccountBalance(balanceArs, "ARS") : null);
