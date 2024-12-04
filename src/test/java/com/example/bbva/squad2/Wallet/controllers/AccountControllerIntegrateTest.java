@@ -128,7 +128,7 @@ public class AccountControllerIntegrateTest {
                 .thenReturn(mockUpdatedAccount);
 
         // Act
-        ResponseEntity<Object> response = accountController.updateTransactionLimit(accountId, newTransactionLimit, request);
+        ResponseEntity<AccountDTO> response = accountController.updateTransactionLimit(accountId, newTransactionLimit, request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());

@@ -63,7 +63,7 @@ public class AccountController {
 
 	@PatchMapping("/{id}")
 	@Operation(summary = "Editar el limite de transacción de la cuenta del usuario loggeado")
-	public ResponseEntity<Object> updateTransactionLimit(
+	public ResponseEntity<AccountDTO> updateTransactionLimit(
 			@PathVariable Long id,
 			@RequestParam Double newTransactionLimit,
 			HttpServletRequest request) {
