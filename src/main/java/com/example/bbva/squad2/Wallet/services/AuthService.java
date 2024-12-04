@@ -43,6 +43,8 @@ public class AuthService {
         response.put("token", jwtService.generateToken(usuario.getId(), username, usuario.getRole().getName().name()));
         response.put("nombre", usuario.getFirstName());
         response.put("apellido", usuario.getLastName());
+        response.put("email", usuario.getEmail());
+        response.put("rol", usuario.getRole().getName().name());
 
         return response;
     }
