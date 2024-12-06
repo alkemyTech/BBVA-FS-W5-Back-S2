@@ -49,7 +49,7 @@ public class AccountControllerIntegrateTest {
         mockUser.setId(1L);
     }
 
-    /* @Test
+    @Test
     void testGetAccounts_Success() throws Exception {
         // Arrange
         Long userId = 1L;
@@ -59,7 +59,7 @@ public class AccountControllerIntegrateTest {
         when(accountService.getAccountsByUser(userId)).thenReturn(List.of(mockAccount));
 
         // Act
-        ResponseEntity<List<AccountDTO>> response = accountController.getAccounts(userId);
+        ResponseEntity<List<AccountDTO>> response = accountController.getAccountsUser(userId);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -68,8 +68,29 @@ public class AccountControllerIntegrateTest {
         assertEquals(mockAccount, response.getBody().get(0));
     }
 
+    @Test
+    void testGetAccounts_SuccessLogged() throws Exception {
+        // Arrange
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+        UsuarioSeguridad mockUsuarioSeguridad = new UsuarioSeguridad();
+        mockUsuarioSeguridad.setId(1L);
+        AccountDTO mockAccount = new AccountDTO();
+        mockAccount.setId(1L);
+        mockAccount.setCurrency(CurrencyTypeEnum.USD);
 
-     */
+        when(usuarioLoggeadoService.getInfoUserSecurity(mockRequest)).thenReturn(mockUsuarioSeguridad);
+        when(accountService.getAccountsByUser(1L)).thenReturn(List.of(mockAccount));
+
+        // Act
+        ResponseEntity<List<AccountDTO>> response = accountController.getAccounts(mockRequest);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals(mockAccount, response.getBody().get(0));
+    }
+
 
     @Test
     void testCreateAccount_Success() {
