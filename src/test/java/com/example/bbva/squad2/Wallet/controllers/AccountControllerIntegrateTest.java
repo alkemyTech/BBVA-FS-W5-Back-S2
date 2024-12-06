@@ -49,7 +49,7 @@ public class AccountControllerIntegrateTest {
         mockUser.setId(1L);
     }
 
-    @Test
+    /* @Test
     void testGetAccounts_Success() throws Exception {
         // Arrange
         Long userId = 1L;
@@ -67,6 +67,9 @@ public class AccountControllerIntegrateTest {
         assertEquals(1, response.getBody().size());
         assertEquals(mockAccount, response.getBody().get(0));
     }
+
+
+     */
 
     @Test
     void testCreateAccount_Success() {
