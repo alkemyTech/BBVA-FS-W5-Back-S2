@@ -30,10 +30,13 @@ public class AccountController {
 	@Autowired
 	private JwtServices js;
 	
-	@GetMapping("/{id}")
+	@GetMapping()
 	@Operation(summary = "Obtener cuentas de un usuario específico")
-	public ResponseEntity<List<AccountDTO>> getAccounts(@PathVariable Long id) throws Exception {
-	    List<AccountDTO> accountsByUser = as.getAccountsByUser(id);
+	public ResponseEntity<List<AccountDTO>> getAccounts(HttpServletRequest request) throws Exception {
+
+		UsuarioSeguridad security = usuarioLoggeadoService.getInfoUserSecurity(request);
+		Long userId = security.getId();
+		List<AccountDTO> accountsByUser = as.getAccountsByUser(userId);
 	  
 	    return ResponseEntity.ok(accountsByUser);
 	}

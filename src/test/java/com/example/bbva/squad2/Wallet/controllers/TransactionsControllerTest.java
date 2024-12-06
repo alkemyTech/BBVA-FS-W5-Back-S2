@@ -4,7 +4,6 @@ import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
-import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.services.TransactionService;
 import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import org.junit.jupiter.api.Assertions;
@@ -28,8 +27,7 @@ import static org.mockito.Mockito.when;
 public class TransactionsControllerTest {
 
 
-    @Mock
-    AccountsRepository accountsRepository;
+
 
     @Mock
     private TransactionService ts;
