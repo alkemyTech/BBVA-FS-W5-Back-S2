@@ -450,4 +450,146 @@ Content-Type: application/json
   "total": 15750.0
 }
 ```
+----------------------------------------------------------------------
+
+## Endpoints de AuthController
+
+---
+
+### 1. **POST `/auth/register`**
+
+#### Descripción:
+Registra un nuevo usuario en el sistema. Se espera que el cuerpo de la solicitud contenga los datos necesarios para la creación de un nuevo usuario.
+
+#### Autenticación:
+- **Requerida**: No
+
+#### Cuerpo de la solicitud:
+```json
+{
+  "email": "usuario@example.com",
+  "password": "password123",
+  "name": "Juan Pérez"
+}
+```
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `201`  | Usuario registrado exitosamente. |
+| `400`  | Datos de registro ivalidos. |
+| `500`  | Error interno al registrar el usuario. |
+
+#### Ejemplo de Request:
+
+```http
+POST /auth/register HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+
+{
+  "email": "usuario@example.com",
+  "password": "password123",
+  "name": "Juan Pérez"
+}
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "status": "success",
+  "message": "Usuario registrado exitosamente."
+}
+```
+---
+
+### 2. **POST `/auth/login`**
+
+#### Descripción:
+Realiza el inicio de sesión de un usuario existente. El usuario debe proporcionar su email y contraseña para obtener un token de autenticación.
+
+#### Autenticación:
+- **Requerida**: No
+
+#### Cuerpo de la solicitud:
+```json
+{
+  "email": "usuario@example.com",
+  "password": "password123"
+}
+```
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | Inicio de sesión exitoso, devuelve el token de autenticación. |
+| `400`  | Credenciales inválidas. |
+| `500`  | Error interno al intentar iniciar sesión. |
+
+#### Ejemplo de Request:
+
+```http
+POST /auth/login HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+
+{
+  "email": "usuario@example.com",
+  "password": "password123"
+}
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "status": "success",
+  "token": "jwt-token-aqui"
+}
+```
+
+#### Nota Adicional:
+- /auth/register: El registro de nuevos usuarios no requiere autenticación previa.
+- /auth/login: Se utiliza para autenticar a los usuarios registrados y obtener un token JWT para acceder a otras partes de la API que requieren autenticación.
+
+---
+
+## Endpoints de AdminController
+
+---
+
+### **GET `/admin`**
+
+#### Descripción:
+Este controlador `AdminController` se utiliza para gestionar las funcionalidades de administración relacionadas con las transacciones. Actualmente, el controlador no tiene ningún endpoint expuesto, pero está preparado para incluir futuras operaciones relacionadas con las transacciones mediante el servicio `TransactionService`.
+
+#### Autenticación:
+- **Requerida**: Sí (Token JWT)
+- **Rol mínimo**: `ADMIN`
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | El controlador está disponible y listo para ser utilizado. |
+| `500`  | Error interno al acceder al controlador. |
+
+#### Ejemplo de Request:
+```http
+GET /admin HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <tu-token-jwt>
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "status": "success",
+  "message": "Controlador de administración disponible."
+}
+```
+
+#### Nota Adicional:
+- El controlador AdminController está preparado para incluir funcionalidades de administración, como la gestión de transacciones, una vez que los métodos sean implementados.
+- El servicio TransactionService está inyectado en el controlador para ser utilizado en los métodos futuros que gestionarán las transacciones.
+- Este controlador aún no tiene métodos activos, pero puede expandirse para incluir rutas relacionadas con las transacciones en el futuro.
+---
 
