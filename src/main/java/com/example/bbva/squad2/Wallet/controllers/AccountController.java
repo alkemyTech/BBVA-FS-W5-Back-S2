@@ -31,7 +31,7 @@ public class AccountController {
 	private JwtServices js;
 	
 	@GetMapping()
-	@Operation(summary = "Obtener cuentas de un usuario específico")
+	@Operation(summary = "Obtener cuentas de el usuario loggeado")
 	public ResponseEntity<List<AccountDTO>> getAccounts(HttpServletRequest request) throws Exception {
 
 		UsuarioSeguridad security = usuarioLoggeadoService.getInfoUserSecurity(request);
@@ -39,6 +39,15 @@ public class AccountController {
 		List<AccountDTO> accountsByUser = as.getAccountsByUser(userId);
 	  
 	    return ResponseEntity.ok(accountsByUser);
+	}
+
+	@GetMapping("/{id}")
+	@Operation(summary = "Obtener cuentas de un usuario específico")
+	public ResponseEntity<List<AccountDTO>> getAccountsUser(@PathVariable Long userId) throws Exception {
+
+		List<AccountDTO> accountsByUser = as.getAccountsByUser(userId);
+
+		return ResponseEntity.ok(accountsByUser);
 	}
 
 	@PostMapping("/{currency}")

@@ -100,7 +100,7 @@ public class UserService {
 
         // Validar si el email ya está registrado
         if (userRepository.findByEmail(registerDTO.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("El email ya está registrado.");
+            throw new WalletsException(HttpStatus.BAD_REQUEST, "El email ya está registrado.");
         }
 
         // Buscar el rol por el nombre especificado en el DTO
