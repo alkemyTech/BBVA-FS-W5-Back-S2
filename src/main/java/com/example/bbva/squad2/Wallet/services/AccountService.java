@@ -166,6 +166,25 @@ public class AccountService {
 		);
 	}
 
+
+	public List<AccountTransactionsDTO> getAccountsAndTransactions(Long userId) {
+		List<Account> accounts = ar.findByUserId(userId);
+
+		List<AccountTransactionsDTO> accountTransactionDTOs = new ArrayList<>();
+		for (Account account : accounts) {
+			AccountDTO accountDTO = AccountDTO.mapFromAccount(account);
+
+			List<TransactionDTO> transactionDTOs = account.getTransactions().stream()
+					.map(transaction -> new TransactionDTO(transaction.getAmount(), transaction.getConcept()))
+					.collect(Collectors.toList());
+
+			AccountTransactionsDTO accountTransactionsDTO = new AccountTransactionsDTO(accountDTO, transactionDTOs);
+
+			accountTransactionDTOs.add(accountTransactionsDTO);
+		}
+
+		return accountTransactionDTOs;
+	}
 }
 
 

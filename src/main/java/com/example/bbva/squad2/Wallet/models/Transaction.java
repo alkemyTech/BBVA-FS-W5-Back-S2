@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.models;
 
+import com.example.bbva.squad2.Wallet.enums.Concept;
 import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -35,6 +36,9 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private TransactionTypeEnum type;
+
+    @Column(name = "concept")
+    private Concept concept;
 
     @Column(name = "description")
     private String description;

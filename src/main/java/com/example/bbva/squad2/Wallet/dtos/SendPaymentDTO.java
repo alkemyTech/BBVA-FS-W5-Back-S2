@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.dtos;
 
+import com.example.bbva.squad2.Wallet.enums.Concept;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -22,4 +23,6 @@ public class SendPaymentDTO {
     private CurrencyTypeEnum currency;
 
     private String description;
+
+    private Concept concept;
 }

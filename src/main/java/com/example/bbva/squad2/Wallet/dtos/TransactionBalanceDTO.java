@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.dtos;
 
+import com.example.bbva.squad2.Wallet.enums.Concept;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.models.Transaction;
 import lombok.AllArgsConstructor;
@@ -20,14 +21,17 @@ public class TransactionBalanceDTO {
 
     private CurrencyTypeEnum currency;
 
+    private Concept concept;
+
     private String description;
 
     public TransactionBalanceDTO mapFromTransaction(Transaction transaction) {
-        this.description = transaction.getDescription();
         this.amount = transaction.getAmount();
         this.cbuDestino = transaction.getCbuDestino();
         this.cbuOrigen = transaction.getCbuOrigen();
         this.currency = transaction.getAccount().getCurrency();
+        this.concept = transaction.getConcept();
+        this.description = transaction.getDescription();
         return this;
     }
 }

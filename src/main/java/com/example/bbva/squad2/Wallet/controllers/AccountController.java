@@ -1,10 +1,7 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.config.JwtServices;
-import com.example.bbva.squad2.Wallet.dtos.AccountBalanceDTO;
-import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
-import com.example.bbva.squad2.Wallet.dtos.PageableResponseDTO;
-import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
+import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.services.AccountService;
 import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
@@ -107,6 +104,14 @@ public class AccountController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error al obtener cuentas paginados.");
 		}
+	}
+
+	@GetMapping("/transactions")
+	@Operation(summary = "Obtener transacciones por cada cuenta de usuario", description = "Devuelve una lista " +
+			"de transacciones realizadas por cuenta")
+	public List<AccountTransactionsDTO> getTransactionsByUserAccount(HttpServletRequest request) {
+		UsuarioSeguridad user = usuarioLoggeadoService.getInfoUserSecurity(request);
+		return as.getAccountsAndTransactions(user.getId());
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.example.bbva.squad2.Wallet.services;
 
 import com.example.bbva.squad2.Wallet.dtos.*;
+import com.example.bbva.squad2.Wallet.enums.Concept;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
@@ -17,8 +18,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -91,7 +94,8 @@ public class TransactionService {
                 destinationAccount.getCbu(),
                 dto.getAmount(),
                 TransactionTypeEnum.PAGO,
-                dto.getDescription()
+                dto.getDescription(),
+                dto.getConcept()
         );
 
         // Crear y registrar la transacción para el usuario receptor (INCOME)
@@ -100,7 +104,9 @@ public class TransactionService {
                 destinationAccount.getCbu(),
                 dto.getAmount(),
                 TransactionTypeEnum.INGRESO,
-                dto.getDescription()
+                dto.getDescription(),
+                dto.getConcept()
+
         );
 
         // Actualizar balances en ambas cuentas
@@ -187,7 +193,8 @@ public class TransactionService {
                 destinationAccount.getCbu(),
                 dto.getAmount(),
                 TransactionTypeEnum.PAGO,
-                dto.getDescription()
+                dto.getDescription(),
+                dto.getConcept()
         );
 
         // Crear y registrar la transacción para el usuario receptor (INCOME)
@@ -196,7 +203,8 @@ public class TransactionService {
                 destinationAccount.getCbu(),
                 dto.getAmount(),
                 TransactionTypeEnum.INGRESO,
-                dto.getDescription()
+                dto.getDescription(),
+                dto.getConcept()
         );
 
         // Actualizar balances en ambas cuentas
@@ -237,7 +245,8 @@ public class TransactionService {
                 account.getCbu(),
                 dto.getAmount(),
                 TransactionTypeEnum.DEPOSITO,
-                dto.getDescription()
+                dto.getDescription(),
+                dto.getConcept()
         );
 
         // Actualizar el balance de la cuenta
@@ -303,7 +312,8 @@ public class TransactionService {
                 "Pago de tarjeta",
                 dto.getAmount(),
                 TransactionTypeEnum.PAGO,
-                dto.getDescription()
+                dto.getDescription(),
+                dto.getConcept()
         );
 
         // Actualizar el balance de la cuenta
@@ -320,7 +330,7 @@ public class TransactionService {
                 .build();
     }
 
-    public Transaction createTransaction(Account account, String cbuOrigen, String cbuDestino, Double amount, TransactionTypeEnum type, String description) {
+    public Transaction createTransaction(Account account, String cbuOrigen, String cbuDestino, Double amount, TransactionTypeEnum type, String description, Concept concept) {
         Transaction transaction = Transaction.builder()
                 .account(account)
                 .amount(amount)
@@ -328,6 +338,7 @@ public class TransactionService {
                 .CbuOrigen(cbuOrigen)
                 .type(type)
                 .description(description)
+                .concept(concept)
                 .build();
 
         transactionRepository.save(transaction);
@@ -392,4 +403,8 @@ public class TransactionService {
                 .map(transaction -> TransactionListDTO.fromEntity(transaction))
                 .toList();
     }
+
+
+
+
 }
