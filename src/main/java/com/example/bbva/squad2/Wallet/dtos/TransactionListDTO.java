@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.dtos;
 
+import com.example.bbva.squad2.Wallet.enums.Concept;
 import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import com.example.bbva.squad2.Wallet.models.Transaction;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class TransactionListDTO {
     private Double amount;
     private TransactionTypeEnum type;
     private String description;
+    private Concept concept;
     private LocalDateTime timestamp;
 
     // Método para mapear desde la entidad Transaction
@@ -34,6 +36,7 @@ public class TransactionListDTO {
                 .amount(transaction.getAmount())
                 .type(transaction.getType())
                 .description(transaction.getDescription())
+                .concept(transaction.getConcept())
                 .timestamp(transaction.getTimestamp())
                 .build();
     }

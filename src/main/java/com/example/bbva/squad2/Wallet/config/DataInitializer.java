@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.config;
 
+import com.example.bbva.squad2.Wallet.enums.Concept;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.enums.RoleName;
 import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
@@ -144,7 +145,8 @@ public class DataInitializer {
                 Transaction.builder()
                         .CbuDestino(accountPesos.getCbu())
                         .CbuOrigen("External")
-                        .description("Deposito Inicial USD")
+                        .concept(Concept.OTROS)
+                        .description("Deposito")
                         .timestamp(LocalDateTime.now())
                         .amount(5000.00)
                         .account(accountDolares)
@@ -155,7 +157,8 @@ public class DataInitializer {
                 Transaction.builder()
                         .CbuDestino(accountPesos.getCbu())
                         .CbuOrigen("External")
-                        .description("Deposito Inicial ARS")
+                        .concept(Concept.OTROS)
+                        .description("Deposito")
                         .timestamp(LocalDateTime.now())
                         .amount(15000.00)
                         .account(accountPesos)

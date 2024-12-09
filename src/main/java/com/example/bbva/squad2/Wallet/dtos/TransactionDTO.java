@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SendDepositDTO {
-    private double amount;
-    private String description;
-    private Concept concept;
+public class TransactionDTO {
+    private Double amount;
+    private Concept  concept;
+
 }
