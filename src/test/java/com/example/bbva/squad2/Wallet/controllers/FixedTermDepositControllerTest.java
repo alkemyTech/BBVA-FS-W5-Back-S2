@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
+import com.example.bbva.squad2.Wallet.dtos.CreateFixedTermDTO;
 import com.example.bbva.squad2.Wallet.dtos.FixedTermDTO;
 import com.example.bbva.squad2.Wallet.dtos.FixedTermSimulationDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
@@ -51,6 +52,7 @@ public class FixedTermDepositControllerTest {
         // Arrange
         Double amount = 10000.0;
         Integer days = 60;
+        CreateFixedTermDTO createFixedTermDTO = new CreateFixedTermDTO(amount, days, "12345678912345678912345");
         FixedTermSimulationDTO mockResponse = new FixedTermSimulationDTO();
         mockResponse.setAmount(amount);
         mockResponse.setStartDate("2024-12-01");
@@ -59,11 +61,11 @@ public class FixedTermDepositControllerTest {
         mockResponse.setAccountCBU("123456789");
 
         when(usuarioLoggeadoService.getInfoUserSecurity(ArgumentMatchers.any(HttpServletRequest.class))).thenReturn(mockUser);
-        when(fixedTermDepositService.createFixedTermDeposit(anyLong(), anyDouble(), anyInt(), anyBoolean()))
+        when(fixedTermDepositService.createFixedTermDeposit(anyLong(), anyDouble(), anyInt(), anyString(), anyBoolean()))
                 .thenReturn(mockResponse);
 
         // Act
-        ResponseEntity<FixedTermSimulationDTO> response = fixedTermDepositController.createFixedTermDeposit(amount, days, request);
+        ResponseEntity<FixedTermSimulationDTO> response = fixedTermDepositController.createFixedTermDeposit(createFixedTermDTO, request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -78,12 +80,14 @@ public class FixedTermDepositControllerTest {
         Integer days = 25;
         String expectedErrorMessage = "El plazo fijo debe ser de al menos 30 días.";
 
+        CreateFixedTermDTO createFixedTermDTO = new CreateFixedTermDTO(amount, days, "12345678912345678912345");
+
         when(usuarioLoggeadoService.getInfoUserSecurity(any(HttpServletRequest.class))).thenReturn(mockUser);
         doThrow(new IllegalArgumentException(expectedErrorMessage))
-                .when(fixedTermDepositService).createFixedTermDeposit(anyLong(), anyDouble(), anyInt(), anyBoolean());
+                .when(fixedTermDepositService).createFixedTermDeposit(anyLong(), anyDouble(), anyInt(), anyString(), anyBoolean());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            fixedTermDepositController.createFixedTermDeposit(amount, days, request);
+            fixedTermDepositController.createFixedTermDeposit(createFixedTermDTO, request);
         });
 
         assertEquals(expectedErrorMessage, exception.getMessage());
@@ -101,12 +105,14 @@ public class FixedTermDepositControllerTest {
         mockResponse.setInterestRate(5.0);
         mockResponse.setAccountCBU("123456789");
 
+        CreateFixedTermDTO createFixedTermDTO = new CreateFixedTermDTO(amount, days, "12345678912345678912345");
+
         when(usuarioLoggeadoService.getInfoUserSecurity(ArgumentMatchers.any(HttpServletRequest.class))).thenReturn(mockUser);
-        when(fixedTermDepositService.createFixedTermDeposit(anyLong(), anyDouble(), anyInt(), anyBoolean()))
+        when(fixedTermDepositService.createFixedTermDeposit(anyLong(), anyDouble(), anyInt(), anyString() ,anyBoolean()))
                 .thenReturn(mockResponse);
 
         // Act
-        ResponseEntity<FixedTermSimulationDTO> response = fixedTermDepositController.createFixedTermDeposit(amount, days, request);
+        ResponseEntity<FixedTermSimulationDTO> response = fixedTermDepositController.createFixedTermDeposit(createFixedTermDTO, request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
