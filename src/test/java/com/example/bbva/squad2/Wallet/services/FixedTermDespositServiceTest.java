@@ -46,10 +46,11 @@ class FixedTermDepositServiceTest {
         Long userId = 1L;
         Double amount = 1000.0;
         Integer days = 20;
+        String cbu = "12345678912345678912345";
 
         // Act & Assert
         WalletsException exception = assertThrows(WalletsException.class, () -> {
-            fixedTermDepositService.createFixedTermDeposit(userId, amount, days, false);
+            fixedTermDepositService.createFixedTermDeposit(userId, amount, days, cbu, false);
         });
 
         assertEquals("El plazo fijo debe ser de al menos 30 días.", exception.getMessage());
@@ -61,6 +62,7 @@ class FixedTermDepositServiceTest {
         Long userId = 1L;
         Double amount = 1000.0;
         Integer days = 30;
+        String cbu = "12345678912345678912345";
 
         // Mockear el comportamiento para simular que no existe una cuenta en pesos
         when(accountsRepository.findByUserIdAndCurrency(userId, CurrencyTypeEnum.ARS))
@@ -68,7 +70,7 @@ class FixedTermDepositServiceTest {
 
         // Act & Assert
         WalletsException exception = assertThrows(WalletsException.class, () -> {
-            fixedTermDepositService.createFixedTermDeposit(userId, amount, days, false);
+            fixedTermDepositService.createFixedTermDeposit(userId, amount, days, cbu,false);
         });
 
         // Verificar el mensaje de error
@@ -81,6 +83,7 @@ class FixedTermDepositServiceTest {
         Long userId = 1L;
         Double amount = 1000.0;
         Integer days = 30;
+        String cbu = "12345678912345678912345";
 
         Account account = new Account();
         account.setBalance(500.0);
@@ -90,10 +93,10 @@ class FixedTermDepositServiceTest {
 
         // Act & Assert
         WalletsException exception = assertThrows(WalletsException.class, () -> {
-            fixedTermDepositService.createFixedTermDeposit(userId, amount, days, false);
+            fixedTermDepositService.createFixedTermDeposit(userId, amount, days, cbu, false);
         });
 
-        assertEquals("Saldo insuficiente para crear el plazo fijo.", exception.getMessage());
+        assertEquals("El usuario no tiene una cuenta en pesos.", exception.getMessage());
     }
 
     @Test

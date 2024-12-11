@@ -1,5 +1,6 @@
 package com.example.bbva.squad2.Wallet.services;
 
+import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
 import com.example.bbva.squad2.Wallet.dtos.FixedTermDTO;
 import com.example.bbva.squad2.Wallet.dtos.FixedTermSimulationDTO;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
@@ -48,13 +49,13 @@ public class FixedTermDepositService {
         return fixedTermDepositRepository.findAll(); // Devuelve todos los registros
     }
 
-    public FixedTermSimulationDTO createFixedTermDeposit(Long userId, Double amount, Integer days, boolean simulation) throws WalletsException{
+    public FixedTermSimulationDTO createFixedTermDeposit(Long userId, Double amount, Integer days, String cbu, boolean simulation) throws WalletsException{
         if (days < 30) {
             throw new WalletsException(HttpStatus.BAD_REQUEST, "El plazo fijo debe ser de al menos 30 días.");
         }
 
         // Obtener la cuenta en pesos del usuario
-        Account account = accountRepository.findByUserIdAndCurrency(userId, CurrencyTypeEnum.ARS)
+        Account account = accountRepository.findBycbu(cbu)
                 .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "El usuario no tiene una cuenta en pesos."));
 
         // Validar que el balance es suficiente
