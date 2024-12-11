@@ -2,11 +2,13 @@ package com.example.bbva.squad2.Wallet.dtos;
 
 import com.example.bbva.squad2.Wallet.enums.Concept;
 import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
+import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Transaction;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -25,9 +27,11 @@ public class TransactionListDTO {
     private TransactionTypeEnum type;
     private String description;
     private Concept concept;
-    private LocalDateTime timestamp;
 
-    // Método para mapear desde la entidad Transaction
+    @DateTimeFormat(pattern = "HH:mm")
+    private LocalDateTime timestamp;
+    private AccountNameDTO account;
+
     public static TransactionListDTO fromEntity(Transaction transaction) {
         return TransactionListDTO.builder()
                 .id(transaction.getId())
@@ -38,6 +42,7 @@ public class TransactionListDTO {
                 .description(transaction.getDescription())
                 .concept(transaction.getConcept())
                 .timestamp(transaction.getTimestamp())
+                .account(AccountNameDTO.fromEntity(transaction.getAccount()))
                 .build();
     }
 
