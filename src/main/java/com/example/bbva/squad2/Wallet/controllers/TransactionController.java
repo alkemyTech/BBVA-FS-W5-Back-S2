@@ -111,6 +111,20 @@ public class TransactionController {
         return ResponseEntity.ok(transactions);
     }
 
+    @GetMapping("/user")
+    @Operation(summary = "Obtener las transacciones de usuarios especificos")
+    public ResponseEntity<List<TransactionListDTO>> listUserTransactionsWithoutId(
+            HttpServletRequest request
+    ) {
+        UsuarioSeguridad userSecurity = usuarioLoggeadoService.getInfoUserSecurity(request);
+        Long id = userSecurity.getId();
+        List<TransactionListDTO> transactions = ts.getTransactionDtosByUserId(id);
+
+        return ResponseEntity.ok(transactions);
+    }
+
+
+
     @PostMapping("/payment")
     @Operation(summary = "Realizar un pago por el usuario loggeado")
     public ResponseEntity<DepositDTO> realizarPago(

@@ -218,7 +218,7 @@ public class TransactionService {
 
     public DepositDTO deposit(SendDepositDTO dto, String accountCBU, String username) throws WalletsException {
 
-        Account account = accountsRepository.findBycbu(accountCBU)
+        Account account = accountsRepository.findByCbu(accountCBU)
                 .orElseThrow(() -> new WalletsException(
                         HttpStatus.NOT_FOUND,
                         "Cuenta no encontrada."
@@ -346,13 +346,13 @@ public class TransactionService {
         return transaction;
     }
 
-    public TransactionListDTO getTransactionById(Long transactionId, Long userId) throws WalletsException{
-        return transactionRepository.findByAccount_User_Id(userId).stream()
-                .filter(transaction -> transaction.getId().equals(transactionId))
-                .findFirst()
-                .map(transaction -> new TransactionListDTO().fromEntity(transaction)) // Convertir a DTO si existe
+
+    public TransactionListDTO getTransactionById(Long transactionId, Long userId) throws WalletsException {
+        return transactionRepository.findByIdAndAccount_User_Id(transactionId, userId)
+                .map(transaction -> new TransactionListDTO().fromEntity(transaction)) // Convierte si existe
                 .orElseThrow(() -> new WalletsException(HttpStatus.UNAUTHORIZED, "No existe la transacción solicitada para esa cuenta"));
     }
+
 
     public PageableResponseDTO<TransactionListDTO> getTransactionsByUserIdPaginated(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -396,13 +396,16 @@ public class TransactionService {
     }
 
     public List<TransactionListDTO> getTransactionDtosByUserId(Long userId) {
-        List<Transaction> transactions = transactionRepository.findByAccount_User_Id(userId);
+
+        List<Transaction> transactions = transactionRepository.findByAccount_User_IdOrderByTimestampDesc(userId);
 
         // Mapear las entidades a DTOs
         return transactions.stream()
                 .map(transaction -> TransactionListDTO.fromEntity(transaction))
                 .toList();
     }
+
+
 
 
 

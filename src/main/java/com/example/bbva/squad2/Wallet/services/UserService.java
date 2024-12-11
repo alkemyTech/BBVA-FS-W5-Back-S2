@@ -185,7 +185,7 @@ public class UserService {
         User usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
-        Account accountBeneficiario = accountsRepository.findBycbu(beneficiarioDTO.getCbu())
+        Account accountBeneficiario = accountsRepository.findByCbu(beneficiarioDTO.getCbu())
                 .orElseThrow(() -> new WalletsException(
                         HttpStatus.NOT_FOUND,
                         "Cuenta no encontrada con el CBU especificado."
