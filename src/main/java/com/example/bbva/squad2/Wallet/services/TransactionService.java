@@ -349,10 +349,19 @@ public class TransactionService {
 
     public TransactionListDTO getTransactionById(Long transactionId, Long userId) throws WalletsException {
         return transactionRepository.findByIdAndAccount_User_Id(transactionId, userId)
-                .map(transaction -> new TransactionListDTO().fromEntity(transaction)) // Convierte si existe
+                .map(transaction -> {
+                    // Buscar las cuentas de origen y destino por CBU
+                    Optional<Account> accountOrigenOpt = accountsRepository.findByCbu(transaction.getCbuOrigen());
+                    Optional<Account> accountDestinoOpt = accountsRepository.findByCbu(transaction.getCbuDestino());
+
+                    return TransactionListDTO.fromEntity(
+                            transaction,
+                            accountOrigenOpt.orElse(null),
+                            accountDestinoOpt.orElse(null)
+                    );
+                })
                 .orElseThrow(() -> new WalletsException(HttpStatus.UNAUTHORIZED, "No existe la transacción solicitada para esa cuenta"));
     }
-
 
     public PageableResponseDTO<TransactionListDTO> getTransactionsByUserIdPaginated(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -360,12 +369,18 @@ public class TransactionService {
         // Obtener la página de transacciones
         Page<Transaction> transactionPage = transactionRepository.findByAccount_User_Id(userId, pageable);
 
-        // Mapear las entidades a DTOs
-        List<TransactionListDTO> transactionDTOs = transactionPage.getContent().stream()
-                .map(TransactionListDTO::fromEntity)
-                .toList();
+        List<TransactionListDTO> transactionDTOs = transactionPage.getContent().stream().map(transaction -> {
+            // Buscar las cuentas por CBU
+            Optional<Account> accountOrigenOpt = accountsRepository.findByCbu(transaction.getCbuOrigen());
+            Optional<Account> accountDestinoOpt = accountsRepository.findByCbu(transaction.getCbuDestino());
 
-        // Construir y devolver la respuesta paginada
+            return TransactionListDTO.fromEntity(
+                    transaction,
+                    accountOrigenOpt.orElse(null),
+                    accountDestinoOpt.orElse(null)
+            );
+        }).toList();
+
         return new PageableResponseDTO<>(
                 transactionDTOs,
                 transactionPage.getNumber(),
@@ -397,17 +412,21 @@ public class TransactionService {
 
     public List<TransactionListDTO> getTransactionDtosByUserId(Long userId) {
 
+        // Obtener las transacciones del usuario
         List<Transaction> transactions = transactionRepository.findByAccount_User_IdOrderByTimestampDesc(userId);
 
-        // Mapear las entidades a DTOs
-        return transactions.stream()
-                .map(transaction -> TransactionListDTO.fromEntity(transaction))
-                .toList();
+        // Iterar por cada transacción y buscar las cuentas por CBU
+        return transactions.stream().map(transaction -> {
+            // Buscar la cuenta de origen
+            Optional<Account> accountOriginOpt = accountsRepository.findByCbu(transaction.getCbuOrigen());
+            Account accountOrigin = accountOriginOpt.orElse(null);
+
+            // Buscar la cuenta de destino
+            Optional<Account> accountDestinationOpt = accountsRepository.findByCbu(transaction.getCbuDestino());
+            Account accountDestination = accountDestinationOpt.orElse(null);
+
+            // Crear y retornar el DTO con la información de las cuentas
+            return TransactionListDTO.fromEntity(transaction, accountOrigin, accountDestination);
+        }).toList();
     }
-
-
-
-
-
-
 }

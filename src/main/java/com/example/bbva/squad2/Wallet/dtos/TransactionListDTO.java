@@ -16,8 +16,6 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-
-
 public class TransactionListDTO {
 
     private Long id;
@@ -30,9 +28,10 @@ public class TransactionListDTO {
 
     @DateTimeFormat(pattern = "HH:mm")
     private LocalDateTime timestamp;
-    private AccountNameDTO account;
+    private AccountNameDTO accountOrigen;
+    private AccountNameDTO accountDestino;
 
-    public static TransactionListDTO fromEntity(Transaction transaction) {
+    public static TransactionListDTO fromEntity(Transaction transaction, Account cuentaOrigen, Account cuentaDestino) {
         return TransactionListDTO.builder()
                 .id(transaction.getId())
                 .cbuDestino(transaction.getCbuDestino())
@@ -42,8 +41,8 @@ public class TransactionListDTO {
                 .description(transaction.getDescription())
                 .concept(transaction.getConcept())
                 .timestamp(transaction.getTimestamp())
-                .account(AccountNameDTO.fromEntity(transaction.getAccount()))
+                .accountOrigen(cuentaOrigen != null ? AccountNameDTO.fromEntity(cuentaOrigen) : null)
+                .accountDestino(cuentaDestino != null ? AccountNameDTO.fromEntity(cuentaDestino) : null)
                 .build();
     }
-
 }
