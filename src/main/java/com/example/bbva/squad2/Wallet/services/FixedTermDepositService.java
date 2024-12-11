@@ -55,7 +55,7 @@ public class FixedTermDepositService {
         }
 
         // Obtener la cuenta en pesos del usuario
-        Account account = accountRepository.findBycbu(cbu)
+        Account account = accountRepository.findByCbu(cbu)
                 .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "El usuario no tiene una cuenta en pesos."));
 
         // Validar que el balance es suficiente
