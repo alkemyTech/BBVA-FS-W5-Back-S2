@@ -587,9 +587,516 @@ Authorization: Bearer <tu-token-jwt>
 }
 ```
 
-#### Nota Adicional:
-- El controlador AdminController está preparado para incluir funcionalidades de administración, como la gestión de transacciones, una vez que los métodos sean implementados.
-- El servicio TransactionService está inyectado en el controlador para ser utilizado en los métodos futuros que gestionarán las transacciones.
-- Este controlador aún no tiene métodos activos, pero puede expandirse para incluir rutas relacionadas con las transacciones en el futuro.
+## Endpoints de TransactionController
+
+---
+
+### 1. **POST `/send`**
+
+#### Descripción:
+Envia una transacción a otra cuenta. Se espera recibir tanto email como CBU de la cuenta destino
+
+#### Autenticación:
+- **Requerida**: Si (Token JWT)
+
+#### Cuerpo de la solicitud:
+```json
+{
+  "destinationCbu": "1234567890123456789012",
+  "currency": "USD",
+  "amount": 100.50,
+  "description": "Pago de servicios",
+  "concept": "Factura 001"
+}
+
+```
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | Transacción finalizada exitosamente. |
+| `404`  | Cuenta destinataria no encontrada con el CBU especificado. |
+| `400`  | El usuario fue eliminado y su cuenta ya no está disponible para operar. |
+
+#### Ejemplo de Request:
+
+```http
+POST /send HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+
+{
+  "destinationCbu": "1234567890123456789012",
+  "currency": "USD",
+  "amount": 100.50,
+  "description": "Pago de servicios",
+  "concept": "Factura 001"
+}
+
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "status": "success",
+  "message": "Transacción finalizada exitosamente."
+}
+```
+---
+
+### 1. **POST `/deposit/{cbu}`**
+
+#### Descripción:
+Realiza un deposito a la propia cuenta del usuario loggeado.
+
+#### Autenticación:
+- **Requerida**: Si (Token JWT)
+
+#### Cuerpo de la solicitud:
+```json
+{
+  "amount": 500.00,
+  "description": "Depósito en cuenta",
+  "concept": "Ahorro mensual"
+}
+
+```
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | Transacción finalizada exitosamente. |
+| `404`  | Cuenta destinataria no encontrada con el CBU especificado. |
+| `400`  | El usuario fue eliminado y su cuenta ya no está disponible para operar. |
+| `500`  | Error inesperado al procesar el depósito. |
+
+#### Ejemplo de Request:
+
+```http
+POST /deposit/1234567890123456789012 HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+
+{
+  "amount": 500.00,
+  "description": "Depósito en cuenta",
+  "concept": "Ahorro mensual"
+}
+
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "status": "success",
+  "message": "Depósito realizado exitosamente.",
+  "data": {
+    "transaction": {
+      "id": "12345",
+      "amount": 500.00,
+      "type": "INGRESO",
+      "description": "Depósito en cuenta",
+      "concept": "Ahorro mensual",
+      "date": "2024-12-11T10:00:00Z"
+    },
+    "account": {
+      "cbu": "1234567890123456789012",
+      "balance": 1500.00,
+      "currency": "USD"
+    }
+  }
+}
+```
+---
+
+### 1. **GET `/{id}`**
+
+#### Descripción:
+Obtener la transacción del usuario loggeado por id
+
+#### Autenticación:
+- **Requerida**: Si (Token JWT)
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `200`  | Transacción finalizada exitosamente. |
+| `401`  | Acceso no autorizado a la transacción solicitada. |
+| `500`  | Error inesperado al buscar la transacción. |
+
+#### Ejemplo de Request:
+
+```http
+GET /12345 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "status": "success",
+  "message": "Transacción encontrada exitosamente.",
+  "data": {
+    "id": 12345,
+    "cbuDestino": "9876543210987654321098",
+    "cbuOrigen": "1234567890123456789012",
+    "amount": 200.00,
+    "type": "PAGO",
+    "description": "Pago de servicios",
+    "concept": "Electricidad",
+    "timestamp": "2024-12-11T10:00:00",
+    "accountOrigen": {
+      "cbu": "1234567890123456789012",
+      "owner": "Juan Pérez",
+      "currency": "USD"
+    },
+    "accountDestino": {
+      "cbu": "9876543210987654321098",
+      "owner": "Empresa Eléctrica",
+      "currency": "USD"
+    }
+  }
+}
+```
+---
+
+### 1. **PATCH `/{id}}`**
+
+#### Descripción:
+Editar una transacción para modificar solo la descripción.
+
+#### Autenticación:
+- **Requerida**: Si (Token JWT)
+
+#### Cuerpo de la solicitud:
+```json
+{
+  "description": "Nueva descripción de la transacción",
+  "concept": "Electricidad"
+}
+
+```
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `403`  | No tienes permisos para editar esta transacción. |
+| `404`  | Transacción no encontrada |
+| `400`  | Descripción inválida. |
+| `500`  | Error inesperado al actualizar la transacción. |
+
+#### Ejemplo de Request:
+
+```http
+PATCH /12345 HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "description": "Nueva descripción de la transacción",
+  "concept": "Electricidad"
+}
+
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "status": "success",
+  "message": "Transacción actualizada exitosamente.",
+  "data": {
+    "description": "Nueva descripción de la transacción",
+    "concept": "Electricidad"
+  }
+}
+```
+---
+
+### 1. **GET `/user/{userId}`**
+
+#### Descripción:
+Obtener las transacciones de usuarios por id.
+
+#### Autenticación:
+- **Requerida**: Si (Token JWT)
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `403`  | Acceso denegado. |
+| `404`  | Usuario no encontrado |
+| `500`  | Error inesperado al obtener las transacciones. |
+
+#### Ejemplo de Request:
+
+```http
+GET /user/12345 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "status": "success",
+  "message": "Transacciones obtenidas exitosamente",
+  "data": [
+    {
+      "id": 1,
+      "cbuDestino": "1234567890123456789012",
+      "cbuOrigen": "0987654321098765432109",
+      "amount": 500.00,
+      "type": "PAGO",
+      "description": "Pago de servicios",
+      "concept": "Servicios",
+      "timestamp": "2024-12-11T14:30:00",
+      "accountOrigen": {
+        "id": 1001,
+        "alias": "mi-cuenta-origen",
+        "cbu": "0987654321098765432109",
+        "currency": "ARS"
+      },
+      "accountDestino": {
+        "id": 1002,
+        "alias": "cuenta-destino",
+        "cbu": "1234567890123456789012",
+        "currency": "ARS"
+      }
+    }
+  ]
+}
+
+```
+---
+
+### 1. **GET `/user`**
+
+#### Descripción:
+Obtener las transacciones de usuarios especificos.
+
+#### Autenticación:
+- **Requerida**: Si (Token JWT)
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `401`  | No se encuentra autenticado. |
+| `404`  | No se encontraron transacciones para el usuario |
+| `500`  | Error al obtener las transacciones del usuario. |
+
+#### Ejemplo de Request:
+
+```http
+GET /user HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "status": "success",
+  "message": "Transacciones obtenidas exitosamente",
+  "data": [
+    {
+      "id": 1,
+      "cbuDestino": "1234567890123456789012",
+      "cbuOrigen": "0987654321098765432109",
+      "amount": 500.00,
+      "type": "PAGO",
+      "description": "Pago de servicios",
+      "concept": "Servicios",
+      "timestamp": "2024-12-11T14:30:00",
+      "accountOrigen": {
+        "id": 1001,
+        "alias": "mi-cuenta-origen",
+        "cbu": "0987654321098765432109",
+        "currency": "ARS"
+      },
+      "accountDestino": {
+        "id": 1002,
+        "alias": "cuenta-destino",
+        "cbu": "1234567890123456789012",
+        "currency": "ARS"
+      }
+    }
+  ]
+}
+```
+---
+
+### 1. **POST `/payment`**
+
+#### Descripción:
+Realizar un pago por el usuario loggeado.
+
+#### Autenticación:
+- **Requerida**: Si (Token JWT)
+
+#### Cuerpo de la solicitud:
+```json
+{
+  "nroTarjeta": "1234567812345678",
+  "amount": 1000.50,
+  "currency": "ARS",
+  "description": "Pago de tarjeta de crédito",
+  "concept": "Tarjeta de crédito"
+}
+
+```
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `400`  | El monto a depositar debe ser mayor a cero. |
+| `401`  | No se encuentra autenticado |
+| `500`  | Error al procesar el pago. |
+
+#### Ejemplo de Request:
+
+```http
+POST /payment HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+Authorization: Bearer <token>
+
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "status": "success",
+  "message": "Pago realizado con éxito",
+  "data": {
+    "transaction": {
+      "id": 101,
+      "cbuDestino": "1234567890123456789012",
+      "cbuOrigen": "1234567812345678",
+      "amount": 1000.50,
+      "type": "Pago",
+      "description": "Pago de tarjeta de crédito",
+      "concept": "Tarjeta de crédito",
+      "timestamp": "2024-12-11T15:45:00",
+      "balance": 5000.00
+    },
+    "account": {
+      "id": 1001,
+      "alias": "mi-cuenta",
+      "cbu": "1234567812345678",
+      "currency": "ARS",
+      "balance": 4000.00
+    }
+  }
+}
+
+```
+---
+
+### 1. **POST `/sendrecipient`**
+
+#### Descripción:
+Enviar dinero a un beneficiario.
+
+#### Autenticación:
+- **Requerida**: Si (Token JWT)
+
+#### Cuerpo de la solicitud:
+```json
+{
+  "destinationCbu": "1234567890123456789012",
+  "amount": 1500.00,
+  "currency": "ARS",
+  "description": "Pago de servicios",
+  "concept": "Servicios"
+}
+
+```
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `400`  | No se puede realizar una transferencia a una cuenta propia. |
+| `404`  | Cuenta emisora no encontrada para el usuario autenticado con la moneda especificada. |
+| `401`  | No se encuentra autenticado. |
+
+#### Ejemplo de Request:
+
+```http
+POST /sendRecipient HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+Authorization: Bearer <token>
+
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "status": "success",
+  "message": "Transacción finalizada exitosamente."
+}
+
+```
+---
+
+### 1. **GET `/user/{userId}/paginated`**
+
+#### Descripción:
+Obtener las transacciones paginadas de un usuario.
+
+#### Autenticación:
+- **Requerida**: Si (Token JWT)
+
+#### Respuestas:
+| Código | Descripción |
+|--------|-------------|
+| `404`  | Usuario no encontrado. |
+| `401`  | No se encuentra autenticado. |
+
+#### Ejemplo de Request:
+
+```http
+GET /user/10/paginated?page=0&size=10 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+
+```
+
+#### Ejemplo de Respuesta:
+```json
+{
+  "data": [
+    {
+      "id": 101,
+      "cbuDestino": "2222222222222222222222",
+      "cbuOrigen": "1111111111111111111111",
+      "amount": 500.00,
+      "type": "Pago",
+      "description": "Alquiler mensual",
+      "concept": "Alquiler",
+      "timestamp": "10:00",
+      "accountOrigen": {
+        "name": "Caja de Ahorro"
+      },
+      "accountDestino": {
+        "name": "Cuenta Propietario"
+      }
+    }
+  ],
+  "currentPage": 0,
+  "totalPages": 3,
+  "previousPageUrl": null,
+  "nextPageUrl": "/user/10/paginated?page=1&size=10"
+}
+
+
+```
+---
+
 ---
 
