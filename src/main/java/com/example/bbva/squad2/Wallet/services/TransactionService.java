@@ -93,7 +93,7 @@ public class TransactionService {
                 senderAccount.getCbu(),
                 destinationAccount.getCbu(),
                 dto.getAmount(),
-                TransactionTypeEnum.PAGO,
+                TransactionTypeEnum.Pago,
                 dto.getDescription(),
                 dto.getConcept()
         );
@@ -103,7 +103,7 @@ public class TransactionService {
                 senderAccount.getCbu(),
                 destinationAccount.getCbu(),
                 dto.getAmount(),
-                TransactionTypeEnum.INGRESO,
+                TransactionTypeEnum.Ingreso,
                 dto.getDescription(),
                 dto.getConcept()
 
@@ -192,7 +192,7 @@ public class TransactionService {
                 senderAccount.getCbu(),
                 destinationAccount.getCbu(),
                 dto.getAmount(),
-                TransactionTypeEnum.PAGO,
+                TransactionTypeEnum.Pago,
                 dto.getDescription(),
                 dto.getConcept()
         );
@@ -202,7 +202,7 @@ public class TransactionService {
                 senderAccount.getCbu(),
                 destinationAccount.getCbu(),
                 dto.getAmount(),
-                TransactionTypeEnum.INGRESO,
+                TransactionTypeEnum.Ingreso,
                 dto.getDescription(),
                 dto.getConcept()
         );
@@ -244,7 +244,7 @@ public class TransactionService {
                 "External",
                 account.getCbu(),
                 dto.getAmount(),
-                TransactionTypeEnum.DEPOSITO,
+                TransactionTypeEnum.Deposito,
                 dto.getDescription(),
                 dto.getConcept()
         );
@@ -311,7 +311,7 @@ public class TransactionService {
                 cuenta.getCbu(),
                 "Pago de tarjeta",
                 dto.getAmount(),
-                TransactionTypeEnum.PAGO,
+                TransactionTypeEnum.Pago,
                 dto.getDescription(),
                 dto.getConcept()
         );

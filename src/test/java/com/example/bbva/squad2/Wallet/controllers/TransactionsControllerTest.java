@@ -43,7 +43,7 @@ class TransactionControllerTest {
                 .amount(1500.00)
                 .currency(CurrencyTypeEnum.ARS)
                 .description("Deposito")
-                .concept(Concept.COMIDA)
+                .concept(Concept.Comida)
                 .build();
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -71,7 +71,7 @@ class TransactionControllerTest {
                 .amount(1500.00)
                 .currency(CurrencyTypeEnum.ARS)
                 .description("test")
-                .concept(Concept.COMIDA)
+                .concept(Concept.Comida)
                 .build();
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -107,7 +107,7 @@ class TransactionControllerTest {
                 .amount(1500.00)
                 .currency(CurrencyTypeEnum.ARS)
                 .description("test")
-                .concept(Concept.COMIDA)
+                .concept(Concept.Comida)
                 .build();
 
         AccountDTO accountDTO = AccountDTO.builder()
@@ -145,7 +145,7 @@ class TransactionControllerTest {
                 .amount(2000.00)  // Monto mayor al límite de la cuenta
                 .currency(CurrencyTypeEnum.ARS)
                 .description("test")
-                .concept(Concept.COMIDA)
+                .concept(Concept.Comida)
                 .build();
 
         MockHttpServletRequest request = new MockHttpServletRequest();

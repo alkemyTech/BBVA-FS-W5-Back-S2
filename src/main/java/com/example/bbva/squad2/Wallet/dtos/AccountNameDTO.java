@@ -21,8 +21,8 @@ public class AccountNameDTO {
     public static AccountNameDTO fromEntity(Account account) {
         return AccountNameDTO.builder()
                 .firstName(account.getUser().getFirstName())  // Asegúrate de que `account.getUser()` no sea null
-                .lastName(account.getUser().getLastName())    // Similar para el apellido
-                .currency(account.getCurrency())
+                .lastName(account.getUser().getLastName())
+                .currency(account.getCurrency())// Similar para el apellido
                 .build();
 
     }
