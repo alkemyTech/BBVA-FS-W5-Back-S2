@@ -260,6 +260,14 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public List<UserDTO> searchUsersByName(String name) {
+        return userRepository.findByFirstNameContainingIgnoreCase(name).stream()
+                .filter(u -> u.getSoftDelete() == null)
+                .map(UserDTO::mapFromUser)
+                .collect(Collectors.toList());
+    }
+
+
 
 }
 

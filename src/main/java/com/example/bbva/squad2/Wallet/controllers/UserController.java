@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -127,5 +128,18 @@ public class UserController {
         List<RecipientResponseDTO> beneficiariosDTO = userService.getBeneficiarios(usuarioSeguridad.getId());
 
         return ResponseEntity.ok(beneficiariosDTO);
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Buscar usuarios por nombre")
+    public ResponseEntity<List<UserDTO>> searchUsersByName(@RequestParam String name) {
+        try {
+            List<UserDTO> users = userService.searchUsersByName(name);
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            // En caso de error, devuelve una lista vacía o un DTO de error adecuado
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.emptyList()); // Lista vacía en caso de error
+        }
     }
 }
