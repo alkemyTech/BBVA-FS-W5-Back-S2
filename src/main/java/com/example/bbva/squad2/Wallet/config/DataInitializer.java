@@ -145,24 +145,24 @@ public class DataInitializer {
                 Transaction.builder()
                         .CbuDestino(accountPesos.getCbu())
                         .CbuOrigen("External")
-                        .concept(Concept.OTROS)
+                        .concept(Concept.Otros)
                         .description("Deposito")
                         .timestamp(LocalDateTime.now())
                         .amount(5000.00)
                         .account(accountDolares)
-                        .type(TransactionTypeEnum.DEPOSITO)
+                        .type(TransactionTypeEnum.Deposito)
                         .build());
 
         tr.save(
                 Transaction.builder()
                         .CbuDestino(accountPesos.getCbu())
                         .CbuOrigen("External")
-                        .concept(Concept.OTROS)
+                        .concept(Concept.Otros)
                         .description("Deposito")
                         .timestamp(LocalDateTime.now())
                         .amount(15000.00)
                         .account(accountPesos)
-                        .type(TransactionTypeEnum.DEPOSITO)
+                        .type(TransactionTypeEnum.Deposito)
                         .build());
     }
 }
