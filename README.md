@@ -1154,12 +1154,15 @@ Obtiene todas las cuentas de un usuario específico.
 
 Parámetros:
 userId: ID del usuario.
+
 Respuestas:
-Código	Descripción
-200	    Exito: Cuentas obtenidas exitosamente
-403	    Acceso denegado
-404	    Usuario no encontrado
-500	    Error inesperado al obtener cuentas
+| Código | Descripción                                |
+|--------|--------------------------------------------|
+| 200    | Éxito: Cuentas obtenidas exitosamente      |
+| 403    | Acceso denegado                            |
+| 404    | Usuario no encontrado                      |
+| 500    | Error inesperado al obtener cuentas       |
+
 
 Ejemplo de Request:
 ```http
@@ -1168,8 +1171,8 @@ Host: api.example.com
 Authorization: Bearer <token>
 ```
 
-```Ejemplo de Respuesta:
-json
+#### Ejemplo de Respuesta:
+```json
 {
   "status": "success",
   "message": "Cuentas obtenidas exitosamente",
@@ -1193,12 +1196,12 @@ Parámetros:
 currency: Tipo de moneda para la nueva cuenta (ej. ARS, USD).
 Autenticación: Requerida: Sí (Token JWT)
 
-
 Respuestas:
-Código	Descripción
-201	    Éxito: Cuenta creada
-400	    Petición inválida
-500	Error inesperado al crear la cuenta
+| Código | Descripción                             |
+|--------|-----------------------------------------|
+| 201    | Éxito: Cuenta creada                   |
+| 400    | Petición inválida                      |
+| 500    | Error inesperado al crear la cuenta    |
 
 
 
@@ -1214,7 +1217,11 @@ Content-Type: application/json
 {
   "currency": "ARS"
 }
-Ejemplo de Respuesta:
+
+```
+
+#### Ejemplo de Respuesta:
+```json
 {
   "status": "success",
   "message": "Cuenta creada exitosamente",
@@ -1236,17 +1243,24 @@ Autenticación:
 Requerida: Sí (Token JWT)
 
 Respuestas:
-Código	Descripción
-200	Éxito: Balance obtenido exitosamente
-403	Acceso denegado
-404	Usuario no encontrado
-500	Error inesperado al obtener balance
+
+| Código | Descripción                                    |
+|--------|------------------------------------------------|
+| 200    | Éxito: Balance obtenido exitosamente            |
+| 403    | Acceso denegado                                |
+| 404    | Usuario no encontrado                          |
+| 500    | Error inesperado al obtener balance           |
+
 
 ```http
 GET /accounts/balance HTTP/1.1
 Host: api.example.com
 Authorization: Bearer <token>
 
+```
+
+#### Ejemplo de Respuesta:
+```json
 {
   "status": "success",
   "message": "Balance obtenido exitosamente",
@@ -1263,12 +1277,13 @@ Editar el límite de transacción de la cuenta del usuario loggeado.
 Autenticación:
 Requerida: Sí (Token JWT)
 
-Respuestas:
-Código	Descripción
-200	Éxito: Límite de transacción actualizado exitosamente
-403	Acceso denegado
-404	Cuenta no encontrada
-500	Error inesperado al actualizar el límite de transacción
+| Código | Descripción                                                   |
+|--------|---------------------------------------------------------------|
+| 200    | Éxito: Límite de transacción actualizado exitosamente         |
+| 403    | Acceso denegado                                               |
+| 404    | Cuenta no encontrada                                           |
+| 500    | Error inesperado al actualizar el límite de transacción      |
+
 
 ```http
 PATCH /accounts/1 HTTP/1.1
@@ -1276,6 +1291,10 @@ Host: api.example.com
 Authorization: Bearer <token>
 Content-Type: application/json
 
+```
+
+#### Ejemplo de Respuesta:
+```json
 {
   "newTransactionLimit": 10000.00
 }
@@ -1300,18 +1319,22 @@ Autenticación:
 Requerida: Sí (Token JWT)
 
 Respuestas:
-Código	Descripción
-200	Éxito: Transacciones obtenidas exitosamente
-403	Acceso denegado
-404	Cuenta no encontrada
-500	Error inesperado al obtener transacciones
+| Código | Descripción                                                   |
+|--------|---------------------------------------------------------------|
+| 200    | Éxito: Transacciones obtenidas exitosamente                   |
+| 403    | Acceso denegado                                               |
+| 404    | Cuenta no encontrada                                           |
+| 500    | Error inesperado al obtener transacciones                     |
+
 
 ```http
 ET /accounts/transactions HTTP/1.1
 Host: api.example.com
 Authorization: Bearer <token>
+```
 
-
+#### Ejemplo de Respuesta:
+```json
 {
   "status": "success",
   "message": "Transacciones obtenidas exitosamente",
