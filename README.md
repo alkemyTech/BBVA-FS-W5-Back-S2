@@ -1146,7 +1146,88 @@ Ejemplo de Respuesta:
     }
   ]
 }
+```
+
+GET /accounts/{userId}
+Descripción:
+Obtiene todas las cuentas de un usuario específico.
+
+Parámetros:
+userId: ID del usuario.
+Respuestas:
+Código	Descripción
+200	    Exito: Cuentas obtenidas exitosamente
+403	    Acceso denegado
+404	    Usuario no encontrado
+500	    Error inesperado al obtener cuentas
+
+Ejemplo de Request:
+```http
+GET /accounts/12345 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+```
+
+```Ejemplo de Respuesta:
+json
+{
+  "status": "success",
+  "message": "Cuentas obtenidas exitosamente",
+  "data": [
+    {
+      "id": 1,
+      "currency": "ARS",
+      "balance": 10000.50,
+      "transactionLimit": 5000.00,
+      "status": "ACTIVE"
+    }
+  ]
+}
+```
+POST /accounts/{currency}
+
+Descripción:
+Crea una cuenta para el usuario logueado con una moneda especificada.
+
+Parámetros:
+currency: Tipo de moneda para la nueva cuenta (ej. ARS, USD).
+Autenticación:
+Requerida: Sí (Token JWT)
+```
+```
+Respuestas:
+Código	Descripción
+201	    Éxito: Cuenta creada
+400	    Petición inválida
+500	Error inesperado al crear la cuenta
+```
 
 
----
+
+Ejemplo de Request:
+http
+POST /accounts/ARS HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+Content-Type: application/json
+
+
+{
+  "currency": "ARS"
+}
+Ejemplo de Respuesta:
+json
+{
+  "status": "success",
+  "message": "Cuenta creada exitosamente",
+  "data": {
+    "id": 3,
+    "currency": "ARS",
+    "balance": 0.00,
+    "transactionLimit": 5000.00,
+    "status": "ACTIVE"
+  }
+}
+
+
 
