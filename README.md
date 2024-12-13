@@ -1097,43 +1097,7 @@ Authorization: Bearer <token>
 
 ```
 ---
-## Endpoints de AccountsController
 
-1. GET /accounts
-Descripción:
-Obtener todas las cuentas asociadas al usuario actualmente logueado.
-
-Autenticación:
-Requerida: Sí (Token JWT)
-
-Respuestas:
-
-200	Lista de cuentas del usuario logueado.
-401	No se encuentra autenticado.
-500	Error interno al obtener las cuentas.
-
-Ejemplo de Request:
-
-GET /accounts/
-Host: api.example.com
-Authorization: Bearer <token>
-
-
-
-JSON:[
-  {
-    "id": 1,
-    "currency": "ARS",
-    "balance": 1500.00,
-    "transactionLimit": 10000.00
-  },
-  {
-    "id": 2,
-    "currency": "USD",
-    "balance": 500.00,
-    "transactionLimit": 2000.00
-  }
-]
 
 ---
 
