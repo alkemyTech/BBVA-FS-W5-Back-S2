@@ -111,7 +111,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
     }
 
-    @PostMapping("/beneficiarios/{beneficiarioCBU}/add")
+    @PostMapping("/beneficiarios/add")
     @Operation(summary = "Agregar un beneficiario a un usuario")
     public ResponseEntity<RecipientResponseDTO> addBeneficiario(
             HttpServletRequest request,
