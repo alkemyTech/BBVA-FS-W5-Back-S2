@@ -1200,12 +1200,12 @@ Código	Descripción
 201	    Éxito: Cuenta creada
 400	    Petición inválida
 500	Error inesperado al crear la cuenta
-```
+
 
 
 
 Ejemplo de Request:
-http
+```http
 POST /accounts/ARS HTTP/1.1
 Host: api.example.com
 Authorization: Bearer <token>
@@ -1216,7 +1216,6 @@ Content-Type: application/json
   "currency": "ARS"
 }
 Ejemplo de Respuesta:
-json
 {
   "status": "success",
   "message": "Cuenta creada exitosamente",
