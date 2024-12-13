@@ -1098,6 +1098,53 @@ Authorization: Bearer <token>
 ```
 ---
 
+# API Endpoints - Cuentas
+
+## 1. GET /accounts
+### Descripción:
+Obtiene todas las cuentas del usuario actualmente logueado.
+
+### Autenticación:
+Requerida: **Sí** (Token JWT)
+
+### Respuestas:
+| Código | Descripción                          |
+|--------|--------------------------------------|
+| 200    | Éxito: Cuentas obtenidas exitosamente |
+| 403    | Acceso denegado                      |
+| 404    | Usuario no encontrado                |
+| 500    | Error inesperado al obtener cuentas |
+
+### Ejemplo de Request:
+```http
+GET /accounts HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+
+
+Ejemplo de Respuesta:
+json
+{
+  "status": "success",
+  "message": "Cuentas obtenidas exitosamente",
+  "data": [
+    {
+      "id": 1,
+      "currency": "ARS",
+      "balance": 10000.50,
+      "transactionLimit": 5000.00,
+      "status": "ACTIVE"
+    },
+    {
+      "id": 2,
+      "currency": "USD",
+      "balance": 1500.75,
+      "transactionLimit": 2000.00,
+      "status": "ACTIVE"
+    }
+  ]
+}
+
 
 ---
 
