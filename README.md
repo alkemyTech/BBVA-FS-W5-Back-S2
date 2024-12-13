@@ -1191,10 +1191,9 @@ Crea una cuenta para el usuario logueado con una moneda especificada.
 
 Parámetros:
 currency: Tipo de moneda para la nueva cuenta (ej. ARS, USD).
-Autenticación:
-Requerida: Sí (Token JWT)
-```
-```
+Autenticación: Requerida: Sí (Token JWT)
+
+
 Respuestas:
 Código	Descripción
 201	    Éxito: Cuenta creada
@@ -1227,6 +1226,119 @@ Ejemplo de Respuesta:
     "status": "ACTIVE"
   }
 }
+```
+
+ GET /accounts/balance
+Descripción:
+Obtener balance de cuentas del usuario loggeado.
+
+Autenticación:
+Requerida: Sí (Token JWT)
+
+Respuestas:
+Código	Descripción
+200	Éxito: Balance obtenido exitosamente
+403	Acceso denegado
+404	Usuario no encontrado
+500	Error inesperado al obtener balance
+
+```http
+GET /accounts/balance HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+```
+```json
+{
+  "status": "success",
+  "message": "Balance obtenido exitosamente",
+  "data": {
+    "balance": 5000.00
+  }
+}
+```
+
+5. PATCH /accounts/{id}
+Descripción:
+Editar el límite de transacción de la cuenta del usuario loggeado.
+
+Autenticación:
+Requerida: Sí (Token JWT)
+
+Respuestas:
+Código	Descripción
+200	Éxito: Límite de transacción actualizado exitosamente
+403	Acceso denegado
+404	Cuenta no encontrada
+500	Error inesperado al actualizar el límite de transacción
+
+```http
+PATCH /accounts/1 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "newTransactionLimit": 10000.00
+}
+```
+```json
+{
+  "status": "success",
+  "message": "Límite de transacción actualizado exitosamente",
+  "data": {
+    "id": 1,
+    "cbu": "1234567890123456789012",
+    "currency": "ARS",
+    "balance": 1500.00,
+    "transactionLimit": 10000.00
+  }
+}
+```
+
+GET /accounts/transactions
+Descripción:
+Obtener transacciones por cada cuenta del usuario.
+
+Autenticación:
+Requerida: Sí (Token JWT)
+
+Respuestas:
+Código	Descripción
+200	Éxito: Transacciones obtenidas exitosamente
+403	Acceso denegado
+404	Cuenta no encontrada
+500	Error inesperado al obtener transacciones
+
+```http
+ET /accounts/transactions HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "status": "success",
+  "message": "Transacciones obtenidas exitosamente",
+  "data": [
+    {
+      "transactionId": 1,
+      "amount": 1000.00,
+      "currency": "ARS",
+      "date": "2024-12-12T15:30:00",
+      "description": "Pago de servicios"
+    },
+    {
+      "transactionId": 2,
+      "amount": 500.00,
+      "currency": "ARS",
+      "date": "2024-12-10T10:00:00",
+      "description": "Compra en tienda"
+    }
+  ]
+}
+
+
+
 
 
 
