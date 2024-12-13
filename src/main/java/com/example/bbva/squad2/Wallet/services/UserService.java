@@ -7,8 +7,10 @@ import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.Role;
 import com.example.bbva.squad2.Wallet.models.User;
+import com.example.bbva.squad2.Wallet.models.UserBeneficiary;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.repositories.RolesRepository;
+import com.example.bbva.squad2.Wallet.repositories.UserBeneficiaryRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,6 +42,9 @@ public class UserService {
 
     @Autowired
     private UserRepository usuarioRepository;
+
+    @Autowired
+    private UserBeneficiaryRepository userBeneficiaryRepository;
 
     public UserDetailsService userDetailsService() {
         return username -> {
@@ -185,12 +190,14 @@ public class UserService {
         User usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
+        // Buscar la cuenta asociada al CBU
         Account accountBeneficiario = accountsRepository.findByCbu(beneficiarioDTO.getCbu())
                 .orElseThrow(() -> new WalletsException(
                         HttpStatus.NOT_FOUND,
                         "Cuenta no encontrada con el CBU especificado."
                 ));
 
+        // Verificar que la cuenta no pertenece al mismo usuario
         if (usuario.getId().equals(accountBeneficiario.getUser().getId())) {
             throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
@@ -198,29 +205,35 @@ public class UserService {
             );
         }
 
-        if(accountBeneficiario.getCurrency() == CurrencyTypeEnum.USD){
-            throw new WalletsException(
-                HttpStatus.BAD_REQUEST,
-                "No se puede agregar una cuenta en dolares."
-            );
-        }
-
-        // Obtener el beneficiario
+        // Obtener el beneficiario a través de la cuenta
         User beneficiario = accountBeneficiario.getUser();
 
-        if(beneficiario.getSoftDelete() != null){
+        // Validar que el beneficiario no esté eliminado
+        if (beneficiario.getSoftDelete() != null) {
             throw new WalletsException(
                     HttpStatus.BAD_REQUEST,
                     "Este usuario ha sido eliminado y no es posible agregarlo como beneficiario."
             );
         }
 
-        // Agregar al beneficiario
-        usuario.getBeneficiarios().add(beneficiario);
+        // Verificar si ya existe el beneficiario con el mismo CBU
+        boolean existe = userBeneficiaryRepository.existsByUsuarioAndBeneficiarioAndCbu(usuario, beneficiario, accountBeneficiario.getCbu());
+        if (existe) {
+            throw new WalletsException(
+                    HttpStatus.BAD_REQUEST,
+                    "El beneficiario ya está agregado con este CBU."
+            );
+        }
 
-        // Guardar cambios
-        usuarioRepository.save(usuario);
+        // Crear y guardar la relación beneficiario-CBU
+        UserBeneficiary usuarioBeneficiario = UserBeneficiary.builder()
+                .usuario(usuario)
+                .beneficiario(beneficiario)
+                .cbu(accountBeneficiario.getCbu())
+                .build();
+        userBeneficiaryRepository.save(usuarioBeneficiario);
 
+        // Crear el DTO de respuesta
         RecipientResponseDTO nuevoBeneficiario = new RecipientResponseDTO();
         nuevoBeneficiario.setIdRecipient(beneficiario.getId());
         nuevoBeneficiario.setNombreApellido(beneficiario.getFirstName() + " " + beneficiario.getLastName());
@@ -232,28 +245,28 @@ public class UserService {
         return ResponseEntity.ok(nuevoBeneficiario);
     }
 
+
     public List<RecipientResponseDTO> getBeneficiarios(Long usuarioId) throws WalletsException{
         User usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new WalletsException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
-        List<User> beneficiarios = usuario.getBeneficiarios();
+        List<UserBeneficiary> beneficiarios = usuario.getBeneficiarios();
 
         return beneficiarios.stream()
                 .map(beneficiario -> {
                     RecipientResponseDTO dto = new RecipientResponseDTO();
                     dto.setIdRecipient(beneficiario.getId());
-                    dto.setNombreApellido(beneficiario.getFirstName() + " " + beneficiario.getLastName());
-                    dto.setUsername(beneficiario.getEmail());
+                    dto.setNombreApellido(beneficiario.getBeneficiario().getFirstName() + " " + beneficiario.getBeneficiario().getLastName());
+                    dto.setUsername(beneficiario.getBeneficiario().getEmail());
                     dto.setBancoWallet("Banco");
 
-                    List<Account> cuentas = beneficiario.getAccounts();
+                    Optional<Account> cuentas = accountsRepository.findByCbu(beneficiario.getCbu());
 
-                    for (Account cuenta : cuentas) {
-                        if (cuenta.getCurrency().equals(CurrencyTypeEnum.ARS)) {
-                            AccountDTO accountDTO = new AccountDTO().mapFromAccount(cuenta);
-                            dto.addAccountDTO(accountDTO);
-                        }
-                    }
+                    cuentas.ifPresent(cuenta -> {
+                        // Si la cuenta existe, mapea la cuenta a un DTO y añádelo
+                        AccountDTO accountDTO = new AccountDTO().mapFromAccount(cuenta);
+                        dto.addAccountDTO(accountDTO);
+                    });
 
                     return dto;
                 })

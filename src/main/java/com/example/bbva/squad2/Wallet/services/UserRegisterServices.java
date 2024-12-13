@@ -30,6 +30,7 @@ public class UserRegisterServices {
 
         // Crear cuenta
         as.createAccount(createdUser.getId(), CurrencyTypeEnum.ARS);
+        as.createAccount(createdUser.getId(), CurrencyTypeEnum.USD);
 
         // Generar token de autenticación
         String token = authService.generateToken(createdUser);
