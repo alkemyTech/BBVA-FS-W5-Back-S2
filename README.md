@@ -1116,14 +1116,16 @@ Requerida: **Sí** (Token JWT)
 | 500    | Error inesperado al obtener cuentas |
 
 ### Ejemplo de Request:
+
 ```http
 GET /accounts HTTP/1.1
 Host: api.example.com
 Authorization: Bearer <token>
 
+```
 
 Ejemplo de Respuesta:
-json
+```json
 {
   "status": "success",
   "message": "Cuentas obtenidas exitosamente",
