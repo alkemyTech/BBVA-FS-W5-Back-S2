@@ -1148,7 +1148,7 @@ Ejemplo de Respuesta:
 }
 ```
 
-GET /accounts/{userId}
+## 2- GET /accounts/{userId}
 Descripción:
 Obtiene todas las cuentas de un usuario específico.
 
@@ -1184,7 +1184,7 @@ json
   ]
 }
 ```
-POST /accounts/{currency}
+## 3- POST /accounts/{currency}
 
 Descripción:
 Crea una cuenta para el usuario logueado con una moneda especificada.
@@ -1228,7 +1228,7 @@ Ejemplo de Respuesta:
 }
 ```
 
- GET /accounts/balance
+## 4- GET /accounts/balance
 Descripción:
 Obtener balance de cuentas del usuario loggeado.
 
@@ -1246,8 +1246,7 @@ Código	Descripción
 GET /accounts/balance HTTP/1.1
 Host: api.example.com
 Authorization: Bearer <token>
-```
-```json
+
 {
   "status": "success",
   "message": "Balance obtenido exitosamente",
@@ -1257,7 +1256,7 @@ Authorization: Bearer <token>
 }
 ```
 
-5. PATCH /accounts/{id}
+## 5. PATCH /accounts/{id}
 Descripción:
 Editar el límite de transacción de la cuenta del usuario loggeado.
 
@@ -1280,8 +1279,6 @@ Content-Type: application/json
 {
   "newTransactionLimit": 10000.00
 }
-```
-```json
 {
   "status": "success",
   "message": "Límite de transacción actualizado exitosamente",
@@ -1295,7 +1292,7 @@ Content-Type: application/json
 }
 ```
 
-GET /accounts/transactions
+## 6-GET /accounts/transactions
 Descripción:
 Obtener transacciones por cada cuenta del usuario.
 
@@ -1313,9 +1310,8 @@ Código	Descripción
 ET /accounts/transactions HTTP/1.1
 Host: api.example.com
 Authorization: Bearer <token>
-```
 
-```json
+
 {
   "status": "success",
   "message": "Transacciones obtenidas exitosamente",
@@ -1336,6 +1332,12 @@ Authorization: Bearer <token>
     }
   ]
 }
+
+```
+
+
+
+
 
 
 
