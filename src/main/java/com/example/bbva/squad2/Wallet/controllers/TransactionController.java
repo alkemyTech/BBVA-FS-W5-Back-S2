@@ -6,6 +6,7 @@ import com.example.bbva.squad2.Wallet.enums.Concept;
 import com.example.bbva.squad2.Wallet.services.TransactionService;
 import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,12 +35,11 @@ public class TransactionController {
     public ResponseEntity<String> sendTransaction(
             @RequestBody SendTransactionDTO request,
             HttpServletRequest httpRequest
-    ) {
+    ) throws MessagingException {
         UsuarioSeguridad usuarioSeguridad = usuarioLoggeadoService.getInfoUserSecurity(httpRequest);
         ts.sendTransaction(request, usuarioSeguridad.getUsername());
         return ResponseEntity.ok("Transacción finalizada exitosamente.");
     }
-
 
     @PostMapping("/deposit/{cbu}")
     @Operation(summary = "Realizar un deposito a una cuenta del usuario loggeado")
@@ -87,7 +87,6 @@ public class TransactionController {
         return ResponseEntity.ok(updatedTransaction);
     }
 
-
     @GetMapping("/user/{userId}")
     @Operation(summary = "Obtener las transacciones de usuarios por id")
     public ResponseEntity<List<TransactionListDTO>> listUserTransactions(
@@ -122,8 +121,6 @@ public class TransactionController {
 
         return ResponseEntity.ok(transactions);
     }
-
-
 
     @PostMapping("/payment")
     @Operation(summary = "Realizar un pago por el usuario loggeado")

@@ -48,6 +48,7 @@ public class DataInitializer {
 
                 // Crear usuarios ADMIN y REGULAR sin limitaciones
                 String[][] adminUsers = {
+                        {"Juan Cruz", "Caggiano", "juancruzcaggiano@hotmail.com", "Juan1234$"},
                         {"Pepe", "Giménez", "pepe.gimenez@yopmail.com", "Pepe@2024Gimenez!"},
                         {"Juan", "Pérez", "juan.perez@yopmail.com", "JuanP@2024Perez!"},
                         {"Ana", "Martínez", "ana.martinez@yopmail.com", "Ana_M@2024Martinez#"},
