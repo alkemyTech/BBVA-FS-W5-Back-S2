@@ -11,6 +11,7 @@ import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.repositories.TransactionsRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,11 +37,14 @@ public class TransactionService {
     @Autowired
     private UserRepository ur;
 
+    @Autowired
+    private EmailService emailService;
+
     public List<Transaction> getTransactionsByUserId(Long userId) {
         return transactionRepository.findByAccount_User_Id(userId);
     }
 
-    public void sendTransaction(SendTransactionDTO dto, String usernamen) throws WalletsException {
+    public void sendTransaction(SendTransactionDTO dto, String usernamen) throws WalletsException, MessagingException {
 
         // Buscar la cuenta emisora a través del email del usuario autenticado (extraído del token)
         Account senderAccount = accountsRepository.findByCurrencyAndUser_Email(dto.getCurrency(), usernamen)
@@ -116,6 +121,32 @@ public class TransactionService {
         // Guardar las cuentas actualizadas
         accountsRepository.save(senderAccount);
         accountsRepository.save(destinationAccount);
+
+        emailService.sendEmail(
+                senderAccount.getUser().getEmail(),
+                "Transferencia enviada",
+                "sendTransaction",
+                Map.of(
+                        "firstNameRemitente", senderAccount.getUser().getFirstName(),
+                        "lastNameRemitente", senderAccount.getUser().getLastName(),
+                        "firstNameReceptor", usuarioDestino.getFirstName(),
+                        "lastNameReceptor", usuarioDestino.getLastName(),
+                        "monto", dto.getAmount().toString()
+                )
+        );
+
+        emailService.sendEmail(
+                usuarioDestino.getEmail(),
+                "Transferencia recibida",
+                "receiveTransaction",
+                Map.of(
+                        "firstNameRemitente", senderAccount.getUser().getFirstName(),
+                        "lastNameRemitente", senderAccount.getUser().getLastName(),
+                        "firstNameReceptor", usuarioDestino.getFirstName(),
+                        "lastNameReceptor", usuarioDestino.getLastName(),
+                        "monto", dto.getAmount().toString()
+                )
+        );
     }
 
     public void sendTransactionToBeneficiario(SendTransactionDTO dto, String usernamen) throws WalletsException {

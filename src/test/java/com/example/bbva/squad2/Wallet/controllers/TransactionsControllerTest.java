@@ -7,6 +7,7 @@ import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.services.TransactionService;
 import com.example.bbva.squad2.Wallet.services.UsuarioLoggeadoService;
+import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -37,7 +38,7 @@ class TransactionControllerTest {
     private TransactionController tc;
 
     @Test
-    void testSendTransactionSuccess() {
+    void testSendTransactionSuccess() throws MessagingException {
         SendTransactionDTO transactionDTO = SendTransactionDTO.builder()
                 .destinationCbu("3948772355226879949513")
                 .amount(1500.00)
@@ -65,7 +66,7 @@ class TransactionControllerTest {
     }
 
     @Test
-    void testSendTransactionToHimselfFail() {
+    void testSendTransactionToHimselfFail() throws MessagingException {
         SendTransactionDTO transactionDTO = SendTransactionDTO.builder()
                 .destinationCbu("2324267237237")
                 .amount(1500.00)
@@ -139,7 +140,7 @@ class TransactionControllerTest {
     }
 
     @Test
-    void testSendTransactionFailedAmountExceedsLimit() {
+    void testSendTransactionFailedAmountExceedsLimit() throws MessagingException {
         SendTransactionDTO transactionDTO = SendTransactionDTO.builder()
                 .destinationCbu("3948772355226879949513")
                 .amount(2000.00)  // Monto mayor al límite de la cuenta
