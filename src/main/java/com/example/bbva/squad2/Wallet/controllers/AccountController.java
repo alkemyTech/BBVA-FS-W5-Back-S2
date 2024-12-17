@@ -70,17 +70,16 @@ public class AccountController {
 		return ResponseEntity.ok(balanceDTO);
 	}
 
-	@PatchMapping("/{id}")
+	@PostMapping("/editLimit")
 	@Operation(summary = "Editar el limite de transacción de la cuenta del usuario loggeado")
 	public ResponseEntity<AccountDTO> updateTransactionLimit(
-			@PathVariable Long id,
-			@RequestParam Double newTransactionLimit,
+			@RequestBody EditLimitDTO editLimitDTO,
 			HttpServletRequest request) {
 
 		UsuarioSeguridad security = usuarioLoggeadoService.getInfoUserSecurity(request);
 		Long userId = security.getId();
 
-		AccountDTO updatedAccount = as.updateTransactionLimit(id, userId, newTransactionLimit);
+		AccountDTO updatedAccount = as.updateTransactionLimit(editLimitDTO.getAccountId(), userId, editLimitDTO.getNewTransactionLimit());
 		return ResponseEntity.status(HttpStatus.CREATED).body(updatedAccount);
 	}
 

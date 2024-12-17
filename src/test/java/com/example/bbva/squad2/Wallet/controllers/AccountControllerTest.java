@@ -1,6 +1,7 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
 import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
+import com.example.bbva.squad2.Wallet.dtos.EditLimitDTO;
 import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
@@ -50,12 +51,12 @@ public class AccountControllerTest {
         Long accountId = 1L;
         Double newTransactionLimit = 5000.0;
         AccountDTO mockResponse = new AccountDTO(accountId, "cbu123", CurrencyTypeEnum.ARS, newTransactionLimit, 10000.0);
-
+        EditLimitDTO editLimitDTO = new EditLimitDTO(accountId, newTransactionLimit);
         when(usuarioLoggeadoService.getInfoUserSecurity(any(HttpServletRequest.class))).thenReturn(mockUser);
         when(accountService.updateTransactionLimit(accountId, mockUser.getId(), newTransactionLimit)).thenReturn(mockResponse);
 
         // Act
-        ResponseEntity<AccountDTO> response = accountController.updateTransactionLimit(accountId, newTransactionLimit, request);
+        ResponseEntity<AccountDTO> response = accountController.updateTransactionLimit(editLimitDTO, request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -67,14 +68,14 @@ public class AccountControllerTest {
         // Arrange
         Long accountId = 999L;
         Double newTransactionLimit = 5000.0;
-
+        EditLimitDTO editLimitDTO = new EditLimitDTO(accountId, newTransactionLimit);
         when(usuarioLoggeadoService.getInfoUserSecurity(any(HttpServletRequest.class))).thenReturn(mockUser);
         when(accountService.updateTransactionLimit(accountId, mockUser.getId(), newTransactionLimit))
                 .thenThrow(new WalletsException(HttpStatus.NOT_FOUND, "Cuenta no encontrada."));
 
         // Act & Assert
         WalletsException exception = assertThrows(WalletsException.class, () ->
-                accountController.updateTransactionLimit(accountId, newTransactionLimit, request));
+                accountController.updateTransactionLimit(editLimitDTO, request));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         assertEquals("Cuenta no encontrada.", exception.getMessage());
@@ -85,14 +86,14 @@ public class AccountControllerTest {
         // Arrange
         Long accountId = 1L;
         Double newTransactionLimit = -5000.0;
-
+        EditLimitDTO editLimitDTO = new EditLimitDTO(accountId, newTransactionLimit);
         when(usuarioLoggeadoService.getInfoUserSecurity(any(HttpServletRequest.class))).thenReturn(mockUser);
         when(accountService.updateTransactionLimit(accountId, mockUser.getId(), newTransactionLimit))
                 .thenThrow(new WalletsException(HttpStatus.BAD_REQUEST, "El limite de transacción no puede ser nulo."));
 
         // Act & Assert
         WalletsException exception = assertThrows(WalletsException.class, () ->
-                accountController.updateTransactionLimit(accountId, newTransactionLimit, request));
+                accountController.updateTransactionLimit(editLimitDTO, request));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
         assertEquals("El limite de transacción no puede ser nulo.", exception.getMessage());
@@ -103,14 +104,14 @@ public class AccountControllerTest {
         // Arrange
         Long accountId = 1L;
         Double newTransactionLimit = 5000.0;
-
+        EditLimitDTO editLimitDTO = new EditLimitDTO(accountId, newTransactionLimit);
         when(usuarioLoggeadoService.getInfoUserSecurity(any(HttpServletRequest.class))).thenReturn(mockUser);
         when(accountService.updateTransactionLimit(accountId, mockUser.getId(), newTransactionLimit))
                 .thenThrow(new WalletsException(HttpStatus.FORBIDDEN, "No esta autorizado para modificar esta cuenta."));
 
         // Act & Assert
         WalletsException exception = assertThrows(WalletsException.class, () ->
-                accountController.updateTransactionLimit(accountId, newTransactionLimit, request));
+                accountController.updateTransactionLimit(editLimitDTO, request));
 
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
         assertEquals("No esta autorizado para modificar esta cuenta.", exception.getMessage());

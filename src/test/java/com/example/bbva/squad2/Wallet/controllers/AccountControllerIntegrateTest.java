@@ -1,9 +1,6 @@
 package com.example.bbva.squad2.Wallet.controllers;
 
-import com.example.bbva.squad2.Wallet.dtos.AccountBalanceDTO;
-import com.example.bbva.squad2.Wallet.dtos.AccountDTO;
-import com.example.bbva.squad2.Wallet.dtos.PageableResponseDTO;
-import com.example.bbva.squad2.Wallet.dtos.UsuarioSeguridad;
+import com.example.bbva.squad2.Wallet.dtos.*;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
 import com.example.bbva.squad2.Wallet.models.AccountStatic;
 import com.example.bbva.squad2.Wallet.services.AccountService;
@@ -146,13 +143,14 @@ public class AccountControllerIntegrateTest {
         Long accountId = 1L;
         Double newTransactionLimit = 5000.0;
         AccountDTO mockUpdatedAccount = new AccountDTO();
+        EditLimitDTO editLimitDTO = new EditLimitDTO(accountId, newTransactionLimit);
         mockUpdatedAccount.setId(accountId);
         when(usuarioLoggeadoService.getInfoUserSecurity(request)).thenReturn(mockUser);
         when(accountService.updateTransactionLimit(eq(accountId), eq(mockUser.getId()), eq(newTransactionLimit)))
                 .thenReturn(mockUpdatedAccount);
 
         // Act
-        ResponseEntity<AccountDTO> response = accountController.updateTransactionLimit(accountId, newTransactionLimit, request);
+        ResponseEntity<AccountDTO> response = accountController.updateTransactionLimit(editLimitDTO, request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
