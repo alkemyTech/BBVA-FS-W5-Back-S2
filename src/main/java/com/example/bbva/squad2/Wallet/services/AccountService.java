@@ -1,10 +1,13 @@
 package com.example.bbva.squad2.Wallet.services;
 
 import com.example.bbva.squad2.Wallet.dtos.*;
+import com.example.bbva.squad2.Wallet.enums.Concept;
 import com.example.bbva.squad2.Wallet.enums.CurrencyTypeEnum;
+import com.example.bbva.squad2.Wallet.enums.TransactionTypeEnum;
 import com.example.bbva.squad2.Wallet.exceptions.WalletsException;
 import com.example.bbva.squad2.Wallet.models.Account;
 import com.example.bbva.squad2.Wallet.models.AccountStatic;
+import com.example.bbva.squad2.Wallet.models.Transaction;
 import com.example.bbva.squad2.Wallet.models.User;
 import com.example.bbva.squad2.Wallet.repositories.AccountsRepository;
 import com.example.bbva.squad2.Wallet.repositories.UserRepository;
@@ -16,10 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -167,6 +167,7 @@ public class AccountService {
 	}
 
 
+
 	public List<AccountTransactionsDTO> getAccountsAndTransactions(Long userId) {
 		List<Account> accounts = ar.findByUserId(userId);
 
@@ -174,11 +175,38 @@ public class AccountService {
 		for (Account account : accounts) {
 			AccountDTO accountDTO = AccountDTO.mapFromAccount(account);
 
-			List<TransactionDTO> transactionDTOs = account.getTransactions().stream()
-					.map(transaction -> new TransactionDTO(transaction.getAmount(), transaction.getConcept()))
+			System.out.println("Account ID: " + account.getId());
+			List<Transaction> transactions = account.getTransactions();
+			if (transactions != null) {
+				for (Transaction transaction : transactions) {
+					System.out.println("Transaction Concept: " + transaction.getConcept() + ", Amount: " + transaction.getAmount() + ", Type: " + transaction.getType());
+				}
+			} else {
+				System.out.println("No transactions found for Account ID: " + account.getId());
+			}
+
+			// Agrupar las transacciones por concepto y calcular la suma total de los montos para cada concepto y tipo
+			Map<Concept, Double> conceptAmounts = Optional.ofNullable(transactions)
+					.orElse(Collections.emptyList())
+					.stream()
+					.filter(transaction -> transaction.getType() == TransactionTypeEnum.Pago) // Filtrar solo gastos
+					.collect(Collectors.groupingBy(
+							Transaction::getConcept,
+							Collectors.summingDouble(Transaction::getAmount)
+					));
+
+			// Verificar los conceptos y sus montos totales
+			System.out.println("Concept Amounts: " + conceptAmounts);
+
+			// Crear una lista de TransactionDTO con los conceptos y sus montos totales
+			List<TransactionDTO> transactionDTOs = conceptAmounts.entrySet().stream()
+					.map(entry -> new TransactionDTO(entry.getValue(), entry.getKey(), TransactionTypeEnum.Pago))
 					.collect(Collectors.toList());
 
-			AccountTransactionsDTO accountTransactionsDTO = new AccountTransactionsDTO(accountDTO, transactionDTOs);
+			AccountTransactionsDTO accountTransactionsDTO = AccountTransactionsDTO.builder()
+					.account(accountDTO)
+					.transactions(transactionDTOs)
+					.build();
 
 			accountTransactionDTOs.add(accountTransactionsDTO);
 		}
