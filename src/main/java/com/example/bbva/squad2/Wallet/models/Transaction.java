@@ -38,6 +38,7 @@ public class Transaction {
     @Column(name = "type", nullable = false)
     private TransactionTypeEnum type;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "concept")
     private Concept concept;
 
