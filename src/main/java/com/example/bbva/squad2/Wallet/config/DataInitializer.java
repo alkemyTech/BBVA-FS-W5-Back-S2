@@ -48,7 +48,6 @@ public class DataInitializer {
 
                 // Crear usuarios ADMIN y REGULAR sin limitaciones
                 String[][] adminUsers = {
-                        {"Juan Cruz", "Caggiano", "juancruzcaggiano@hotmail.com", "Juan1234$"},
                         {"Pepe", "Giménez", "pepe.gimenez@yopmail.com", "Pepe@2024Gimenez!"},
                         {"Juan", "Pérez", "juan.perez@yopmail.com", "JuanP@2024Perez!"},
                         {"Ana", "Martínez", "ana.martinez@yopmail.com", "Ana_M@2024Martinez#"},
@@ -58,7 +57,7 @@ public class DataInitializer {
 
 // Crear 10 usuarios regulares con nombres variados y correos realistas
                 String[][] regularUsers = {
-                        {"Pedro", "Ruiz", "pedro.ruiz@yopmail.com", "Pedro!2024Ruiz#"},
+                        {"Pedro", "Ruiz", "juancruzcaggiano@hotmail.com", "Pedro!2024Ruiz#"},
                         {"María", "García", "maria.garcia@yopmail.com", "Maria@2024Garcia!"},
                         {"Fernando", "Jiménez", "fernando.jimenez@yopmail.com", "Fernando2024!Jimenez#"},
                         {"Carmen", "Álvarez", "carmen.alvarez@yopmail.com", "Carmen!2024Alvarez#"},
