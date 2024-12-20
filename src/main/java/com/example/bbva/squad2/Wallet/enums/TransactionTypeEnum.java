@@ -4,6 +4,6 @@ public enum TransactionTypeEnum {
 
         Ingreso,
         Pago,
-        Deposito
+        Depósito
 
 }
