@@ -275,7 +275,7 @@ public class TransactionService {
                 "External",
                 account.getCbu(),
                 dto.getAmount(),
-                TransactionTypeEnum.Deposito,
+                TransactionTypeEnum.Depósito,
                 dto.getDescription(),
                 dto.getConcept()
         );

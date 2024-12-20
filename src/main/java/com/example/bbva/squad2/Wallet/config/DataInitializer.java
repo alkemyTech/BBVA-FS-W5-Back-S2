@@ -42,9 +42,9 @@ public class DataInitializer {
                                 new Role(RoleName.ADMIN, "Administrator role", LocalDateTime.now(), LocalDateTime.now())));
 
                 // Crear el rol de USER si no existe
-                Role userRole = roleRepository.findByName(RoleName.USER)
+                Role userRole = roleRepository.findByName(RoleName.USUARIO)
                         .orElseGet(() -> roleRepository.save(
-                                new Role(RoleName.USER, "User role", LocalDateTime.now(), LocalDateTime.now())));
+                                new Role(RoleName.USUARIO, "User role", LocalDateTime.now(), LocalDateTime.now())));
 
                 // Crear usuarios ADMIN y REGULAR sin limitaciones
                 String[][] adminUsers = {
@@ -146,11 +146,11 @@ public class DataInitializer {
                         .CbuDestino(accountPesos.getCbu())
                         .CbuOrigen("External")
                         .concept(Concept.Otros)
-                        .description("Deposito")
+                        .description("Depósito")
                         .timestamp(LocalDateTime.now())
                         .amount(5000.00)
                         .account(accountDolares)
-                        .type(TransactionTypeEnum.Deposito)
+                        .type(TransactionTypeEnum.Depósito)
                         .build());
 
         tr.save(
@@ -158,11 +158,11 @@ public class DataInitializer {
                         .CbuDestino(accountPesos.getCbu())
                         .CbuOrigen("External")
                         .concept(Concept.Otros)
-                        .description("Deposito")
+                        .description("Depósito")
                         .timestamp(LocalDateTime.now())
                         .amount(15000.00)
                         .account(accountPesos)
-                        .type(TransactionTypeEnum.Deposito)
+                        .type(TransactionTypeEnum.Depósito)
                         .build());
     }
 }
